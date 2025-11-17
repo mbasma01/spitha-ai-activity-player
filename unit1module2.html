@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Computers "See" Data</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'lesson-primary': '#059669', /* Emerald Green */
+                    }
+                }
+            }
+        }
+        /* Styles for the Pixel Grid Demo */
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            aspect-ratio: 1 / 1;
+            border: 2px solid #ccc;
+        }
+        .pixel {
+            background-color: white;
+            border: 1px solid #f0f0f0;
+            transition: background-color 0.1s;
+            cursor: pointer;
+        }
+        .pixel.active {
+            background-color: black;
+        }
+        /* Custom slider styles for better visual differentiation */
+        .slider-r::-webkit-slider-thumb { background: #EF4444; }
+        .slider-g::-webkit-slider-thumb { background: #10B981; }
+        .slider-b::-webkit-slider-thumb { background: #3B82F6; }
+        
+        /* New CSS for Face Unlock Animation */
+        .pulse-circle-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+        .pulse-circle {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #EF4444; /* Match red border */
+            animation: simple-pulse 2s infinite ease-out;
+        }
+        @keyframes simple-pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800 p-4 md:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-lesson-primary">
+            <span class="text-lesson-primary/70">Session 1.2:</span> How Computers "See" Data 👓
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">Understanding data types and the <strong>computer's literal view</strong> of the world.</p>
+    </header>
+
+    <main class="space-y-12 max-w-4xl mx-auto">
+
+        <!-- Analogy Section -->
+        <section class="bg-emerald-100 p-5 rounded-xl shadow-lg border-l-4 border-lesson-primary">
+            <h2 class="text-xl font-bold text-lesson-primary mb-2 flex items-center">
+                <span class="mr-2">💡</span> Analogy: The Computer's Glasses
+            </h2>
+            <p class="text-gray-700">
+                A computer doesn't see a <strong>"cat"</strong> or a <strong>"house"</strong>; it sees a <strong>grid of numbers</strong>. Its <strong>glasses</strong> translate everything—text, images, and sound—into long sequences of numbers (1s and 0s) that it can process.
+            </p>
+        </section>
+
+        <!-- Data Types Explanation -->
+        <section class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-indigo-500">
+                <h3 class="text-xl font-semibold text-indigo-700 mb-2">Structured Data</h3>
+                <p class="text-gray-700">
+                    This is like a <strong>perfect Excel spreadsheet</strong> or a library's card catalog. Everything is in a neat row and column, making it easy for a computer to read and analyze instantly.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-orange-500">
+                <h3 class="text-xl font-semibold text-orange-700 mb-2">Unstructured Data</h3>
+                <p class="text-gray-700">
+                    This is like a <strong>messy pile of notes, photos, and voice memos</strong>. The information is all there (images, text, audio), but it's not organized into columns. The computer needs special AI to figure out what it means.
+                </p>
+            </div>
+        </section>
+
+        <!-- Complex Unstructured Data Section -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800">1. Adding Complexity: Color and Motion</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Color Explanation -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-pink-500">
+                    <h3 class="text-xl font-semibold text-pink-700 mb-2">Color Encoding (RGB)</h3>
+                    <p class="text-gray-700">
+                        To introduce <strong>color</strong>, a computer needs **three numbers** for every pixel, known as <strong>RGB</strong> (Red, Green, Blue).
+                    </p>
+                    <ul class="list-disc list-inside text-sm mt-3 space-y-1 pl-4 text-gray-600">
+                        <li>Each color channel (R, G, B) gets a value from 0 (off) to 255 (full brightness).</li>
+                        <li>Mixing these three brightness values creates millions of colors.</li>
+                        <li>A single color pixel is represented by <strong>three numbers</strong> (e.g., $150, 20, 255$).</li>
+                    </ul>
+                </div>
+
+                <!-- Video Explanation -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
+                    <h3 class="text-xl font-semibold text-purple-700 mb-2">Video Encoding (Frames)</h3>
+                    <p class="text-gray-700">
+                        A <strong>video</strong> is not fundamentally different from an image; it's just an incredibly fast sequence of them.
+                    </p>
+                    <ul class="list-disc list-inside text-sm mt-3 space-y-1 pl-4 text-gray-600">
+                        <li>Each image in the sequence is called a <strong>frame</strong>.</li>
+                        <li>Videos usually play at 30 to 60 frames per second (fps).</li>
+                        <li>A computer sees a video as a <strong>long, 4-dimensional array</strong> of numbers: (Width, Height, Color Channels) over <strong>Time (Frames)</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="border-t-2 border-emerald-200">
+
+        <!-- NEW SECTION: Limits of Perception -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">2. The Limits of Perception: Representation vs. Understanding</h2>
+            <p class="text-gray-700">
+                The most important concept is that a computer can <strong>represent</strong> data without <strong>understanding</strong> it. It processes numbers, not meaning.
+            </p>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+                <h3 class="text-xl font-semibold text-red-700 mb-2 flex items-center">
+                    <span class="pulse-circle-wrapper">
+                        <span class="pulse-circle"></span>
+                    </span>
+                    Example: Face Unlock 📱
+                </h3>
+                
+                <!-- NEW VISUAL COMPARISON START -->
+                <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <h4 class="text-sm font-bold text-gray-700 mb-2">The Computer's Numerical Check:</h4>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <p class="text-4xl">🧑</p>
+                            <p class="text-xs font-semibold text-green-700 mt-1">Stored Array (Reference)</p>
+                            <code class="text-xs text-gray-800 break-all">[0.98, 0.72, 1.05, 0.44, ...]</code>
+                        </div>
+                        <div>
+                            <p class="text-4xl">🧑‍💻</p>
+                            <p class="text-xs font-semibold text-red-700 mt-1">Live Scan (Accessory Change)</p>
+                            <code class="text-xs text-gray-800 break-all">[0.31, 0.75, 1.10, 0.44, ...]</code>
+                        </div>
+                    </div>
+                    <p class="text-center text-xs mt-3 text-red-500 font-bold">
+                        Mismatch on key features (e.g., $0.98 \ne 0.31$) $\rightarrow$ Access Denied.
+                    </p>
+                </div>
+                <!-- NEW VISUAL COMPARISON END -->
+                
+                <p class="text-gray-700 mb-3">
+                    Your phone uses <strong>Sensor Data</strong> (depth and image) to create a map of your face.
+                </p>
+                <ul class="list-disc list-inside text-sm mt-3 space-y-2 pl-4 text-gray-600">
+                    <li>The computer doesn't "see" a person; it sees an array of <strong>tens of thousands of numerical coordinates</strong> representing points on your face.</li>
+                    <li>If the incoming data array ($A_{new}$) is very close to the stored array ($A_{old}$), the phone unlocks.</li>
+                    <li><strong>The Limitation:</strong> If you change your appearance (e.g., a new hat, dark lighting, or bad weather causing sensor distortion), the number array changes too much, and the phone fails to unlock. The computer cannot adapt because it doesn't <strong>understand the context</strong>—it only matches the numerical pattern.</li>
+                </ul>
+            </div>
+        </section>
+
+        <hr class="border-t-2 border-emerald-200">
+        
+        <!-- Video Frames Interactive Section -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">🎮 Video Frames Demo</h2>
+            <p class="text-gray-600 mb-4">A video is just a quick slideshow. Click "Frame" buttons to see the static images the computer processes, then click "Play" to see the illusion of motion.</p>
+
+            <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-xl">
+                <canvas id="animation-canvas" width="300" height="100" class="border border-gray-300 rounded-lg shadow-inner"></canvas>
+                <div class="mt-4 text-sm font-semibold text-gray-700">Current Frame: <span id="current-frame-display">Paused</span></div>
+
+                <div class="flex space-x-3 mt-4 flex-wrap justify-center">
+                    <button onclick="showFrame(0)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">Frame 1</button>
+                    <button onclick="showFrame(1)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">Frame 2</button>
+                    <button onclick="showFrame(2)" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">Frame 3</button>
+                    <button onclick="playAnimation()" id="play-button" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition duration-150">▶️ Play Animation</button>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="border-t-2 border-emerald-200">
+
+        <!-- RGB Interactive Mixer -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">🎮 RGB Color Mixer</h2>
+            <p class="text-gray-600 mb-4">Move the sliders below to see how three simple numbers can generate any color!</p>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- Red Slider -->
+                <div class="space-y-2">
+                    <label for="red-slider" class="block text-red-600 font-semibold">🔴 Red (<span id="red-value">0</span>)</label>
+                    <input type="range" min="0" max="255" value="0" id="red-slider" class="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer slider-r" oninput="updateColorMixer()">
+                </div>
+                
+                <!-- Green Slider -->
+                <div class="space-y-2">
+                    <label for="green-slider" class="block text-green-600 font-semibold">🟢 Green (<span id="green-value">0</span>)</label>
+                    <input type="range" min="0" max="255" value="0" id="green-slider" class="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer slider-g" oninput="updateColorMixer()">
+                </div>
+                
+                <!-- Blue Slider -->
+                <div class="space-y-2">
+                    <label for="blue-slider" class="block text-blue-600 font-semibold">🔵 Blue (<span id="blue-value">0</span>)</label>
+                    <input type="range" min="0" max="255" value="0" id="blue-slider" class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer slider-b" oninput="updateColorMixer()">
+                </div>
+            </div>
+
+            <!-- Color Preview & Numerical Output -->
+            <div class="mt-6 flex flex-col md:flex-row gap-6 items-center">
+                <div id="color-preview" class="w-full md:w-1/2 h-32 rounded-xl shadow-2xl transition-colors duration-200" style="background-color: rgb(0, 0, 0);"></div>
+                <div class="w-full md:w-1/2 p-4 bg-gray-800 text-green-300 font-mono text-center rounded-xl shadow-inner">
+                    <p class="text-xs text-gray-400 mb-1">Computer's Code for This Color:</p>
+                    <code id="rgb-code" class="text-xl font-bold">(0, 0, 0)</code>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-t-2 border-emerald-200">
+
+        <!-- Interactive Element: The Pixel Grid (Black & White Array) -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎮 The Pixel Grid Simulator (B&W)</h2>
+            <p class="mb-6 text-gray-600">The grid below shows the simplest form of image data: black (1) and white (0).</p>
+
+            <div class="grid md:grid-cols-2 gap-6 items-start">
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Your Drawing (1s and 0s)</h3>
+                    <div id="pixel-grid" class="pixel-grid rounded-lg shadow-xl">
+                        <!-- Pixels injected by JS -->
+                    </div>
+                    
+                    <h3 class="text-md font-semibold text-gray-700 mt-4">Draw Patterns:</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="drawPattern(smileyPattern)" class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition duration-150">
+                            Draw Smiley Face 😊
+                        </button>
+                         <button onclick="drawPattern(sunPattern)" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition duration-150">
+                            Draw Sun ☀️
+                        </button>
+                         <button onclick="drawPattern(flowerPattern)" class="px-4 py-2 bg-pink-500 text-white font-semibold rounded-lg shadow-md hover:bg-pink-600 transition duration-150">
+                            Draw Flower 🌸
+                        </button>
+                    </div>
+
+                    <h3 class="text-md font-semibold text-gray-700 mt-4">Actions:</h3>
+                    <button id="clear-grid" class="w-full px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400 transition duration-150">
+                        Clear Grid
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Computer's View (Numerical Array)</h3>
+                    <textarea id="computer-view" rows="15" readonly class="w-full p-3 font-mono text-sm bg-gray-800 text-green-300 rounded-lg shadow-inner"></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Utility Functions (Used for copy buttons) ---
+
+        function copyToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText || codeElement.value;
+            const button = codeElement.nextElementSibling || codeElement.closest('.code-block').querySelector('.copy-button');
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                button.textContent = 'Copied!';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            } catch (err) {
+                console.error('Failed to copy text using execCommand', err);
+                button.textContent = 'Failed to Copy';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // --- RGB Mixer Logic ---
+
+        function updateColorMixer() {
+            const r = document.getElementById('red-slider').value;
+            const g = document.getElementById('green-slider').value;
+            const b = document.getElementById('blue-slider').value;
+
+            const colorString = `rgb(${r}, ${g}, ${b})`;
+            
+            document.getElementById('red-value').textContent = r;
+            document.getElementById('green-value').textContent = g;
+            document.getElementById('blue-value').textContent = b;
+            
+            document.getElementById('color-preview').style.backgroundColor = colorString;
+            document.getElementById('rgb-code').textContent = `(${r}, ${g}, ${b})`;
+        }
+
+
+        // --- Pixel Grid Logic ---
+
+        const GRID_SIZE = 10;
+        let gridState = []; // 10x10 array of 0s and 1s
+
+        function createEmptyGridState() {
+            return Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+        }
+
+        function renderGrid() {
+            const gridEl = document.getElementById('pixel-grid');
+            gridEl.innerHTML = '';
+            
+            gridState.forEach((row, rowIndex) => {
+                row.forEach((value, colIndex) => {
+                    const pixel = document.createElement('div');
+                    pixel.className = `pixel ${value === 1 ? 'active' : ''}`;
+                    pixel.dataset.row = rowIndex;
+                    pixel.dataset.col = colIndex;
+                    pixel.addEventListener('click', togglePixel);
+                    gridEl.appendChild(pixel);
+                });
+            });
+            updateComputerView();
+        }
+
+        function togglePixel(e) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+
+            gridState[row][col] = gridState[row][col] === 0 ? 1 : 0;
+            
+            e.target.classList.toggle('active');
+
+            updateComputerView();
+        }
+
+        function updateComputerView() {
+            const viewEl = document.getElementById('computer-view');
+            const formattedOutput = gridState.map(row => 
+                `[${row.join(', ')}]`
+            ).join(',\n');
+            viewEl.value = `[\n${formattedOutput}\n]`;
+        }
+        
+        // --- Predefined Patterns ---
+
+        const smileyPattern = [
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,0,1,1,1,1,1,1,0,0],
+            [0,1,0,0,0,0,0,0,1,0],
+            [0,1,0,1,0,0,1,0,1,0],
+            [0,1,0,0,0,0,0,0,1,0],
+            [0,1,0,0,0,0,0,0,1,0],
+            [0,1,0,1,0,0,1,0,1,0],
+            [0,1,0,0,1,1,0,0,1,0],
+            [0,0,1,1,1,1,1,1,0,0],
+            [0,0,0,0,0,0,0,0,0,0],
+        ];
+
+        const sunPattern = [
+            [0,0,0,1,1,1,1,0,0,0],
+            [0,0,1,0,0,0,0,1,0,0],
+            [0,1,0,0,0,0,0,0,1,0],
+            [1,0,0,0,1,1,0,0,0,1],
+            [1,0,0,1,1,1,1,0,0,1],
+            [1,0,1,1,1,1,1,1,0,1],
+            [1,0,0,1,1,1,1,0,0,1],
+            [0,1,0,0,0,0,0,0,1,0],
+            [0,0,1,0,0,0,0,1,0,0],
+            [0,0,0,1,1,1,1,0,0,0]
+        ];
+
+        const flowerPattern = [
+            [0,0,0,0,1,1,0,0,0,0],
+            [0,0,1,1,1,1,1,1,0,0],
+            [0,1,1,0,0,0,0,1,1,0],
+            [1,1,0,0,1,1,0,0,1,1],
+            [1,1,0,1,1,0,0,1,1,0],
+            [0,1,1,0,0,1,1,0,0,1],
+            [0,0,0,0,1,1,0,0,0,0],
+            [0,0,0,0,0,1,0,0,0,0],
+            [0,0,0,0,0,1,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0]
+        ];
+
+
+        function drawPattern(pattern) {
+            if (pattern.length !== GRID_SIZE || pattern[0].length !== GRID_SIZE) return;
+            gridState = pattern.map(row => [...row]); 
+            renderGrid();
+        }
+        
+        function clearGrid() {
+            gridState = createEmptyGridState();
+            renderGrid();
+        }
+
+        // --- Video Frame Logic ---
+        
+        const canvas = document.getElementById('animation-canvas');
+        const ctx = canvas.getContext('2d');
+        const frameDisplay = document.getElementById('current-frame-display');
+        let animationInterval = null;
+        let currentFrameIndex = 0;
+        
+        const frames = [
+            // Frame 1: Left
+            { x: 20, frameNum: 1 },
+            // Frame 2: Middle
+            { x: 130, frameNum: 2 },
+            // Frame 3: Right
+            { x: 240, frameNum: 3 }
+        ];
+
+        function drawFrame(frame) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            
+            // Draw ground line
+            ctx.fillStyle = '#6B7280';
+            ctx.fillRect(10, canvas.height - 20, canvas.width - 20, 5);
+            
+            // Draw the moving square
+            ctx.fillStyle = '#EF4444'; // Red square
+            ctx.fillRect(frame.x, canvas.height - 50, 40, 30);
+            
+            frameDisplay.textContent = `Frame ${frame.frameNum}`;
+        }
+        
+        function showFrame(index) {
+            clearInterval(animationInterval);
+            currentFrameIndex = index;
+            drawFrame(frames[currentFrameIndex]);
+            document.getElementById('play-button').textContent = '▶️ Play Animation';
+        }
+        
+        function animate() {
+            // Cycle through frames 0, 1, 2, 1, 0, 1, 2...
+            const frameOrder = [0, 1, 2, 1]; // Loop: Left -> Middle -> Right -> Middle
+            
+            // The index of the frame to show next in the sequence
+            const sequenceIndex = currentFrameIndex % frameOrder.length;
+            const nextFrameIndex = frameOrder[sequenceIndex];
+            
+            drawFrame(frames[nextFrameIndex]);
+            currentFrameIndex++;
+        }
+
+        function playAnimation() {
+            const playButton = document.getElementById('play-button');
+            
+            if (animationInterval) {
+                // Pause
+                clearInterval(animationInterval);
+                animationInterval = null;
+                playButton.textContent = '▶️ Play Animation';
+
+                // Determine the currently displayed frame number correctly.
+                const frameOrder = [0, 1, 2, 1];
+                const lastSequenceIndex = (currentFrameIndex - 1) % frameOrder.length;
+                const lastFrameIndex = frameOrder[lastSequenceIndex];
+                
+                // Use the valid index (0, 1, or 2) to display the correct frame number
+                frameDisplay.textContent = `Paused (on Frame ${frames[lastFrameIndex].frameNum})`; 
+                
+            } else {
+                // Play
+                playButton.textContent = '⏸️ Pause Animation';
+                
+                // Reset to beginning if needed, otherwise continue from the paused frame
+                if (frameDisplay.textContent.includes("Paused")) {
+                    // Set currentFrameIndex to the next index in the sequence from where it was paused.
+                    const frameOrder = [0, 1, 2, 1];
+                    const lastSequenceIndex = (currentFrameIndex - 1) % frameOrder.length;
+                    currentFrameIndex = lastSequenceIndex + 1;
+                } else {
+                    currentFrameIndex = 0;
+                }
+                
+                // Run the animation at ~10 FPS (100ms interval)
+                animationInterval = setInterval(animate, 100); 
+            }
+        }
+
+        // --- Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the RGB mixer to black
+            updateColorMixer(); 
+
+            // Initialize the Pixel Grid
+            clearGrid(); 
+            document.getElementById('clear-grid').addEventListener('click', clearGrid);
+            
+            // Initialize the Video Demo
+            showFrame(0);
+        });
+    </script>
+</body>
+</html>
