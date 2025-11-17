@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Your First Dataset</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        'lesson-primary': '#10B981', /* Emerald Green */
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800 p-4 md:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-lesson-primary">
+            <span class="text-lesson-primary/70">Session 1.4:</span> Loading Your First Dataset 📥
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">Getting the data from a file and putting it into a usable <strong>storage box</strong>.</p>
+    </header>
+
+    <main class="space-y-12 max-w-4xl mx-auto">
+
+        <!-- Analogy Section -->
+        <section class="bg-emerald-100 p-5 rounded-xl shadow-lg border-l-4 border-lesson-primary">
+            <h2 class="text-xl font-bold text-lesson-primary mb-2 flex items-center">
+                <span class="mr-2">💡</span> Analogy: The Storage Box (<code>df</code>)
+            </h2>
+            <p class="text-gray-700">
+                In programming, we put things into <strong>variables</strong> (like a box) to hold them. When we read data, we need a special box called a <strong>DataFrame</strong> (<code>df</code> for short) to store the neat table. The <strong>assignment operator</strong> (<code>=</code>) says: "Take the data on the right, and put it into the box on the left."
+            </p>
+        </section>
+
+        <!-- Content: CSV Explained -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">What is a CSV?</h2>
+            <p class="text-gray-700">
+                A <strong>.csv</strong> (Comma-Separated Values) <strong>file</strong> is the simplest, most common way to store a spreadsheet. It's just a plain text file where every piece of data in a column is separated by a comma. Pandas is an expert at reading these files.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Download Sample Data</h3>
+            <p class="text-gray-700 mb-4">Click the link below to "download" a sample car dataset. This is the file we'll pretend to load!</p>
+            <a href="data:text/csv;charset=utf-8,Make,Model,Year,Color%0AHonda,Civic,2019,Red%0ATesla,Model 3,2021,White%0AFord,Mustang,1969,Black%0AToyota,Camry,2022,Blue%0ANissan,Leaf,2018,Green"
+               download="sample_cars.csv"
+               class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150"
+               title="Download sample_cars.csv">
+               Download sample_cars.csv 💾
+            </a>
+        </section>
+
+        <hr class="border-t-2 border-emerald-200">
+
+        <!-- Interactive Element: Visual Flow Diagram -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎮 The Data Loading Flow</h2>
+            <p class="mb-6 text-gray-600">This diagram shows the process of turning a file into a usable DataFrame variable.</p>
+
+            <div class="flex flex-col lg:flex-row items-center justify-between p-6 bg-white rounded-xl shadow-2xl border-2 border-gray-100">
+
+                <!-- Step 1: File -->
+                <div class="flex flex-col items-center p-4">
+                    <div class="text-6xl text-red-500 mb-2">📄</div>
+                    <p class="font-bold text-lg">The File</p>
+                    <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">sample_cars.csv</code>
+                </div>
+
+                <!-- Arrow 1: Read CSV Tool -->
+                <div class="flex-grow flex justify-center items-center lg:h-auto my-4 lg:my-0 lg:mx-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-lesson-primary mb-1 transform rotate-90 lg:rotate-0">→</div>
+                        <p class="text-sm font-mono bg-gray-200 px-3 py-1 rounded shadow">pd.read_csv()</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: The Toolbox (Pandas) -->
+                <div class="flex flex-col items-center p-4">
+                    <div class="text-6xl text-yellow-600 mb-2">🛠️</div>
+                    <p class="font-bold text-lg">The Toolbox</p>
+                    <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">pd</code>
+                </div>
+
+                <!-- Arrow 2: Assignment Operator -->
+                <div class="flex-grow flex justify-center items-center lg:h-auto my-4 lg:my-0 lg:mx-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-lesson-primary mb-1 transform rotate-90 lg:rotate-0">→</div>
+                        <p class="text-sm font-mono bg-gray-200 px-3 py-1 rounded shadow">= (Assignment)</p>
+                    </div>
+                </div>
+
+                <!-- Step 3: The Storage Box (df) -->
+                <div class="flex flex-col items-center p-4">
+                    <div class="text-6xl text-blue-600 mb-2">📦</div>
+                    <p class="font-bold text-lg">The Storage Box</p>
+                    <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">df</code>
+                </div>
+            </div>
+
+            <p class="text-center mt-6 text-xl font-bold text-gray-800">
+                Code Summary: <code class="bg-indigo-100 text-indigo-800 p-1 rounded font-mono">df = pd.read_csv("file.csv")</code>
+            </p>
+        </section>
+
+        <!-- Code Snippet -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Code Snippet: Reading the File</h2>
+            <div class="code-block relative bg-gray-800 rounded-lg p-4 shadow-xl">
+                <pre id="code-snippet-4" class="text-white font-mono text-sm overflow-x-auto">
+# 1. Import the toolbox
+import pandas as pd
+
+# 2. Define the file location
+file_url = "sample_cars.csv"
+
+# 3. Read the file into a variable called 'df'
+df = pd.read_csv(file_url)
+                </pre>
+                <button onclick="copyToClipboard('code-snippet-4')" class="copy-button absolute top-3 right-3 px-3 py-1 text-xs bg-lesson-primary text-white rounded-md hover:bg-lesson-primary/80 transition duration-150">
+                    Copy Code
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Copy function utility (included in all files)
+        function copyToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText || codeElement.value;
+            const button = codeElement.nextElementSibling || codeElement.closest('.code-block').querySelector('.copy-button');
+
+            // 1. Create a temporary textarea element to hold the text
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            
+            // 2. Make it invisible and fixed position to avoid scrolling
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            
+            document.body.appendChild(textArea);
+            
+            // 3. Select the text inside the textarea
+            textArea.focus();
+            textArea.select();
+
+            try {
+                // 4. Use the deprecated but reliable document.execCommand('copy')
+                document.execCommand('copy');
+                button.textContent = 'Copied!';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            } catch (err) {
+                console.error('Failed to copy text using execCommand', err);
+                button.textContent = 'Failed to Copy';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            }
+            
+            // 5. Clean up: remove the temporary element
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

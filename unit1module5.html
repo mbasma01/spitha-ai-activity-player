@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peeking Inside the Box</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        'lesson-primary': '#EF4444', /* Red/Rose */
+                    }
+                }
+            }
+        }
+        .text-output {
+            white-space: pre;
+        }
+        /* Custom styles for clean, formatted output tables */
+        .output-table {
+            width: 100%;
+            max-width: 400px;
+            margin: 16px auto;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #D1D5DB; /* light gray text */
+        }
+        .output-table th, .output-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #374151; /* dark border */
+        }
+        .output-table th {
+            font-weight: 600;
+            background-color: #1F2937; /* Darker gray background */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800 p-4 md:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-lesson-primary">
+            <span class="text-lesson-primary/70">Session 1.5:</span> Peeking Inside the Box 🧐
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">Learning the professional way to inspect your data without making a huge mess.</p>
+    </header>
+
+    <main class="space-y-12 max-w-4xl mx-auto">
+
+        <!-- Analogy Section -->
+        <section class="bg-red-100 p-5 rounded-xl shadow-lg border-l-4 border-lesson-primary">
+            <h2 class="text-xl font-bold text-lesson-primary mb-2 flex items-center">
+                <span class="mr-2">💡</span> Analogy: The Lego Box (<code>df</code>)
+            </h2>
+            <p class="text-gray-700">
+                Your <strong>DataFrame (<code>df</code>)</strong> is a giant Lego box. If you run <code>print(df)</code>, it's like <strong>dumping the whole 10,000-piece box onto the floor</strong>—messy, overwhelming, and you only see the edges. We use specific functions to politely look inside.
+            </p>
+        </section>
+
+        <!-- Content: Expanded Functions -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">The DataFrame Inspection Toolkit</h2>
+            <p class="text-gray-700">
+                A <strong>DataFrame</strong> (<code>df</code>) comes with several built-in functions to quickly check its content, size, and health. These are the professional ways to inspect data:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
+                <li><code>.head()</code>: Shows the top 5 rows (The quick preview).</li>
+                <li><code>.dtypes</code>: Shows the <strong>data type</strong> of each column (Is it text, a whole number, or a decimal?). Essential for analysis!</li>
+                <li><code>.describe()</code>: Calculates quick <strong>summary statistics</strong> (like min, max, average) for numerical columns.</li>
+                <li><code>.shape</code>: Tells you the dimensions of the data: (Rows, Columns). <strong>You run this first to know the size!</strong></li>
+                <li><code>.info()</code>: Gives a full <strong>health report</strong> of the data, checking for missing values and confirming data types. <strong>You run this second!</strong></li>
+            </ul>
+        </section>
+
+        <!-- Interactive Element: Simulator -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎮 Code Output Simulator</h2>
+            <p class="mb-4 text-gray-600">Click the buttons to see the difference between the messy print command and professional inspection functions.</p>
+
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <button onclick="runCode('print')" class="w-full px-6 py-3 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition duration-150">
+                    Run print(df) (Messy Dump)
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <button onclick="runCode('head')" class="col-span-1 px-4 py-2 bg-lesson-primary text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                    df.head()
+                </button>
+                <button onclick="runCode('dtypes')" class="col-span-1 px-4 py-2 bg-lesson-primary text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                    df.dtypes
+                </button>
+                <button onclick="runCode('describe')" class="col-span-1 px-4 py-2 bg-lesson-primary text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                    df.describe()
+                </button>
+                 <button onclick="runCode('shape')" class="col-span-1 px-4 py-2 bg-lesson-primary text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                    df.shape
+                </button>
+                <button onclick="runCode('info')" class="col-span-2 md:col-span-1 px-4 py-2 bg-lesson-primary text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                    df.info()
+                </button>
+            </div>
+
+            <div class="bg-gray-900 rounded-lg shadow-2xl p-4">
+                <h3 class="text-lg font-semibold text-gray-300 mb-2">Console Output:</h3>
+                <div id="output-console" class="text-output text-green-300 font-mono text-sm overflow-x-auto min-h-[100px] bg-gray-900">
+                    Click a button above to see the output!
+                </div>
+            </div>
+        </section>
+        
+        <hr class="border-t-2 border-red-200">
+
+        <!-- NEW EXERCISE SECTION -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">3. Exercise: Finding and Inspecting Real Data</h2>
+            <p class="text-gray-700">
+                Data scientists often get their data from huge public archives (like Kaggle). Let's pretend we just downloaded a dataset about student performance.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6 flex items-center">
+                <span class="mr-2">⬇️</span> Download Your New Dataset
+            </h3>
+            <p class="text-gray-700 mb-4">Click below to get the <code>student_scores.csv</code> file.</p>
+            <a href="data:text/csv;charset=utf-8,Student_ID,Math_Score,Reading_Score,Study_Hours%0A1001,88,92,5.5%0A1002,75,78,3.0%0A1003,95,91,6.5%0A1004,62,70,2.0%0A1005,80,85,4.0%0A1006,90,88,5.0"
+               download="student_scores.csv"
+               class="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150"
+               title="Download student_scores.csv">
+               Download student_scores.csv 📚
+            </a>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-8 flex items-center">
+                <span class="mr-2">📝</span> Your Task
+            </h3>
+            <p class="text-gray-700">
+                Imagine you loaded this file using <code>df_scores = pd.read_csv("student_scores.csv")</code>. Using the inspection tools learned today, what would you learn about this dataset?
+            </p>
+            <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
+                <li>What is the size of the data? (Use <code>.shape</code>)</li>
+                <li>Are there any missing scores? (Check the <strong>Non-Null Count</strong> using <code>.info()</code>)</li>
+                <li>What is the average <code>Math_Score</code>? (Find the <strong>Mean</strong> using <code>.describe()</code>)</li>
+            </ul>
+        </section>
+
+        <hr class="border-t-2 border-red-200">
+
+        <!-- Code Snippets -->
+        <section class="grid md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Code: print(df)</h2>
+                <div class="code-block relative bg-gray-800 rounded-lg p-4 shadow-xl">
+                    <pre id="code-snippet-print" class="text-white font-mono text-sm overflow-x-auto">
+print(df)
+                    </pre>
+                    <button onclick="copyToClipboard('code-snippet-print')" class="copy-button absolute top-3 right-3 px-3 py-1 text-xs bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition duration-150">
+                        Copy Code
+                    </button>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Code: Inspection Functions</h2>
+                <div class="code-block relative bg-gray-800 rounded-lg p-4 shadow-xl">
+                    <pre id="code-snippet-head" class="text-white font-mono text-sm overflow-x-auto">
+df.head()
+df.dtypes
+df.describe()
+df.shape
+df.info()
+                    </pre>
+                    <button onclick="copyToClipboard('code-snippet-head')" class="copy-button absolute top-3 right-3 px-3 py-1 text-xs bg-lesson-primary text-white rounded-md hover:bg-red-600 transition duration-150">
+                        Copy Code
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Copy function utility (included in all files)
+        function copyToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText || codeElement.value;
+            const button = codeElement.nextElementSibling || codeElement.closest('.code-block').querySelector('.copy-button');
+
+            // 1. Create a temporary textarea element to hold the text
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            
+            // 2. Make it invisible and fixed position to avoid scrolling
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            
+            document.body.appendChild(textArea);
+            
+            // 3. Select the text inside the textarea
+            textArea.focus();
+            textArea.select();
+
+            try {
+                // 4. Use the deprecated but reliable document.execCommand('copy')
+                document.execCommand('copy');
+                button.textContent = 'Copied!';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            } catch (err) {
+                console.error('Failed to copy text using execCommand', err);
+                button.textContent = 'Failed to Copy';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            }
+            
+            // 5. Clean up: remove the temporary element
+            document.body.removeChild(textArea);
+        }
+
+        const sampleData = [
+            { Make: "Honda", Model: "Civic", Year: 2019, Color: "Red" },
+            { Make: "Tesla", Model: "Model 3", Year: 2021, Color: "White" },
+            { Make: "Ford", Model: "Mustang", Year: 1969, Color: "Black" },
+            { Make: "Toyota", Model: "Camry", Year: 2022, Color: "Blue" },
+            { Make: "Nissan", Model: "Leaf", Year: 2018, Color: "Green" },
+        ];
+
+        function generatePrintOutput() {
+            let output = '       Make      Model  Year  Color\n';
+            output += '0     Honda      Civic  2019    Red\n';
+            output += '1     Tesla    Model 3  2021  White\n';
+            output += '2      Ford    Mustang  1969  Black\n';
+            output += '...        ...    ...  ...  ...\n';
+            output += '3    Toyota      Camry  2022   Blue\n';
+            output += '4    Nissan       Leaf  2018  Green\n';
+            output += '\n[5 rows x 4 columns]';
+            return `<pre class="text-output">${output}</pre>`;
+        }
+
+        function generateHeadOutput() {
+            const headers = Object.keys(sampleData[0]);
+            let html = '<div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 rounded-lg overflow-hidden">';
+
+            // Table Head
+            html += '<thead class="text-xs text-gray-700 uppercase bg-gray-50">';
+            html += '<tr><th scope="col" class="py-3 px-6">#</th>';
+            headers.forEach(h => {
+                html += `<th scope="col" class="py-3 px-6">${h}</th>`;
+            });
+            html += '</tr></thead>';
+
+            // Table Body
+            html += '<tbody>';
+            sampleData.forEach((row, index) => {
+                html += '<tr class="bg-white border-b hover:bg-gray-50 text-gray-900">';
+                html += `<th scope="row" class="py-3 px-6 font-medium whitespace-nowrap">${index}</th>`;
+                headers.forEach(h => {
+                    html += `<td class="py-3 px-6">${row[h]}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        function generateDtypesOutput() {
+            // Simulate Pandas output: object for strings, int64 for integers
+            let output = 'Make     object\n';
+            output += 'Model    object\n';
+            output += 'Year      int64\n';
+            output += 'Color    object\n';
+            output += 'dtype: object\n';
+
+            // Wrap in a stylized pre block to simulate console output
+            return `<pre class="text-output text-green-300 p-4">${output}</pre>`;
+        }
+
+        function generateDescribeOutput() {
+            // Calculate simple stats for Year:
+            const years = sampleData.map(d => d.Year);
+            const count = years.length;
+            const mean = years.reduce((a, b) => a + b, 0) / count;
+            const min = Math.min(...years);
+            const max = Math.max(...years);
+
+            let html = '<div class="p-3 text-sm text-gray-400 bg-gray-800 rounded-lg mb-4">';
+            html += 'This tells you everything about the <strong>number columns</strong> in your data:';
+            html += '<ul class="list-disc list-inside mt-2 space-y-1 pl-4">';
+            html += '<li><strong>Count 🔢:</strong> How many cars are in the box?</li>';
+            html += '<li><strong>Mean ⚖️:</strong> What is the average (middle) year?</li>';
+            html += '<li><strong>Min/Max 📉📈:</strong> What are the oldest and newest car years?</li>';
+            html += '</ul>';
+            html += '</div>';
+
+            // Simulate structured HTML output for describe
+            html += '<div class="overflow-x-auto flex justify-center p-4"><table class="output-table">';
+
+            // Headers
+            html += '<thead class="text-xs uppercase text-gray-400"><tr><th class="py-2 px-6">Metric</th><th class="py-2 px-6">Year</th></tr></thead>';
+
+            // Body
+            html += '<tbody>';
+            // Added Icons and descriptive labels for clarity
+            html += `<tr><th class="py-2 px-6 font-medium">Count 🔢</th><td class="py-2 px-6">${count}</td></tr>`;
+            html += `<tr><th class="py-2 px-6 font-medium">Mean (Avg) ⚖️</th><td class="py-2 px-6">${mean.toFixed(2)}</td></tr>`;
+            html += `<tr><th class="py-2 px-6 font-medium">Std Dev 〰️</th><td class="py-2 px-6">~22.84</td></tr>`; // Simulated std
+            html += `<tr><th class="py-2 px-6 font-medium">Minimum 📉</th><td class="py-2 px-6">${min}</td></tr>`;
+            html += `<tr><th class="py-2 px-6 font-medium">Maximum 📈</th><td class="py-2 px-6">${max}</td></tr>`;
+            html += '</tbody></table></div>';
+            
+            return html;
+        }
+        
+        function generateShapeOutput() {
+            // Simulates the output of df.shape for a DataFrame with 5 rows and 4 columns
+            let output = '(5, 4)';
+            let explanation = '<div class="p-3 text-sm text-gray-400 bg-gray-800 rounded-lg mb-4">';
+            explanation += 'This tells you the <strong>size</strong> of your data box in two numbers:';
+            explanation += '<ul class="list-disc list-inside mt-2 space-y-1 pl-4">';
+            explanation += '<li><strong>First Number (5):</strong> The number of rows (Data Points).</li>';
+            explanation += '<li><strong>Second Number (4):</strong> The number of columns (Facts/Features).</li>';
+            explanation += '</ul>';
+            explanation += '</div>';
+
+            return explanation + `<pre class="text-output text-green-300 p-4 font-bold text-center text-xl">${output}</pre>`;
+        }
+
+        function generateInfoOutput() {
+            let output = `
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5 entries, 0 to 4
+Data columns (4 total):
+#   Column  Non-Null Count  Dtype 
+---  ------  --------------  ----- 
+0   Make    5 non-null      object
+1   Model   5 non-null      object
+2   Year    5 non-null      int64 
+3   Color   5 non-null      object
+dtypes: int64(1), object(3)
+memory usage: 200.0+ bytes
+`;
+            let explanation = '<div class="p-3 text-sm text-gray-400 bg-gray-800 rounded-lg mb-4">';
+            explanation += 'This is the <strong>full health report</strong> of your data:';
+            explanation += '<ul class="list-disc list-inside mt-2 space-y-1 pl-4">';
+            explanation += '<li>It checks for missing values (<strong>Non-Null Count</strong>). If this number is less than the total count, you have missing data!</li>';
+            explanation += '<li>It confirms the <strong>data type (Dtype)</strong> for every single column.</li>';
+            explanation += '</ul>';
+            explanation += '</div>';
+
+            return explanation + `<pre class="text-output text-green-300 p-4">${output}</pre>`;
+        }
+
+        function runCode(command) {
+            const consoleEl = document.getElementById('output-console');
+            // Reset classes for cleaner display
+            consoleEl.classList.remove('text-green-300', 'p-0');
+            consoleEl.classList.add('text-white');
+            
+            // Clear previous output/explanation
+            consoleEl.innerHTML = ''; 
+
+            switch (command) {
+                case 'print':
+                    consoleEl.innerHTML = generatePrintOutput();
+                    consoleEl.classList.add('text-green-300');
+                    break;
+                case 'head':
+                    consoleEl.innerHTML = generateHeadOutput();
+                    consoleEl.classList.add('p-0'); // Remove padding for table look
+                    break;
+                case 'dtypes':
+                    consoleEl.innerHTML = generateDtypesOutput();
+                    consoleEl.classList.add('text-green-300');
+                    break;
+                case 'describe':
+                    consoleEl.innerHTML = generateDescribeOutput();
+                    break;
+                case 'shape':
+                    consoleEl.innerHTML = generateShapeOutput();
+                    consoleEl.classList.remove('text-white');
+                    break;
+                case 'info':
+                    consoleEl.innerHTML = generateInfoOutput();
+                    consoleEl.classList.add('text-green-300');
+                    break;
+                default:
+                    consoleEl.textContent = 'Command not recognized.';
+            }
+        }
+    </script>
+</body>
+</html>
