@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where Does Data Come From?</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Tailwind Configuration */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'lesson-primary': '#4F46E5', /* Indigo */
+                        'user-gen': '#FDE68A', /* Yellow */
+                        'sensor-obs': '#A7F3D0', /* Green */
+                        'manual-txn': '#BFDBFE', /* Blue */
+                    }
+                }
+            }
+        }
+        /* Custom Styling for Drag-and-Drop */
+        .draggable-item {
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        .drag-over {
+            border: 3px dashed #4F46E5 !important;
+            background-color: #EEF2FF !important;
+        }
+        .correct {
+            border-left: 5px solid #065F46 !important;
+            background-color: #D1FAE5 !important;
+        }
+        .incorrect {
+            border-left: 5px solid #991B1B !important;
+            background-color: #FEE2E2 !important;
+        }
+        .details-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+        .details-content.show {
+            max-height: 500px; /* Large enough to hold content */
+            opacity: 1;
+        }
+        /* Simple table styles for scenarios */
+        .scenario-table {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            text-align: left;
+            border-collapse: collapse;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .scenario-table th,
+        .scenario-table td {
+            border: 1px solid #e5e7eb;
+            padding: 6px 12px;
+            font-size: 0.875rem; /* text-sm */
+        }
+        .scenario-table th {
+            background-color: #f9fafb; /* bg-gray-50 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800 p-4 md:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-lesson-primary">
+            <span class="text-lesson-primary/70">Session 1.1:</span> Where Does Data Come From? 🥣
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">The essential first step: collecting the <strong>ingredients</strong> for our AI recipe.</p>
+    </header>
+
+    <main class="space-y-12 max-w-4xl mx-auto">
+
+        <!-- Analogy Section -->
+        <section class="bg-indigo-100 p-5 rounded-xl shadow-lg border-l-4 border-lesson-primary">
+            <h2 class="text-xl font-bold text-lesson-primary mb-2 flex items-center">
+                <span class="mr-2">💡</span> Analogy: Data as Ingredients
+            </h2>
+            <p class="text-gray-700">
+                Think of data as the <strong>ingredients</strong> for a recipe (your AI model). We need to know the <strong>source</strong> of these ingredients—did they come from the garden, the store, or a specific processing plant? Data has three main origins.
+            </p>
+        </section>
+
+        <!-- DATA TYPES (Collection Sources) - Updated to Table Format -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800">1. Data Collection Types</h2>
+            <p class="text-gray-700">All data falls into one of these three main categories based on how it was created or captured:</p>
+
+            <div class="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                <table class="w-full text-left text-gray-600">
+                    <thead class="text-sm uppercase text-gray-700 bg-gray-100">
+                        <tr>
+                            <th scope="col" class="p-4 w-1/3 text-yellow-800 border-b-2 border-yellow-500">
+                                💬 User-Generated
+                            </th>
+                            <th scope="col" class="p-4 w-1/3 text-green-800 border-b-2 border-green-500">
+                                🛰️ Sensor/Observed
+                            </th>
+                            <th scope="col" class="p-4 w-1/3 text-blue-800 border-b-2 border-blue-500">
+                                ✍️ Manual/Transactional
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row 1: Descriptions -->
+                        <tr class="bg-white border-b border-gray-100">
+                            <td class="p-4 text-sm bg-user-gen/10">
+                                Data created by a person's explicit or implicit action online.
+                            </td>
+                            <td class="p-4 text-sm bg-sensor-obs/10">
+                                Data collected automatically by machines or instruments monitoring the physical world.
+                            </td>
+                            <td class="p-4 text-sm bg-manual-txn/10">
+                                Data manually entered by a person or generated as part of a formal business record.
+                            </td>
+                        </tr>
+                        <!-- Row 2: Examples -->
+                        <tr class="bg-white">
+                            <td class="p-4 text-xs font-medium space-y-2">
+                                <ul class="list-disc list-inside ml-2 space-y-1 text-gray-800">
+                                    <li>Liking a social media post (Click data)</li>
+                                    <li>Typing a search query into Google</li>
+                                    <li>Writing a restaurant review (Text data)</li>
+                                    <li>Uploading a photo to Instagram</li>
+                                    <li>Watching a video (Time spent, watch rate)</li>
+                                </ul>
+                            </td>
+                            <td class="p-4 text-xs font-medium space-y-2">
+                                <ul class="list-disc list-inside ml-2 space-y-1 text-gray-800">
+                                    <li>GPS tracking your current location</li>
+                                    <li>Temperature readings from an ocean buoy</li>
+                                    <li>A security camera recording motion</li>
+                                    <li>Fitness wearable (Heart rate, steps)</li>
+                                    <li>Self-driving car LiDAR scans (Distance)</li>
+                                </ul>
+                            </td>
+                            <td class="p-4 text-xs font-medium space-y-2">
+                                <ul class="list-disc list-inside ml-2 space-y-1 text-gray-800">
+                                    <li>Entering patient information in a chart</li>
+                                    <li>A physical attendance sheet being marked</li>
+                                    <li>Processing a purchase receipt at a store</li>
+                                    <li>Data collected from a scientific experiment</li>
+                                    <li>Filing a tax or legal document</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <hr class="border-t-2 border-indigo-200">
+        
+        <!-- CONCLUSIONS (Real-World Scenarios with Click-to-Show) -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800">2. Why Data Matters: Real-World Scenarios</h2>
+            <p class="text-gray-700">Data collection is the foundation for everyday decisions. Click the scenarios below to reveal how analyzing the data leads to <strong>real-world outcomes</strong>. Use these points to start a class discussion!</p>
+
+            <!-- Scenario 1: School Lunch Survey -->
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-yellow-500">
+                <h3 class="text-xl font-semibold text-yellow-700 mb-2">School Lunch Survey</h3>
+                <button onclick="toggleDetails(this, 'lunch-details')" class="toggle-btn text-sm font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none mb-3">
+                    View Discussion Points ➕
+                </button>
+                <div id="lunch-details" class="details-content space-y-3">
+                    <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
+                        <li><strong>Collection:</strong> The cafeteria collects <strong>✍️ Manual Data</strong> by tracking student meal choices.</li>
+                        <li><strong>Analysis:</strong> This data is interpreted to find the <strong>preference rate</strong>.
+                            <table class="scenario-table">
+                                <thead><tr><th>Meal</th><th>Students</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Pizza</td><td>120</td></tr>
+                                    <tr><td>Salad</td><td>30</td></tr>
+                                </tbody>
+                            </table>
+                        </li>
+                        <li><strong>Implication:</strong> Decisions are made to order more popular items, helping the school meet student preferences and <strong>avoid wasting food</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Scenario 2: Weather Forecasting -->
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500">
+                <h3 class="text-xl font-semibold text-blue-700 mb-2">Weather Forecasting</h3>
+                <button onclick="toggleDetails(this, 'weather-details')" class="toggle-btn text-sm font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none mb-3">
+                    View Discussion Points ➕
+                </button>
+                <div id="weather-details" class="details-content space-y-3">
+                    <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
+                        <li><strong>Collection:</strong> Meteorologists collect <strong>🛰️ Sensor Data</strong> from satellites and weather stations.</li>
+                        <li><strong>Analysis:</strong> Complex models analyze this multi-variable data to predict upcoming weather events.
+                            <table class="scenario-table">
+                                <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Temperature</td><td>20C</td></tr>
+                                    <tr><td>Humidity</td><td>80%</td></tr>
+                                    <tr><td>Wind Speed</td><td>15 km/h</td></tr>
+                                </tbody>
+                            </table>
+                        </li>
+                        <li><strong>Implication:</strong> This allows people to plan their day (bring an umbrella) and make decisions that <strong>keep the community safe</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Scenario 3: Sports Statistics -->
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-green-500">
+                <h3 class="text-xl font-semibold text-green-700 mb-2">Sports Statistics</h3>
+                <button onclick="toggleDetails(this, 'sports-details')" class="toggle-btn text-sm font-semibold text-indigo-600 hover:text-indigo-800 focus:outline-none mb-3">
+                    View Discussion Points ➕
+                </button>
+                <div id="sports-details" class="details-content space-y-3">
+                    <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
+                        <li><strong>Collection:</strong> Coaches collect <strong>✍️ Manual Data</strong> on player performance during practice.</li>
+                        <li><strong>Analysis:</strong> Data is used to calculate efficiency (e.g., a player shooting $15$ out of $20$ shots is $75\%$ accurate).
+                            <table class="scenario-table">
+                                <thead><tr><th>Player</th><th>Shots Made</th><th>Shots Taken</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Player A</td><td>15</td><td>20</td></tr>
+                                    <tr><td>Player B</td><td>8</td><td>19</td></tr>
+                                </tbody>
+                            </table>
+                        </li>
+                        <li><strong>Implication:</strong> The analysis drives <strong>strategy and improvement</strong>, helping coaches decide who should take the critical shots.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="border-t-2 border-indigo-200">
+
+        <!-- INTERACTIVE ELEMENT (Collection/Sorting) -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">3. Interactive Challenge: Sort the Data!</h2>
+            <p class="mb-6 text-gray-600">Drag each item into the column that best describes its source.</p>
+
+            <div id="drag-bank" class="bg-white p-4 rounded-xl shadow-inner mb-6 flex flex-wrap gap-3 border border-gray-200">
+                <!-- Draggable Items injected by JS -->
+            </div>
+
+            <div id="drop-targets" class="grid md:grid-cols-3 gap-4">
+                <div id="target-User-Generated" data-category="User-Generated" class="drop-target p-4 rounded-xl shadow-md bg-user-gen/50 border-2 border-user-gen/80 min-h-32 transition-all">
+                    <h4 class="text-lg font-bold text-yellow-900 mb-2">User-Generated</h4>
+                </div>
+                <div id="target-Sensor" data-category="Sensor" class="drop-target p-4 rounded-xl shadow-md bg-sensor-obs/50 border-2 border-sensor-obs/80 min-h-32 transition-all">
+                    <h4 class="text-lg font-bold text-green-900 mb-2">Sensor/Observed</h4>
+                </div>
+                <div id="target-Manual" data-category="Manual" class="drop-target p-4 rounded-xl shadow-md bg-manual-txn/50 border-2 border-manual-txn/80 min-h-32 transition-all">
+                    <h4 class="text-lg font-bold text-blue-900 mb-2">Manual/Transactional</h4>
+                </div>
+            </div>
+
+            <button id="reset-button" class="mt-6 w-full md:w-auto px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-150">
+                Reset Challenge
+            </button>
+        </section>
+    </main>
+
+    <script>
+        // Toggle function for Discussion Scenarios
+        function toggleDetails(button, contentId) {
+            const content = document.getElementById(contentId);
+            const isShown = content.classList.contains('show');
+
+            if (isShown) {
+                content.classList.remove('show');
+                button.innerHTML = 'View Discussion Points ➕';
+            } else {
+                content.classList.add('show');
+                button.innerHTML = 'Hide Discussion Points ➖';
+            }
+        }
+
+        // Copy function utility (using execCommand for robust iframe support)
+        function copyToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText || codeElement.value;
+            const button = codeElement.nextElementSibling || codeElement.closest('.code-block').querySelector('.copy-button');
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                button.textContent = 'Copied!';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            } catch (err) {
+                console.error('Failed to copy text using execCommand', err);
+                button.textContent = 'Failed to Copy';
+                setTimeout(() => button.textContent = 'Copy Code', 2000);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        const dataItems = [
+            { text: "Liking a YouTube video", category: "User-Generated" },
+            { text: "A Tesla's camera feed", category: "Sensor" },
+            { text: "A hospital patient record", category: "Manual" }, // FIXED: Added opening quote for "Manual"
+            { text: "Watching Netflix for 3 hours", category: "User-Generated" },
+            { text: "A census form submission", category: "Manual" },
+            { text: "Your phone's GPS location", category: "Sensor" },
+            { text: "Typing a search query into Google", category: "User-Generated" },
+            { text: "Ocean buoy temperature reading", category: "Sensor" },
+            { text: "A retail store receipt", category: "Manual" },
+        ];
+
+        let correctDrops = 0;
+        const totalItems = dataItems.length;
+
+        function initializeDragBank() {
+            const dragBank = document.getElementById('drag-bank');
+            dragBank.innerHTML = ''; // Clear bank
+            
+            // Randomize the items before adding them
+            const shuffledItems = dataItems.sort(() => Math.random() - 0.5);
+
+            shuffledItems.forEach((item, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.textContent = item.text;
+                itemEl.className = 'draggable-item px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm hover:bg-gray-100 transition-colors';
+                itemEl.setAttribute('draggable', true);
+                itemEl.setAttribute('id', `item-${index}`);
+                itemEl.dataset.category = item.category;
+                itemEl.addEventListener('dragstart', handleDragStart);
+                dragBank.appendChild(itemEl);
+            });
+            
+            // Reset drop targets
+            document.querySelectorAll('.drop-target').forEach(target => {
+                target.querySelectorAll('.draggable-item').forEach(item => item.remove());
+                target.classList.remove('drag-over');
+            });
+            
+            correctDrops = 0;
+            document.getElementById('reset-button').textContent = 'Reset Challenge';
+            document.getElementById('reset-button').classList.remove('bg-green-600', 'hover:bg-green-700');
+            document.getElementById('reset-button').classList.add('bg-red-500', 'hover:bg-red-600');
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const id = e.dataTransfer.getData('text/plain');
+            const draggableElement = document.getElementById(id);
+            const dropTarget = e.currentTarget;
+
+            // Check if the item is already correctly placed (to prevent double counting)
+            if (draggableElement.classList.contains('correct') || draggableElement.parentElement === dropTarget) {
+                return;
+            }
+
+            const itemCategory = draggableElement.dataset.category;
+            const targetCategory = dropTarget.dataset.category;
+
+            if (itemCategory === targetCategory) {
+                // Correct placement
+                draggableElement.classList.add('correct');
+                draggableElement.classList.remove('incorrect', 'bg-white', 'border-gray-300', 'shadow-sm', 'hover:bg-gray-100');
+                dropTarget.appendChild(draggableElement);
+                correctDrops++;
+            } else {
+                // Incorrect placement
+                draggableElement.classList.add('incorrect');
+                draggableElement.classList.remove('correct', 'bg-white', 'border-gray-300', 'shadow-sm', 'hover:bg-gray-100');
+                // Temporarily place it and then bounce it back or show error
+                dropTarget.appendChild(draggableElement);
+                setTimeout(() => {
+                    draggableElement.classList.remove('incorrect');
+                    draggableElement.classList.add('bg-white', 'border-gray-300', 'shadow-sm', 'hover:bg-gray-100');
+                    document.getElementById('drag-bank').appendChild(draggableElement);
+                }, 800);
+            }
+
+            // Check for game completion
+            if (correctDrops === totalItems) {
+                document.getElementById('reset-button').textContent = 'Well Done! All Sorted!';
+                document.getElementById('reset-button').classList.add('bg-green-600', 'hover:bg-green-700');
+                document.getElementById('reset-button').classList.remove('bg-red-500', 'hover:bg-red-600');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDragBank();
+            document.querySelectorAll('.drop-target').forEach(target => {
+                target.addEventListener('dragover', handleDragOver);
+                target.addEventListener('dragleave', handleDragLeave);
+                target.addEventListener('drop', handleDrop);
+            });
+            document.getElementById('reset-button').addEventListener('click', initializeDragBank);
+        });
+    </script>
+</body>
+</html>
