@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Logic and Decision Making</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+        .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        /* Inline Code */
+        code { font-family: 'Consolas', 'Monaco', monospace; /*background-color: #eef2ff*/; padding: 2px 4px; border-radius: 4px; color: #4338ca; font-weight: 600; }
+        /* Code block container */
+        pre { background-color: #000000; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        /* Default line style inside the code block */
+        pre code span {
+            /*display: block;*/
+            padding: 0.15rem 0.5rem;
+            margin: 0 -0.5rem; /* Extends highlight to container padding */
+        }
+        /* Highlighted line in code block - FIXED STYLE */
+        .line-highlight { 
+            /*background-color: #ca8a04; 
+            color: #1e293b; /* Dark text for contrast on gold background */
+            border-radius: 4px; 
+        }
+
+        /* Syntax Coloring */
+        .keyword { color: #f97316; /*font-weight: bold;*/ } /* Orange for main keywords */
+        .boolean { color: #5eead4; /*font-weight: bold;*/ } /* Teal for True/False */
+        .string { color: #84cc16; } /* Green for strings */
+        .function { color: #38bdf8; } /* Blue for functions (like print) */
+        .comment { color: #6b7280; } /* Gray for comments */
+        .variable { color: #a5b4fc; } /* Light purple for variables */
+
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-teal-700 mb-2">Module 4: Making Decisions</h1>
+        <p class="text-xl text-gray-600">Booleans and Conditional Logic</p>
+    </header>
+
+    <!-- Section 0: Booleans Refresher -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-teal-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">The "Yes/No" Answer: Booleans</h2>
+        <p class="mb-4 text-lg text-gray-700">Before making a decision, Python needs a "Yes" or "No" answer. In programming, we call this a <strong>Boolean</strong>: <code>True</code> (Yes) or <code>False</code> (No).</p>
+        <p class="mb-4 text-lg text-gray-700">Python creates Booleans by comparing things:</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div class="bg-teal-50 p-4 rounded-lg">
+                <code class="text-lg">5 > 3</code>
+                <p class="text-2xl font-bold text-teal-600">True</p>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+                <code class="text-lg">10 == 20</code>
+                <p class="text-2xl font-bold text-red-600">False</p>
+            </div>
+            <div class="bg-teal-50 p-4 rounded-lg">
+                <code class="text-lg">'hello' == 'hello'</code>
+                <p class="text-2xl font-bold text-teal-600">True</p>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+                <code class="text-lg">age < 18</code>
+                <p class="text-xl font-bold text-gray-600">(Depends on <code>age</code>!)</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logical Operators -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-yellow-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">The Glue: Logical Operators (<span class="keyword">and</span>, <span class="keyword">or</span>, <span class="keyword">not</span>)</h2>
+        <p class="mb-4 text-lg text-gray-700">Logical operators allow Python to combine multiple True/False conditions into a single decision, just like in English.</p>
+        
+        <div class="grid md:grid-cols-3 gap-6 text-center mb-6">
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <code class="text-lg">A <strong class="keyword">and</strong> B</code>
+                <p class="text-sm text-gray-600 mt-2">TRUE only if **both** A and B are True.</p>
+                <p class="text-xs text-yellow-700 font-semibold">"You get dessert IF you eat dinner AND clean your room."</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <code class="text-lg">A <strong class="keyword">or</strong> B</code>
+                <p class="text-sm text-gray-600 mt-2">TRUE if **at least one** of A or B is True.</p>
+                <p class="text-xs text-yellow-700 font-semibold">"You can go outside IF it's sunny OR it's warm."</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <code class="text-lg"><strong class="keyword">not</strong> A</code>
+                <p class="text-sm text-gray-600 mt-2">Reverses the result (True becomes False, False becomes True).</p>
+                <p class="text-xs text-yellow-700 font-semibold">"The lights are NOT on."</p>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-yellow-700 mb-4">Interactive Logic Check</h3>
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 items-center justify-center mb-8">
+            
+            <div class="space-y-2">
+                <label for="boolA" class="block text-sm font-medium text-gray-700">Condition A:</label>
+                <select id="boolA" onchange="runLogicalOperators()" class="p-2 border rounded-lg">
+                    <option value="True">True</option>
+                    <option value="False">False</option>
+                </select>
+            </div>
+            <div class="space-y-2">
+                <label for="boolB" class="block text-sm font-medium text-gray-700">Condition B:</label>
+                <select id="boolB" onchange="runLogicalOperators()" class="p-2 border rounded-lg">
+                    <option value="True">True</option>
+                    <option value="False" selected>False</option>
+                </select>
+            </div>
+            
+            <div class="w-full md:w-auto bg-gray-100 p-4 rounded-lg border-2 border-yellow-300">
+                <p class="font-mono text-sm">A and B = <strong id="resultAnd" class="text-red-700">False</strong></p>
+                <p class="font-mono text-sm">A or B = <strong id="resultOr" class="text-green-700">True</strong></p>
+                <p class="font-mono text-sm">not A = <strong id="resultNotA" class="text-red-700">False</strong></p>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-yellow-700 mb-4">Python in Action: Using Logical Operators</h3>
+        <p class="mb-3 text-gray-700">We use these operators when combining multiple True/False results for a decision:</p>
+        <div>
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="text-md font-semibold text-gray-600">Example Code:</h4>
+                <button onclick="copyCode('codeLogical')" class="copy-btn bg-gray-500 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded-lg transition-colors">Copy Code</button>
+            </div>
+            <pre><code id="codeLogical">
+<span class="variable">has_ticket</span> == <span class="boolean">True</span>
+<span class="variable">is_vip</span> = <span class="boolean">False</span>
+<span class="variable">age</span> = 17
+
+<span class="comment"># AND Example (requires both to be True)</span>
+<span class="variable">can_enter_lounge</span> = <span class="variable">has_ticket</span> <span class="keyword">and</span> <span class="variable">is_vip</span> 
+<span class="function">print</span>(<span class="string">f"Can enter lounge: {can_enter_lounge}"</span>) 
+<span class="comment"># Output: False</span>
+
+<span class="comment"># OR Example (requires at least one to be True)</span>
+<span class="variable">can_buy_popcorn</span> = <span class="variable">has_ticket</span> <span class="keyword">or</span> <span class="variable">is_vip</span> 
+<span class="function">print</span>(<span class="string">f"Can buy popcorn: {can_buy_popcorn}"</span>)
+<span class="comment"># Output: True</span>
+
+<span class="comment"># NOT Example (reverses the result)</span>
+<span class="variable">is_minor</span> = <span class="variable">age</span> < 18
+<span class="variable">is_adult</span> = <span class="keyword">not</span> <span class="variable">is_minor</span>
+<span class="function">print</span>(<span class="string">f"Is adult: {is_adult}"</span>)
+<span class="comment"># Output: False</span>
+            </code></pre>
+        </div>
+    </div>
+
+
+    <!-- Section 1: The 'if' Statement -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-blue-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">1. The <code>if</code> Statement (A One-Way Path)</h2>
+        <p class="mb-4 text-lg text-gray-700">An <code class="keyword">if</code> statement does something <strong>only if</strong> a condition is <code class="boolean">True</code>. If it's <code class="boolean">False</code>, it just skips it.</p>
+        <p class="mb-6 text-lg text-gray-700"><strong>Analogy:</strong> "If it is raining, take an umbrella." (If it's not raining, you just... do nothing.)</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+                <label for="isRaining" class="block text-lg font-semibold text-gray-700 mb-2">Is it raining?</label>
+                <select id="isRaining" onchange="runIf()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="True" selected>Yes, it's raining (True)</option>
+                    <option value="False">No, it's not raining (False)</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-md font-semibold text-gray-600">Python Code:</h4>
+                    <button onclick="copyCode('codeIf')" class="copy-btn bg-gray-500 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded-lg transition-colors">Copy Code</button>
+                </div>
+                <pre><code id="codeIf">
+<span id="varIsRaining" class="variable">is_raining = <span class="boolean">True</span></span>
+
+<span id="lineIf"><span class="keyword">if</span> <span class="variable">is_raining</span> == <span class="boolean">True</span>:</span>
+    <span id="lineIfAction">    <span class="function">print</span>(<span class="string">"Take an umbrella."</span>)</span>
+
+<span class="function">print</span>(<span class="string">"Have a nice day!"</span>)
+                </code></pre>
+            </div>
+            <div class="md:col-span-2">
+                <h4 class="text-md font-semibold text-gray-600 mb-2">Resulting Action:</h4>
+                <pre id="outputIf" class="bg-gray-100 text-gray-800 p-4 rounded-lg font-mono text-lg"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: The 'if/else' Statement -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-green-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">2. The <code>if/else</code> Statement (Two Choices)</h2>
+        <p class="mb-4 text-lg text-gray-700">This handles <strong>both</strong> possibilities. If the condition is <code class="boolean">True</code>, do Path A. <strong>Otherwise (<code class="keyword">else</code>)</strong>, do Path B.</p>
+        <p class="mb-6 text-lg text-gray-700"><strong>Analogy:</strong> "If the temperature is hot, wear a t-shirt. <strong>Else</strong>, wear a jacket."</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+                <label for="temperature" class="block text-lg font-semibold text-gray-700 mb-2">Enter Temperature (°C):</label>
+                <input type="number" id="temperature" value="25" oninput="runIfElse()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+            </div>
+            <div class="md:col-span-2">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-md font-semibold text-gray-600">Python Code:</h4>
+                    <button onclick="copyCode('codeIfElse')" class="copy-btn bg-gray-500 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded-lg transition-colors">Copy Code</button>
+                </div>
+                <pre><code id="codeIfElse">
+<span id="varTemperature" class="variable">temperature = 25</span>
+
+<span id="lineIfElseCheck"><span class="keyword">if</span> <span class="variable">temperature</span> > 20:</span>
+    <span id="lineIfElseActionA">    <span class="function">print</span>(<span class="string">"Wear a t-shirt."</span>)</span>
+<span id="lineIfElseElse"><span class="keyword">else</span>:</span>
+    <span id="lineIfElseActionB">    <span class="function">print</span>(<span class="string">"Wear a jacket."</span>)</span>
+                </code></pre>
+            </div>
+            <div class="md:col-span-2">
+                <h4 class="text-md font-semibold text-gray-600 mb-2">Resulting Action:</h4>
+                <pre id="outputIfElse" class="bg-gray-100 text-gray-800 p-4 rounded-lg font-mono text-lg"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: The 'if/elif/else' Statement -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-purple-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">3. The <code class="keyword">if/elif/else</code> Statement (Many Choices)</h2>
+        <p class="mb-4 text-lg text-gray-700">What if you have 3, 4, or 5+ choices? <code class="keyword">elif</code> means "else if". Python checks each condition from top to bottom and <strong>stops at the first one that is <code class="boolean">True</code></strong>.</p>
+        <p class="mb-6 text-lg text-gray-700"><strong>Analogy:</strong> "A grading system. If score is >= 90, give 'A'. <strong>Else if</strong> score is >= 80, give 'B'. <strong>Else if</strong> score is >= 70, give 'C'. <strong>Else</strong>, give 'D'."</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+                <label for="score" class="block text-lg font-semibold text-gray-700 mb-2">Enter Test Score:</label>
+                <input type="number" id="score" value="85" oninput="runIfElifElse()" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div class="md:col-span-2">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-md font-semibold text-gray-600">Python Code:</h4>
+                    <button onclick="copyCode('codeIfElifElse')" class="copy-btn bg-gray-500 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded-lg transition-colors">Copy Code</button>
+                </div>
+                <pre><code id="codeIfElifElse">
+<span id="varScore" class="variable">score = 85</span>
+
+<span id="lineIfElifCheck1"><span class="keyword">if</span> <span class="variable">score</span> >= 90:</span>
+    <span id="lineIfElifAction1">    <span class="function">print</span>(<span class="string">"Grade: A"</span>)</span>
+<span id="lineIfElifCheck2"><span class="keyword">elif</span> <span class="variable">score</span> >= 80:</span>
+    <span id="lineIfElifAction2">    <span class="function">print</span>(<span class="string">"Grade: B"</span>)</span>
+<span id="lineIfElifCheck3"><span class="keyword">elif</span> <span class="variable">score</span> >= 70:</span>
+    <span id="lineIfElifAction3">    <span class="function">print</span>(<span class="string">"Grade: C"</span>)</span>
+<span id="lineIfElifElse"><span class="keyword">else</span>:</span>
+    <span id="lineIfElifActionElse">    <span class="function">print</span>(<span class="string">"Grade: D"</span>)</span>
+                </code></pre>
+            </div>
+            <div class="md:col-span-2">
+                <h4 class="text-md font-semibold text-gray-600 mb-2">Resulting Grade:</h4>
+                <pre id="outputIfElifElse" class="bg-gray-100 text-gray-800 p-4 rounded-lg font-mono text-lg"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Utility Function to Copy Code ---
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            // We strip the span tags and content to get clean Python code for copying
+            const codeText = Array.from(codeElement.childNodes)
+                .map(node => node.nodeType === 3 ? node.textContent : (node.tagName === 'SPAN' ? node.textContent : ''))
+                .join('\n')
+                .replace(/^\n+/, '') // Remove leading newlines
+                .trim();
+            
+            // Use a temporary textarea to hold the text for the copy command
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = codeText; 
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('Copy failed: ', err);
+            }
+            document.body.removeChild(tempTextarea);
+
+            // Find the button and give feedback
+            const button = codeElement.closest('div').querySelector('.copy-btn');
+            if (button) {
+                const originalText = button.textContent;
+                button.textContent = success ? "Copied!" : "Copy Failed";
+                button.classList.add(success ? 'bg-green-500' : 'bg-red-500');
+                button.classList.remove('bg-gray-500');
+
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-green-500', 'bg-red-500');
+                    button.classList.add('bg-gray-500');
+                }, 1500);
+            }
+        }
+
+        // --- Logic for Logical Operators Section ---
+        function runLogicalOperators() {
+            const boolA = document.getElementById('boolA').value === 'True';
+            const boolB = document.getElementById('boolB').value === 'True';
+
+            const resultAnd = boolA && boolB;
+            const resultOr = boolA || boolB;
+            const resultNotA = !boolA;
+
+            const updateResult = (id, result) => {
+                const elem = document.getElementById(id);
+                elem.textContent = result ? 'True' : 'False';
+                elem.classList.remove('text-green-700', 'text-red-700');
+                elem.classList.add(result ? 'text-green-700' : 'text-red-700');
+            };
+
+            updateResult('resultAnd', resultAnd);
+            updateResult('resultOr', resultOr);
+            updateResult('resultNotA', resultNotA);
+        }
+
+        // --- Logic for Section 1: if ---
+        function runIf() {
+            const isRaining = document.getElementById('isRaining').value === 'True';
+            const output = document.getElementById('outputIf');
+            
+            // Update the variable value
+            const varIsRaining = document.getElementById('varIsRaining');
+            if (varIsRaining) {
+                varIsRaining.innerHTML = `<span class="variable">is_raining</span> = <span class="boolean">${isRaining}</span>`;
+            }
+
+            // Reset highlights
+            document.getElementById('lineIf').classList.remove('line-highlight');
+            document.getElementById('lineIfAction').classList.remove('line-highlight');
+            
+            let result = "";
+            
+            if (isRaining) {
+                document.getElementById('lineIf').classList.add('line-highlight');
+                document.getElementById('lineIfAction').classList.add('line-highlight');
+                result += "Take an umbrella.\n";
+            }
+            
+            result += "Have a nice day!";
+            output.textContent = result;
+        }
+
+        // --- Logic for Section 2: if/else ---
+        function runIfElse() {
+            const temp = parseInt(document.getElementById('temperature').value) || 0;
+            const output = document.getElementById('outputIfElse');
+            
+            // Update the variable value
+            const varTemperature = document.getElementById('varTemperature');
+            if (varTemperature) {
+                varTemperature.innerHTML = `<span class="variable">temperature</span> = ${temp}`;
+            }
+            
+            // Reset highlights
+            document.getElementById('lineIfElseCheck').classList.remove('line-highlight');
+            document.getElementById('lineIfElseActionA').classList.remove('line-highlight');
+            document.getElementById('lineIfElseElse').classList.remove('line-highlight');
+            document.getElementById('lineIfElseActionB').classList.remove('line-highlight');
+
+            document.getElementById('lineIfElseCheck').classList.add('line-highlight');
+
+            if (temp > 20) {
+                document.getElementById('lineIfElseActionA').classList.add('line-highlight');
+                output.textContent = "Wear a t-shirt.";
+            } else {
+                document.getElementById('lineIfElseElse').classList.add('line-highlight');
+                document.getElementById('lineIfElseActionB').classList.add('line-highlight');
+                output.textContent = "Wear a jacket.";
+            }
+        }
+
+        // --- Logic for Section 3: if/elif/else ---
+        function runIfElifElse() {
+            const score = parseInt(document.getElementById('score').value) || 0;
+            const output = document.getElementById('outputIfElifElse');
+
+            // Update the variable value
+            const varScore = document.getElementById('varScore');
+            if (varScore) {
+                varScore.innerHTML = `<span class="variable">score</span> = ${score}`;
+            }
+
+            // Reset all highlights
+            const codeBlock = document.getElementById('codeIfElifElse');
+            if (codeBlock) {
+                const lines = codeBlock.querySelectorAll('span');
+                lines.forEach(line => line.classList.remove('line-highlight'));
+            } else {
+                console.error("Code block not found for if/elif/else.");
+                return;
+            }
+
+            document.getElementById('lineIfElifCheck1').classList.add('line-highlight');
+            if (score >= 90) {
+                document.getElementById('lineIfElifAction1').classList.add('line-highlight');
+                output.textContent = "Grade: A";
+            } else {
+                document.getElementById('lineIfElifCheck2').classList.add('line-highlight');
+                if (score >= 80) {
+                    document.getElementById('lineIfElifAction2').classList.add('line-highlight');
+                    output.textContent = "Grade: B";
+                } else {
+                    document.getElementById('lineIfElifCheck3').classList.add('line-highlight');
+                    if (score >= 70) {
+                        document.getElementById('lineIfElifAction3').classList.add('line-highlight');
+                        output.textContent = "Grade: C";
+                    } else {
+                        document.getElementById('lineIfElifElse').classList.add('line-highlight');
+                        document.getElementById('lineIfElifActionElse').classList.add('line-highlight');
+                        output.textContent = "Grade: D";
+                    }
+                }
+            }
+        }
+
+        // Run all on load to initialize
+        window.onload = () => {
+            runLogicalOperators();
+            runIf();
+            runIfElse();
+            runIfElifElse();
+        };
+    </script>
+</body>
+</html>

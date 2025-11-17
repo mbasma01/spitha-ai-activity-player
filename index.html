@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Activities Dashboard</title>
+    <style>
+        /* General Page Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Container for the Grid */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        /* The Grid System */
+        .activity-grid {
+            display: grid;
+            /* This creates columns that automatically fit with a min-width of 300px */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-left: 5px solid #3498db; /* Accent color on the left */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Meta Data (Unit/Lesson Badges) */
+        .meta-tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .tag-unit {
+            background-color: #e1f0fa;
+            color: #2980b9;
+        }
+
+        .tag-lesson {
+            background-color: #fdf2e9;
+            color: #d35400;
+        }
+
+        /* Card Content */
+        .card h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            flex-grow: 1; /* Pushes the button to the bottom */
+        }
+
+        /* Button/Link Styles */
+        .card-link {
+            display: inline-block;
+            text-align: center;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .card-link:hover {
+            background-color: #2980b9;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Spitha AI Activities</h1>
+    </header>
+
+    <div class="container">
+        <div class="activity-grid">
+
+            <div class="card">
+                <div class="meta-tags">
+                    <span class="tag tag-unit">Unit 0</span>
+                    <span class="tag tag-lesson">Module 0</span>
+                </div>
+                <h2>Setting the stage</h2>
+                <p>AI vs Not AI</p>
+                <a href="unit0module0.html" class="card-link">Check Activity</a>
+            </div>
+
+            <div class="card">
+                <div class="meta-tags">
+                    <span class="tag tag-unit">Unit 0</span>
+                    <span class="tag tag-lesson">Module 1</span>
+                </div>
+                <h2>Language, Binary, & Data Fuel</h2>
+                <p>Machines and humans</p>
+                <a href="unit0module1.html" class="card-link">Check Activity</a>
+            </div>
+
+            <div class="card">
+                <div class="meta-tags">
+                    <span class="tag tag-unit">Unit 0</span>
+                    <span class="tag tag-lesson">Module 2</span>
+                </div>
+                <h2>The Language of Order</h2>
+                <p>Introduction to Python</p>
+                <a href="unit0module2.html" class="card-link">Check Activity</a>
+            </div>
+            <div class="card">
+                <div class="meta-tags">
+                    <span class="tag tag-unit">Unit 0</span>
+                    <span class="tag tag-lesson">Module 3</span>
+                </div>
+                <h2>Storing Information</h2>
+                <p>Variable and Data Types</p>
+                <a href="unit0module3.html" class="card-link">Check Activity</a>
+            </div>
+            <div class="card">
+                <div class="meta-tags">
+                    <span class="tag tag-unit">Unit 0</span>
+                    <span class="tag tag-lesson">Module 4</span>
+                </div>
+                <h2>Making Decisions</h2>
+                <p>Booleans and Conditional Logic</p>
+                <a href="unit0module4.html" class="card-link">Check Activity</a>
+            </div>
+            
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Spitha AI
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Variables and Data Types</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+        .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .box-container { transition: transform 0.3s ease-out; }
+        
+        /* Drag and Drop Styles */
+        .draggable { cursor: grab; background-color: #e5e7eb; color: #1f2937; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 600; transition: all 0.2s; }
+        .dropzone-base { min-height: 8rem; border: 2px dashed #9ca3af; transition: border-color 0.3s; padding: 1rem; }
+        .dropzone-hover { border-color: #f97316; }
+        
+        /* Feedback Styles */
+        .item-correct { border: 3px solid #10b981 !important; background-color: #d1fae5 !important; }
+        .item-incorrect { border: 3px solid #ef4444 !important; background-color: #fee2e2 !important; }
+
+        /* Inline Code */
+        code { font-family: 'Consolas', 'Monaco', monospace; background-color: #eef2ff; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-orange-700 mb-2">Module 3: Storing Information</h1>
+        <p class="text-xl text-gray-600">Variables and Data Types: The Storage Boxes</p>
+    </header>
+
+    <!-- Section 1: Variable Box Analogy (Interactive) -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-orange-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Analogy: Variables as Labeled Boxes</h2>
+        <p class="mb-6 text-lg text-gray-700">A variable is simply a container in the computer's memory that holds a value. The <strong>Variable Name</strong> is the label on the outside of the box.</p>
+
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div id="storageBox" class="box-container w-full max-w-sm bg-gray-100 p-6 border-4 border-orange-300 rounded-xl text-center hover:shadow-xl">
+                <div class="bg-orange-500 text-white text-xl font-bold py-2 rounded-t-lg -mt-6 mx-auto w-3/4 shadow-md">
+                    <span id="boxLabel">Variable Label</span>
+                </div>
+                <div class="mt-4 text-gray-800">
+                    <p class="text-sm font-semibold">Content (Value):</p>
+                    <p id="boxContent" class="text-3xl font-extrabold break-words">?</p>
+                </div>
+                <div class="mt-4 text-xs text-gray-500">
+                    <p>Python Code: <span id="pythonCodeDisplay" class="font-mono text-sm text-blue-600">label = value</span></p>
+                </div>
+            </div>
+
+            <div class="w-full max-w-md space-y-4">
+                <input type="text" id="inputLabel" oninput="updateBox()" placeholder="Enter Variable Label (e.g., age)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                <input type="text" id="inputValue" oninput="updateBox()" placeholder="Enter Value (e.g., 25 or 'Hello')" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Data Types and Operations (Interactive) -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-indigo-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Data Types: What's in the Box?</h2>
+        <p class="mb-6 text-lg text-gray-700">Python cares about the <strong>type</strong> of data because it determines what operations are possible. We will focus on three core types.</p>
+
+        <!-- Data Type Drag & Drop Exercise -->
+        <h3 class="text-xl font-semibold text-indigo-700 mb-4">Type Check: Drag the value to its true Python data type.</h3>
+        
+        <!-- Updated Source Container to be a dropzone -->
+        <div id="typeItems" class="dropzone-base flex flex-wrap gap-3 justify-center mb-8 rounded-xl bg-gray-100">
+            <div data-type="NUMBER" draggable="true" class="draggable flex justify-center items-center">10</div>
+            <div data-type="STRING" draggable="true" class="draggable flex justify-center items-center">'Hello World'</div>
+            <div data-type="NUMBER" draggable="true" class="draggable flex justify-center items-center">3.14159</div>
+            <div data-type="BOOLEAN" draggable="true" class="draggable flex justify-center items-center">True</div>
+            <div data-type="STRING" draggable="true" class="draggable flex justify-center items-center">'12'</div>
+            <div data-type="BOOLEAN" draggable="true" class="draggable flex justify-center items-center">False</div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4 mb-10">
+            <div id="dropNUMBER" data-target="NUMBER" class="dropzone-base rounded-xl border-indigo-500 bg-gray-50 flex flex-col items-center">
+                <strong class="text-lg text-indigo-700 mb-2">Number (Integer/Float)</strong>
+            </div>
+            <div id="dropSTRING" data-target="STRING" class="dropzone-base rounded-xl border-purple-500 bg-gray-50 flex flex-col items-center">
+                <strong class="text-lg text-purple-700 mb-2">String (Text)</strong>
+            </div>
+            <div id="dropBOOLEAN" data-target="BOOLEAN" class="dropzone-base rounded-xl border-pink-500 bg-gray-50 flex flex-col items-center">
+                <strong class="text-lg text-pink-700 mb-2">Boolean (True/False)</strong>
+            </div>
+        </div>
+        
+        <!-- Arithmetic and String Operations (Existing content moved down) -->
+        <h3 class="text-xl font-semibold text-indigo-700 mt-8 mb-4">Type Operations Demo:</h3>
+
+        <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+            <!-- Number Operations -->
+            <div class="w-full md:w-1/2 bg-indigo-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-indigo-700 mb-3">Number Operations (Arithmetic)</h4>
+                <p class="text-sm text-gray-600 mb-3">Numbers perform math. <code id="mathExample">10 + 5 = 15</code></p>
+                <div class="flex space-x-2 mb-3 items-center">
+                    <input type="number" id="num1" value="10" oninput="calculateNumbers()" class="w-1/3 p-2 border rounded-lg">
+                    <select id="operator" onchange="calculateNumbers()" class="w-1/6 p-2 border rounded-lg font-bold text-center">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">*</option>
+                        <option value="/">/</option>
+                        <option value="**">**</option>
+                        <option value="%">%</option>
+                    </select>
+                    <input type="number" id="num2" value="5" oninput="calculateNumbers()" class="w-1/3 p-2 border rounded-lg">
+                    <button onclick="calculateNumbers()" class="w-1/3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 rounded-lg">Solve</button>
+                </div>
+                <div class="p-3 bg-indigo-200 rounded-lg">
+                    <p class="font-mono text-indigo-800 text-sm">
+                        <span id="formulaDisplay" class="font-bold">10 + 5</span> = 
+                        <span id="numResult" class="font-bold">15</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- String Operations -->
+            <div class="w-full md:w-1/2 bg-purple-50 p-4 rounded-lg">
+                <h4 class="text-lg font-semibold text-gray-700 mb-3">String Operations (Words)</h4>
+                <p class="text-sm text-gray-600 mb-3">Words <strong>concatenate</strong> (join) or <strong>repeat</strong>. <code>'Hello' + 'World' = 'HelloWorld'</code></p>
+                <div class="space-y-3">
+                    <!-- Concatenation -->
+                    <div class="flex space-x-2">
+                        <input type="text" id="str1" value="Data" class="w-1/3 p-2 border rounded-lg">
+                        <span class="self-center text-lg font-bold">+</span>
+                        <input type="text" id="str2" value="Science" class="w-1/3 p-2 border rounded-lg">
+                        <button onclick="concatenateStrings()" class="w-1/3 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg">Concatenate</button>
+                    </div>
+                    <!-- Repetition -->
+                    <div class="flex space-x-2">
+                        <input type="text" id="repStr" value="AI " class="w-1/3 p-2 border rounded-lg">
+                        <span class="self-center text-lg font-bold">*</span>
+                        <input type="number" id="repNum" value="3" min="1" max="5" class="w-1/3 p-2 border rounded-lg">
+                        <button onclick="repeatString()" class="w-1/3 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg">Repeat</button>
+                    </div>
+                </div>
+                <div class="p-3 bg-purple-200 rounded-lg mt-3">
+                    <p class="font-mono text-purple-800 text-sm">Result: <span id="strResult" class="font-bold">DataScience</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Section 1: Variable Box Logic ---
+        function updateBox() {
+            const label = document.getElementById('inputLabel').value || 'my_variable';
+            let value = document.getElementById('inputValue').value;
+            const boxLabel = document.getElementById('boxLabel');
+            const boxContent = document.getElementById('boxContent');
+            const pythonCodeDisplay = document.getElementById('pythonCodeDisplay');
+
+            let displayValue = value;
+            
+            // Format for display
+            if (value === '' || isNaN(value)) {
+                // If not empty and not a number, treat as a string (with quotes for clarity)
+                displayValue = `'${value}'`;
+            } else {
+                // If it is a number, no quotes
+                displayValue = value;
+            }
+            
+            boxLabel.textContent = label;
+            boxContent.textContent = value || '?';
+            pythonCodeDisplay.textContent = `${label} = ${displayValue}`;
+        }
+
+        // --- Section 2: Operations Logic ---
+        function calculateNumbers() {
+            const num1 = parseFloat(document.getElementById('num1').value) || 0;
+            const num2 = parseFloat(document.getElementById('num2').value) || 0;
+            const operator = document.getElementById('operator').value;
+            let result;
+            let example;
+
+            switch (operator) {
+                case '+':
+                    result = num1 + num2;
+                    example = `${num1} + ${num2} = ${result}`;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    example = `${num1} - ${num2} = ${result}`;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    example = `${num1} * ${num2} = ${result}`;
+                    break;
+                case '/':
+                    // Handle division by zero
+                    result = num2 === 0 ? 'Error: Div by 0' : (num1 / num2);
+                    example = `${num1} / ${num2} = ${result}`;
+                    break;
+                case '**':
+                    result = Math.pow(num1, num2);
+                    example = `${num1} ** ${num2} = ${result}`;
+                    break;
+                case '%':
+                    result = num2 === 0 ? 'Error: Div by 0' : (num1 % num2);
+                    example = `${num1} % ${num2} = ${result}`;
+                    break;
+                default:
+                    result = 0;
+            }
+            
+            document.getElementById('numResult').textContent = result;
+            document.getElementById('formulaDisplay').textContent = `${num1} ${operator} ${num2}`;
+            document.getElementById('mathExample').innerHTML = example;
+        }
+
+        function concatenateStrings() {
+            const str1 = document.getElementById('str1').value;
+            const str2 = document.getElementById('str2').value;
+            document.getElementById('strResult').textContent = str1 + str2;
+        }
+
+        function repeatString() {
+            const repStr = document.getElementById('repStr').value;
+            const repNum = parseInt(document.getElementById('repNum').value) || 1;
+            document.getElementById('strResult').textContent = repStr.repeat(repNum);
+        }
+
+        // --- Section 2: Type Check Drag & Drop Logic ---
+        let draggedItem = null;
+
+        function initializeTypeDragAndDrop() {
+            const draggables = document.querySelectorAll('.draggable');
+            // Select all drop zones: the three type categories AND the initial #typeItems container
+            const allDropzones = document.querySelectorAll('.dropzone-base');
+
+            draggables.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedItem = item;
+                    e.dataTransfer.setData('text/plain', item.dataset.type);
+                    item.classList.add('opacity-50', 'ring-4', 'ring-orange-300');
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('opacity-50', 'ring-4', 'ring-orange-300');
+                });
+            });
+
+            allDropzones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('dropzone-hover');
+                });
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('dropzone-hover');
+                });
+                zone.addEventListener('drop', handleTypeDrop);
+            });
+        }
+
+        function handleTypeDrop(e) {
+            e.preventDefault();
+            this.classList.remove('dropzone-hover');
+            
+            if (!draggedItem) return;
+
+            if (this.id === 'typeItems') {
+                // Case 1: Dragging back to the source pool (resetting)
+                draggedItem.classList.remove('item-correct', 'item-incorrect', 'dropped');
+                draggedItem.style.margin = '';
+                this.appendChild(draggedItem);
+
+            } else if (this.dataset.target) {
+                // Case 2: Dragging to a specific type dropzone
+                const droppedType = draggedItem.dataset.type;
+                const targetType = this.dataset.target;
+                const isCorrect = droppedType === targetType;
+
+                // Apply feedback classes
+                draggedItem.classList.remove('item-correct', 'item-incorrect');
+                draggedItem.classList.add(isCorrect ? 'item-correct' : 'item-incorrect');
+                
+                // Move item to the dropzone
+                this.appendChild(draggedItem);
+                draggedItem.classList.add('dropped');
+                draggedItem.style.margin = '0.5rem';
+            }
+            
+            // Clean up
+            draggedItem = null;
+        }
+
+        window.onload = () => {
+            updateBox();
+            initializeTypeDragAndDrop();
+            calculateNumbers(); // Initialize number result and example
+            concatenateStrings(); // Initialize string result
+            repeatString(); // Initialize string result
+        };
+    </script>
+</body>
+</html>

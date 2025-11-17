@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Python, Data, and Binary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+        .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .binary-switch { transition: background-color 0.3s, transform 0.1s; }
+        /* Drag and Drop Styles */
+        .draggable { cursor: grab; background-color: #e5e7eb; color: #1f2937; border-radius: 0.5rem; padding: 0.75rem; font-weight: 600; }
+        .dropzone { min-height: 8rem; border: 2px dashed #9ca3af; transition: border-color 0.3s; }
+        .dropzone-hover { border-color: #2563eb; }
+        .item-correct { border: 2px solid #10b981 !important; background-color: #d1fae5; }
+        .item-incorrect { border: 2px solid #ef4444 !important; background-color: #fee2e2; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-blue-700 mb-2">Module 1: Language, Binary, & Data Fuel</h1>
+        <p class="text-xl text-gray-600">The Essentials: Python, 1s/0s, and AI's Food</p>
+    </header>
+
+    <!-- Section 1: Python: The Human-Machine Bridge (Infographic Style) -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-teal-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">✍️</span> Python: Our Translator
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center text-center">
+            <div class="p-4 bg-teal-100 rounded-lg">
+                <p class="text-3xl mb-2">🧑‍💻</p>
+                <p class="font-bold">Human Mind</p>
+                <p class="text-sm">Thinks in complex ideas & English.</p>
+            </div>
+            <div class="text-4xl font-extrabold text-teal-600">
+                → Python →
+            </div>
+            <div class="p-4 bg-teal-100 rounded-lg">
+                <p class="text-3xl mb-2">🤖</p>
+                <p class="font-bold">Machine Core</p>
+                <p class="text-sm">Understands only electricity (1s & 0s).</p>
+            </div>
+        </div>
+        <p class="mt-4 text-lg text-gray-700">Python takes our readable instructions and efficiently translates them into machine code. It's the clear, orderly language we use to tell the computer what to do.</p>
+    </div>
+
+    <!-- Section 2: Machine Language: Binary (1s and 0s) -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-purple-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">🔌</span> Binary: The Electrical Pulse
+        </h2>
+        <p class="mb-6 text-lg text-gray-700">All information—code, pictures, sound—is stored as simple **electrical choices** in the computer's hardware. This language is called **Binary**.</p>
+        
+        <ul class="list-none space-y-2 text-gray-700 mb-6">
+            <li class="flex items-center"><span class="font-extrabold text-purple-600 w-10">ON (1):</span> Electrical pulse flowing (POWER)</li>
+            <li class="flex items-center"><span class="font-extrabold text-purple-600 w-10">OFF (0):</span> No electrical pulse (NO POWER)</li>
+        </ul>
+
+        <div class="flex flex-col items-center justify-center space-y-6 bg-purple-50 p-4 rounded-lg">
+            <div id="light" class="w-24 h-24 rounded-full bg-gray-300 transition-all duration-500 flex items-center justify-center text-4xl font-bold text-gray-700 shadow-xl">
+                0
+            </div>
+            <button id="toggleButton" class="binary-switch bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-full focus:outline-none focus:ring-4 focus:ring-purple-300">
+                Toggle Bit State
+            </button>
+            <p id="stateText" class="text-2xl font-extrabold text-red-500">OFF (0)</p>
+        </div>
+    </div>
+    
+    <!-- Section 3: Data: The Core Bone of AI -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-blue-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">🧠</span> Data: AI's Essential Fuel
+        </h2>
+        <p class="mb-4 text-lg text-gray-700">AI systems, like ChatGPT, aren't smart by magic. They are smart because they have **read and learned from massive amounts of data**.</p>
+        
+        <div class="bg-blue-50 p-4 rounded-lg mb-4 text-center">
+            <p class="text-xl font-bold text-blue-800 mb-2">The Recipe Analogy</p>
+            <p class="flex justify-around text-4xl">
+                <span>📘</span>
+                <span>🔥</span>
+                <span>🥕</span>
+            </p>
+            <p class="flex justify-around font-semibold text-sm mt-1">
+                <span class="text-blue-700">Python (Recipe)</span>
+                <span class="text-purple-700">Binary (Oven)</span>
+                <span class="text-green-700">Data (Ingredients)</span>
+            </p>
+        </div>
+        <p class="font-bold text-lg text-gray-700">Without vast, clean data, an AI is just an empty program.</p>
+    </div>
+
+    <!-- Section 4: Data vs. Not Data Exercise -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-orange-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Interactive Challenge: What Can a Machine Read?</h2>
+        <p class="text-gray-700 mb-6">Drag the items. Data must be convertible to a stream of 1s and 0s (bits).</p>
+        
+        <!-- Draggable Items (8 items) -->
+        <div id="dataItems" class="flex flex-wrap gap-3 justify-center mb-8">
+            <div data-answer="DATA" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">Chat Transcripts</div>
+            <div data-answer="CONCEPT" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">A Feeling of Hunger</div>
+            <div data-answer="DATA" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">1000 Pictures of Cats</div>
+            <div data-answer="DATA" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">Sales Records from 5 Years</div>
+            <div data-answer="CONCEPT" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">A Thought</div>
+            <div data-answer="DATA" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">Temperature Readings</div>
+            <div data-answer="CONCEPT" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">The Concept of Justice</div>
+            <div data-answer="DATA" draggable="true" class="draggable p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">An Audio File (.mp3)</div>
+        </div>
+
+        <!-- Drop Zones -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div id="dropData" data-target="DATA" class="dropzone p-4 rounded-xl border-green-500 bg-gray-50">
+                <h3 class="text-xl font-semibold text-green-700 mb-2 flex items-center"><span class="text-3xl mr-2">✅</span> IS DATA (Machine Input)</h3>
+            </div>
+            <div id="dropConcept" data-target="CONCEPT" class="dropzone p-4 rounded-xl border-red-500 bg-gray-50">
+                <h3 class="text-xl font-semibold text-red-700 mb-2 flex items-center"><span class="text-3xl mr-2">❌</span> IS NOT DATA (Abstract Concept)</h3>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <button onclick="resetDataExercise()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-full">Reset Exercise</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Binary Switch Logic ---
+        const light = document.getElementById('light');
+        const stateText = document.getElementById('stateText');
+        const toggleButton = document.getElementById('toggleButton');
+        let isOn = false;
+
+        toggleButton.addEventListener('click', () => {
+            isOn = !isOn;
+            if (isOn) {
+                // State is ON (1)
+                light.style.backgroundColor = '#FFD700'; // Yellow/Gold
+                light.style.color = '#374151';
+                light.textContent = '1';
+                stateText.textContent = 'ON (1)';
+                stateText.classList.remove('text-red-500');
+                stateText.classList.add('text-green-500');
+                toggleButton.classList.remove('bg-purple-500');
+                toggleButton.classList.add('bg-gray-500');
+            } else {
+                // State is OFF (0)
+                light.style.backgroundColor = '#E5E7EB'; // Gray
+                light.style.color = '#4B5563';
+                light.textContent = '0';
+                stateText.textContent = 'OFF (0)';
+                stateText.classList.remove('text-green-500');
+                stateText.classList.add('text-red-500');
+                toggleButton.classList.remove('bg-gray-500');
+                toggleButton.classList.add('bg-purple-500');
+            }
+        });
+
+        // --- Drag and Drop Logic (Data Exercise) ---
+        let draggedItem = null;
+
+        function initializeDragAndDrop() {
+            const draggables = document.querySelectorAll('#dataItems .draggable');
+            const dropzones = document.querySelectorAll('#dropData, #dropConcept');
+
+            draggables.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    draggedItem = item;
+                    e.dataTransfer.setData('text/plain', item.dataset.answer);
+                    item.classList.add('opacity-50', 'ring-4', 'ring-orange-300');
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('opacity-50', 'ring-4', 'ring-orange-300');
+                });
+            });
+
+            dropzones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('dropzone-hover');
+                });
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('dropzone-hover');
+                });
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('dropzone-hover');
+            
+            if (!draggedItem) return;
+
+            // Move the dragged item into the dropzone
+            this.appendChild(draggedItem);
+            
+            const isCorrect = draggedItem.dataset.answer === this.dataset.target;
+            
+            // Apply immediate feedback (border color)
+            draggedItem.classList.remove('item-correct', 'item-incorrect');
+            draggedItem.classList.add(isCorrect ? 'item-correct' : 'item-incorrect');
+            
+            // Cleanup
+            draggedItem = null;
+        }
+
+        function resetDataExercise() {
+            const itemsContainer = document.getElementById('dataItems');
+            const dropZones = document.querySelectorAll('#dropData, #dropConcept');
+            
+            dropZones.forEach(zone => {
+                // Move all children back to the original container (ignoring the H3 title)
+                Array.from(zone.children).slice(1).forEach(item => {
+                    if (item.classList.contains('draggable')) {
+                        itemsContainer.appendChild(item);
+                        item.classList.remove('item-correct', 'item-incorrect'); 
+                    }
+                });
+            });
+        }
+
+        window.onload = () => {
+            initializeDragAndDrop();
+            resetDataExercise(); // Initialize state
+        };
+    </script>
+</body>
+</html>

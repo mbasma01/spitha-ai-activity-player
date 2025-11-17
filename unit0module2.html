@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Python Introduction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
+        .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .code-block { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; }
+        .indent-demo { background-color: #e0f2f1; padding: 1rem; border-left: 5px solid #0d9488; border-radius: 4px; }
+        .indent-level-1 { margin-left: 1rem; border-left: 5px solid #065f46; padding: 0.5rem; background-color: #ccfbf1; }
+        /* Style for inline keywords */
+        code { font-family: 'Consolas', 'Monaco', monospace; background-color: #eef2ff; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-green-700 mb-2">Module 2: The Language of Order</h1>
+        <p class="text-xl text-gray-600">Python: The Orderly Communicator</p>
+    </header>
+
+    <!-- Section 1: Python as English and Keywords -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-green-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">🐍</span> Python: Systematic and English-Like
+        </h2>
+        <p class="mb-4 text-lg text-gray-700">Python is the most popular language for AI because it's <strong>designed for humans</strong>. It reads like plain <strong>English</strong> and uses familiar <strong>keywords</strong> to manage complex logic.</p>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <h3 class="font-semibold text-lg text-green-700 mb-2">Key Python Keywords (Our Verbs):</h3>
+                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-4">
+                    <li><code class="font-bold text-indigo-600">=</code> (Assignment)</li>
+                    <li><code class="font-bold text-indigo-600">if</code>, <code class="font-bold text-indigo-600">elif</code>, <code class="font-bold text-indigo-600">else</code> (Decision Making)</li>
+                    <li><code class="font-bold text-indigo-600">True</code> and <code class="font-bold text-indigo-600">False</code> (Core Logic)</li>
+                    <li><code class="font-bold text-indigo-600">def</code> (Defining a function/task)</li>
+                </ul>
+            </div>
+            <div class="code-block text-sm md:text-base">
+                <span class="text-cyan-400"># Setting a value (using =)</span><br>
+                <span class="text-white">my_score = 100</span><br><br>
+                <span class="text-cyan-400"># Decision (using if)</span><br>
+                <span class="text-purple-400">if</span> <span class="text-white">my_score</span> > 90:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-400">print</span>(<span class="text-green-400">"Excellent!"</span>)
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Indentation: The Power of Spacing -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-teal-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">➡️</span> Indentation: How Python Groups Code
+        </h2>
+        <p class="mb-4 text-lg text-gray-700">In Python, spaces (or <strong>Indentation</strong>) are not just for neatness—they are <strong>critical for the code's meaning</strong>! Indented lines are considered the <strong>children</strong> or <strong>instructions</strong> that belong to the non-indented line above them (the <strong>parent</strong>).</p>
+        
+        <div class="indent-demo">
+            <p class="font-bold text-teal-800">Parent Command (<code class="font-bold text-indigo-600">if</code> statement):</p>
+            <div class="indent-level-1 mt-2">
+                <p class="font-bold text-green-800">Child Instruction 1 (runs if parent is <code class="font-bold text-indigo-600">True</code>)</p>
+            </div>
+            <div class="indent-level-1 mt-1">
+                <p class="font-bold text-green-800">Child Instruction 2 (runs if parent is <code class="font-bold text-indigo-600">True</code>)</p>
+            </div>
+        </div>
+
+        <p class="mt-4 text-sm text-gray-600">If you forget the spaces, Python doesn't know what instructions belong together, and the code fails!</p>
+    </div>
+
+    <!-- Section 3: Interactive Demonstration of Top-to-Bottom Order -->
+    <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-yellow-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Order Matters! Interactive Task</h2>
+        <p class="mb-4 text-lg text-gray-700">Instructions are executed from <strong>top to bottom</strong>. If you use a variable before it's been defined, the machine gets confused.</p>
+        
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <!-- Ordered Instructions -->
+            <div class="w-full md:w-1/2 bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-lg text-gray-700 mb-2">Python's Way (Ordered):</h3>
+                <div class="code-block text-xs md:text-sm mb-3">
+                    <span class="text-white">step_1 = 10</span><br>
+                    <span class="text-white">step_2 = step_1 * 2</span><br>
+                    <span class="text-yellow-400">print</span>(<span class="text-white">step_2</span>)
+                </div>
+                <button onclick="runOrder(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg">Run Ordered Code</button>
+            </div>
+            
+            <!-- Chaotic Instructions -->
+            <div class="w-full md:w-1/2 bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-lg text-gray-700 mb-2">Chaotic Way (Fails due to order):</h3>
+                <div class="code-block text-xs md:text-sm mb-3">
+                    <span class="text-yellow-400">print</span>(<span class="text-white">step_2</span>) <span class="text-red-400"># ERROR: step_2 is not defined yet!</span><br>
+                    <span class="text-white">step_1 = 10</span><br>
+                    <span class="text-white">step_2 = step_1 * 2</span>
+                </div>
+                <button onclick="runOrder(false)" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg">Run Chaotic Code</button>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center p-3 bg-blue-100 rounded-lg">
+            <p class="text-lg font-bold text-blue-700">Code Output:</p>
+            <p id="outputOrder" class="text-2xl font-extrabold text-blue-900 mt-1">Click a button to see the result!</p>
+        </div>
+    </div>
+
+    <!-- Section 4: Tools Overview (Jupyter/Colab) -->
+    <div class="card bg-white p-6 rounded-xl border-t-4 border-blue-500">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+            <span class="text-3xl mr-3">💻</span> Our Digital Notebooks
+        </h2>
+        <p class="mb-4 text-lg text-gray-700">We write and run our Python code in *Notebooks*—interactive environments that combine code, output, and notes.</p>
+        
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <div class="w-full md:w-1/2 bg-blue-50 p-4 rounded-lg">
+                <h3 class="text-xl font-semibold text-blue-700 mb-2">Jupyter Notebook (In Class)</h3>
+                <p class="text-gray-600">This is our primary tool in the classroom for local, hands-on experimentation.</p>
+            </div>
+            <div class="w-full md:w-1/2 bg-indigo-50 p-4 rounded-lg">
+                <h3 class="text-xl font-semibold text-indigo-700 mb-2">Google Colab (Homework/Sharing)</h3>
+                <p class="text-gray-600 mb-2">A powerful cloud-based tool that runs entirely in your browser. Perfect for homework and sharing.</p>
+                <a href="https://colab.research.google.com/" target="_blank" class="text-indigo-500 hover:text-indigo-700 font-bold underline">Go to Google Colab</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runOrder(isOrdered) {
+            const output = document.getElementById('outputOrder');
+            if (isOrdered) {
+                output.textContent = "20 (Success! Python executes line-by-line in order.)";
+                output.classList.remove('text-red-900');
+                output.classList.add('text-blue-900');
+            } else {
+                output.textContent = "Error! step_2 is used before it is defined. Order matters!";
+                output.classList.remove('text-blue-900');
+                output.classList.add('text-red-900');
+            }
+        }
+    </script>
+</body>
+</html>
