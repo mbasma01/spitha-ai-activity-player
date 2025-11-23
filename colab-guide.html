@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Colab Data Loading Guide</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a polished, educational look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1f2937; /* Dark background for course player feel */
+        }
+        .guide-container {
+            max-width: 900px;
+        }
+        .code-block {
+            background-color: #111827; /* Darker code background */
+            border-left: 4px solid #3b82f6; /* Blue border */
+            position: relative; /* Needed for absolute positioning of the button */
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .copy-button:hover {
+            opacity: 1;
+        }
+        .step-button {
+            transition: all 0.2s ease-in-out;
+        }
+        /* Notification style */
+        #copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #10b981; /* Green color */
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Floating Button for Help Video */
+        #help-video-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+        /* Modal Overlay (Shared by Video and Image) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        /* Modal Content */
+        .modal-content {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+        }
+        /* Image Modal Specific Content */
+        #image-modal .modal-content {
+            background: #1f2937;
+            padding: 10px;
+            max-width: 95%; /* Make image modal wider */
+        }
+        #image-modal .modal-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .image-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align steps to the left */
+            padding-left: 2.75rem; /* pl-11 equivalent */
+            width: 100%;
+        }
+        .image-wrapper {
+             /* Increased size: was max-w-lg (32rem), now full width of container */
+             max-width: 100%; 
+             width: 100%;
+             /* Added clickability cues */
+             cursor: pointer;
+             transition: transform 0.2s ease-in-out;
+        }
+        .image-wrapper:hover {
+            transform: scale(1.01);
+        }
+        /* Style for the close button */
+        .modal-close-button {
+            background-color: #4a5568; /* Darker gray background */
+            color: white;
+            border-radius: 9999px; /* Fully rounded */
+            width: 32px; /* Fixed width */
+            height: 32px; /* Fixed height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* Larger 'X' */
+            line-height: 1; /* Adjust line height for centering */
+            transition: background-color 0.2s;
+        }
+        .modal-close-button:hover {
+            background-color: #64748b; /* Lighter gray on hover */
+        }
+        /* Removed position for the View Full Screen button */
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex justify-center">
+
+<div id="guide-app" class="guide-container w-full bg-gray-800 shadow-2xl rounded-xl p-6 md:p-10 text-gray-100">
+
+    <header class="mb-8 border-b border-gray-700 pb-6">
+        <h1 class="text-3xl font-bold text-white mb-2">Welcome to Google Colab: Your Python Lab!</h1>
+        <p class="text-gray-400 mb-4">Google Colab lets you write and run Python code right in your web browser, using powerful data science tools like Pandas. Use these steps to load data for your exercises.</p>
+        
+        <!-- Launch Colab Button --><a href="https://colab.research.google.com/" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+               <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 14.73l-4.5-4.5 1.42-1.42L9 11.89l5.08-5.08 1.42 1.42-6.5 6.5z"/>
+           </svg>
+           Launch Google Colab Now
+        </a>
+    </header>
+
+    <!-- NEW: Initial Setup Section --><h2 class="text-2xl font-semibold text-white mb-4 border-b border-gray-700 pb-2">Initial Setup: Sign In and Start Coding</h2>
+    
+    <div class="space-y-4">
+        <h3 class="text-xl font-medium text-white flex items-center">
+            <span class="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">A</span>
+            Sign Into Google Colab
+        </h3>
+        <p class="text-gray-400 pl-11">First, make sure you are signed in with your Google account. Click the blue <strong>Sign In</strong> button in the top right corner (if you are not already signed in).</p>
+        <div class="image-container">
+            <!-- Image is now clickable for full screen -->
+            <div class="image-wrapper w-full relative" onclick="toggleImageModal('https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-1.png', 'Sign In Screen')">
+                <img src="https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-1.png" alt="Screenshot showing the Sign In button in the top right corner of the Colab screen." class="rounded-lg w-full mx-auto my-4 border border-gray-600">
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-4 mt-6">
+        <h3 class="text-xl font-medium text-white flex items-center">
+            <span class="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">B</span>
+            Create a New Notebook
+        </h3>
+        <p class="text-gray-400 pl-11">After signing in, start a new coding session by clicking <strong>File</strong> in the top menu bar, then selecting <strong>New notebook in Drive</strong>.</p>
+        <div class="image-container">
+            <!-- Image is now clickable for full screen -->
+            <div class="image-wrapper w-full relative" onclick="toggleImageModal('https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-2.png', 'New Notebook Menu')">
+                <img src="https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-2.png" alt="Screenshot showing the File menu and the 'New notebook in Drive' option highlighted." class="rounded-lg w-full mx-auto my-4 border border-gray-600">
+            </div>
+        </div>
+    </div>
+    
+    <div class="space-y-4 mt-6 mb-8">
+        <h3 class="text-xl font-medium text-white flex items-center">
+            <span class="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">C</span>
+            The Python Workspace
+        </h3>
+        <p class="text-gray-400 pl-11">You should now see an empty notebook with a code cell ready for input. You can rename the notebook from <code class="bg-gray-700 p-1 rounded">Untitled</code> at the top of the screen (as shown in the image below) to something like <code class="bg-gray-700 p-1 rounded">Exercise 1</code>.</p>
+        <div class="image-container">
+            <!-- Image is now clickable for full screen -->
+            <div class="image-wrapper w-full relative" onclick="toggleImageModal('https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-3.png', 'Empty Python Workspace')">
+                <img src="https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-3.png" alt="Screenshot showing a new, empty Colab notebook named Untitled, ready for coding." class="rounded-lg w-full mx-auto my-4 border border-gray-600">
+            </div>
+        </div>
+    </div>
+    <!-- END Initial Setup Section --><!-- Interactive Tabs --><div class="mb-6">
+        <div class="flex border-b border-gray-700">
+            <button 
+                data-tab="github" 
+                class="tab-button py-2 px-4 text-sm md:text-base font-semibold border-b-2 transition duration-150 ease-in-out"
+            >
+                1. Load from GitHub (Recommended)
+            </button>
+            <button 
+                data-tab="upload" 
+                class="tab-button py-2 px-4 text-sm md:text-base font-semibold border-b-2 transition duration-150 ease-in-out"
+            >
+                2. Upload File Directly
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Content Container --><div id="tab-content">
+        <!-- GitHub Content --><div id="content-github" class="tab-content space-y-8">
+            <h2 class="text-2xl font-semibold text-blue-400">Method 1: Loading Data via a Raw GitHub Link</h2>
+            <p class="text-gray-300">This method is the best way to load data from a reliable source like our course files. It's the most stable for running code.</p>
+            
+            <!-- Step 1 --><div class="space-y-4">
+                <h3 class="text-xl font-medium text-white flex items-center">
+                    <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">1</span>
+                    Get the Raw GitHub URL
+                </h3>
+                <p class="text-gray-400 pl-11">
+                    <strong>The necessary resource link (the raw GitHub URL) will always be provided to you directly within the current course exercise.</strong>
+                    
+                    If you ever need to find it yourself: when viewing a data file (like a CSV) in a GitHub repository, click the <strong>"Raw" button</strong>. This gives you the direct, plain-text link Colab needs.
+                </p>
+                
+                <!-- Screenshot Description --><div class="bg-gray-700 p-4 rounded-lg shadow-inner pl-11">
+                    <p class="text-sm text-yellow-400">
+                        The raw URL will always start with <code class="bg-gray-800 p-1 rounded">https://raw.githubusercontent.com/</code>. You will paste this link directly into the code cell.
+                        
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Step 2 --><div class="space-y-4">
+                <h3 class="text-xl font-medium text-white flex items-center">
+                    <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">2</span>
+                    Use Python Code to Fetch the Data
+                </h3>
+                <p class="text-gray-400 pl-11">In a new Colab code cell, we first ask Python to grab the powerful <strong>Pandas</strong> tool (which we call <code class="bg-gray-700 p-1 rounded">pd</code> for short). Then we tell Pandas to read the data directly from the web link.</p>
+                <div class="code-block p-4 rounded-lg pl-11">
+                    <button class="copy-button bg-gray-600 hover:bg-gray-500 text-white text-xs font-bold py-1 px-2 rounded" onclick="copyCode(this)">
+                        Copy
+                    </button>
+                    <pre class="code-to-copy overflow-x-auto text-sm text-gray-300">
+# Step 1: Import Pandas (the data analysis tool)
+import pandas as pd
+
+# Step 2: Define the URL (You will paste the link here)
+github_url = "https://raw.githubusercontent.com/user/repo/main/data.csv"
+
+# Step 3: Tell Pandas to read the data from that link
+try:
+    df = pd.read_csv(github_url)
+    print("Data loaded successfully! Here are the first few rows:")
+    print(df.head())
+except Exception as e:
+    print(f"Error loading data: {e}")
+                    </pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Upload Content --><div id="content-upload" class="tab-content space-y-8 hidden">
+            <h2 class="text-2xl font-semibold text-blue-400">Method 2: Uploading a Local File</h2>
+            <p class="text-gray-300">This method is easy for files saved on your computer, but <strong>be warned</strong>: the file is deleted when your Colab session ends or times out!</p>
+
+            <!-- Step 1 --><div class="space-y-4">
+                <h3 class="text-xl font-medium text-white flex items-center">
+                    <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">1</span>
+                    Click the Upload Button
+                </h3>
+                <p class="text-gray-400 pl-11">In the left vertical sidebar of Google Colab, click the <strong>Files icon</strong> (1). Then, click the <strong>Upload icon</strong> (2) and select your file from your computer.</p>
+                
+                <!-- Screenshot Description --><div class="image-container">
+                    <!-- Image is now clickable for full screen -->
+                    <div class="image-wrapper w-full relative" onclick="toggleImageModal('https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-4.png', 'File Upload Panel')">
+                        <img src="https://raw.githubusercontent.com/mbasma01/spitha-ai-activity-player/main/colab-step-4.png" alt="Screenshot of the Colab file panel, highlighting the Files icon and the Upload icon." class="rounded-lg w-full mx-auto my-4 border border-gray-600">
+                    </div>
+                    <p class="text-sm text-yellow-400 mt-2">
+                        The Files icon (1) is the folder icon in the vertical toolbar. The Upload icon (2) is a sheet of paper with an upward arrow, located at the top of the file panel.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Step 2 --><div class="space-y-4">
+                <h3 class="text-xl font-medium text-white flex items-center">
+                    <span class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full mr-3 font-mono">2</span>
+                    Reference the Local Path
+                </h3>
+                <p class="text-gray-400 pl-11">Once uploaded, the file is available for Python to read. Right-click the file name in the sidebar and select "Copy path" to get the exact file name.</p>
+                <div class="code-block p-4 rounded-lg pl-11">
+                    <button class="copy-button bg-gray-600 hover:bg-gray-500 text-white text-xs font-bold py-1 px-2 rounded" onclick="copyCode(this)">
+                        Copy
+                    </button>
+                    <pre class="code-to-copy overflow-x-auto text-sm text-gray-300">
+# Step 1: Import Pandas (the data analysis tool)
+import pandas as pd
+
+# Step 2: Define the local file path (Use the name of the file you uploaded)
+file_path = "sales_data.csv"
+
+# Step 3: Tell Pandas to read the data from the local file
+try:
+    df = pd.read_csv(file_path)
+    print("Data loaded successfully! Here are the first few rows:")
+    print(df.head())
+except Exception as e:
+    print(f"Error loading data: {e}")
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-gray-700 text-center text-gray-500">
+        <p class="text-sm">Data Science Environment Guide for Students | Powered by Google Colab.</p>
+    </footer>
+
+</div>
+
+<!-- Floating Help Button --><button id="help-video-button" onclick="toggleVideoModal(true)"
+    class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-full shadow-lg text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition ease-in-out duration-150">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-2 2a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l.293.293a1 1 0 001.414-1.414l-2-2z" clip-rule="evenodd" />
+    </svg>
+    Watch Help Video
+</button>
+
+<!-- Modal for Help Video --><div id="video-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-4">
+            <h2 class="text-xl font-semibold text-white">Video Guide: Intro to Colab and Data Loading</h2>
+            <button onclick="toggleVideoModal(false)" class="modal-close-button">
+                &times; <!-- Times symbol for 'X' --></button>
+        </div>
+        <div class="relative w-full overflow-hidden rounded-md shadow-xl" style="padding-top: 56.25%;"> <!-- 16:9 Aspect Ratio -->
+            <iframe id="video-frame" class="absolute top-0 left-0 w-full h-full" 
+                src="https://www.youtube.com/embed/FXKMmilL70w?enablejsapi=1&modestbranding=1&autoplay=0" 
+                title="YouTube video player - Colab Data Loading Tutorial for Students" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        <p class="text-sm text-gray-400 mt-4">
+            This video explains the basics of Google Colab and demonstrates both the GitHub and file upload methods.
+        </p>
+    </div>
+</div>
+
+<!-- Modal for Full Screen Image View --><div id="image-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-4">
+            <h2 id="image-modal-title" class="text-xl font-semibold text-white"></h2>
+            <button onclick="toggleImageModal(null, null, false)" class="modal-close-button">
+                &times; <!-- Times symbol for 'X' --></button>
+        </div>
+        <img id="modal-image" src="" alt="" class="w-full">
+    </div>
+</div>
+
+<!-- Copy Notification Element --><div id="copy-notification">Code Copied!</div>
+
+<script>
+    // JavaScript for Tab Interactivity and Modal Control
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.tab-content');
+        const notification = document.getElementById('copy-notification');
+        const videoModal = document.getElementById('video-modal');
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const imageModalTitle = document.getElementById('image-modal-title');
+        
+        // Hide notification initially
+        notification.style.opacity = '0';
+        
+        window.copyCode = function(button) {
+            // Get the sibling <pre> element which contains the code
+            const codeBlock = button.parentElement.querySelector('.code-to-copy');
+            if (codeBlock) {
+                // Use document.execCommand('copy') for better compatibility in iframes
+                const range = document.createRange();
+                range.selectNodeContents(codeBlock);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                try {
+                    document.execCommand('copy');
+                    
+                    // Show notification
+                    notification.style.opacity = '1';
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                    }, 1500);
+                    
+                } catch (err) {
+                    console.error('Could Could not copy text: ', err);
+                }
+                
+                // Deselect the text
+                selection.removeAllRanges();
+            }
+        };
+
+        window.toggleVideoModal = function(show) {
+            // Fetch the iframe element inside the function to avoid null error on page load
+            const videoFrame = document.getElementById('video-frame');
+            
+            if (!videoFrame) {
+                console.error("Video frame element not found.");
+                return;
+            }
+
+            if (show) {
+                videoModal.classList.remove('hidden');
+                // Ensure the video loads/resumes when shown
+                const src = videoFrame.src;
+                videoFrame.src = src; // Reloads the video for smooth playback
+            } else {
+                videoModal.classList.add('hidden');
+                // Stop the video playback when hidden
+                videoFrame.src = videoFrame.src.split('?')[0]; // Reset src to stop video but keep base URL
+            }
+        };
+        
+        window.toggleImageModal = function(srcId, title, show = true) {
+            if (show) {
+                // IMPORTANT: Use the provided URL as the image source
+                modalImage.src = srcId; 
+                imageModalTitle.textContent = 'Full Screen View: ' + (title || 'Image');
+                imageModal.classList.remove('hidden');
+            } else {
+                imageModal.classList.add('hidden');
+                modalImage.src = ''; // Clear image source
+            }
+        };
+
+        // --- IMPROVED MODAL EXIT FUNCTIONALITY ---
+
+        // 1. Click outside closes image modal
+        imageModal.addEventListener('click', (event) => {
+            // Check if the click target is the modal overlay itself, not a child element
+            if (event.target === imageModal) {
+                toggleImageModal(null, null, false);
+            }
+        });
+
+        // 2. Click outside closes video modal
+        videoModal.addEventListener('click', (event) => {
+            // Check if the click target is the modal overlay itself, not a child element
+            if (event.target === videoModal) {
+                toggleVideoModal(false);
+            }
+        });
+
+        // 3. Escape key closes any open modal
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                if (!videoModal.classList.contains('hidden')) {
+                    toggleVideoModal(false);
+                }
+                if (!imageModal.classList.contains('hidden')) {
+                    toggleImageModal(null, null, false);
+                }
+            }
+        });
+        
+        // --- TAB LOGIC ---
+
+        const activateTab = (tabId) => {
+            // Deactivate all tabs and hide all content
+            tabs.forEach(tab => {
+                tab.classList.remove('text-blue-400', 'border-blue-400');
+                tab.classList.add('text-gray-400', 'border-gray-700');
+            });
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Activate the selected tab and show content
+            const activeTab = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            const activeContent = document.getElementById(`content-${tabId}`);
+            
+            if (activeTab && activeContent) {
+                activeTab.classList.remove('text-gray-400', 'border-gray-700');
+                activeTab.classList.add('text-blue-400', 'border-blue-400');
+                activeContent.classList.remove('hidden');
+            }
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (event) => {
+                const tabId = event.currentTarget.getAttribute('data-tab');
+                activateTab(tabId);
+            });
+        });
+
+        // Initialize to the first tab (GitHub)
+        activateTab('github');
+    });
+</script>
+
+</body>
+</html>
