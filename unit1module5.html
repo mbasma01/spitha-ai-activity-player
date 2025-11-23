@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peeking Inside the Box</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Session 1.5: Peeking Inside the Box</title>
+    <!-- Tailwind CSS CDN - Removed to embed styles due to CDN issue -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -43,6 +43,22 @@
             font-weight: 600;
             background-color: #1F2937; /* Darker gray background */
         }
+        
+        /* FALLBACK AND ESSENTIAL BASE STYLES (If CDN fails) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #1f2937; /* text-gray-800 */
+        }
+        .bg-gray-900 { background-color: #111827; }
+        .text-green-300 { color: #6ee7b7; }
+        .bg-indigo-500 { background-color: #6366f1; }
+        .hover\:bg-indigo-600:hover { background-color: #4f46e5; }
+        .bg-red-100 { background-color: #fee2e2; }
+        .border-l-4 { border-left-width: 4px; }
+        .border-lesson-primary { border-color: #EF4444; }
+        .bg-green-600 { background-color: #059669; }
+        .hover\:bg-green-700:hover { background-color: #047857; }
     </style>
 </head>
 <body class="bg-gray-50 font-inter text-gray-800 p-4 md:p-8">
@@ -120,40 +136,76 @@
         
         <hr class="border-t-2 border-red-200">
 
-        <!-- NEW EXERCISE SECTION -->
+        <!-- EXERCISE SECTION -->
         <section class="space-y-4">
             <h2 class="text-2xl font-bold text-gray-800">3. Exercise: Finding and Inspecting Real Data</h2>
             <p class="text-gray-700">
-                Data scientists often get their data from huge public archives (like Kaggle). Let's pretend we just downloaded a dataset about student performance.
+                Data scientists often get their data from huge public archives. We will use a link that points to a new dataset hosted on GitHub.
             </p>
 
             <h3 class="text-xl font-semibold text-gray-800 mt-6 flex items-center">
-                <span class="mr-2">⬇️</span> Download Your New Dataset
+                <span class="mr-2">⬇️</span> Step 1: Get the Exercise File
             </h3>
-            <p class="text-gray-700 mb-4">Click below to get the <code>student_scores.csv</code> file.</p>
-            <a href="data:text/csv;charset=utf-8,Student_ID,Math_Score,Reading_Score,Study_Hours%0A1001,88,92,5.5%0A1002,75,78,3.0%0A1003,95,91,6.5%0A1004,62,70,2.0%0A1005,80,85,4.0%0A1006,90,88,5.0"
-               download="student_scores.csv"
-               class="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150"
-               title="Download student_scores.csv">
-               Download student_scores.csv 📚
-            </a>
+            <p class="text-gray-700 mb-2">You can either download the file directly or use the GitHub URL:</p>
+            
+            <div class="flex flex-wrap gap-4 items-center">
+                <!-- Direct Download Link -->
+                <a href="data:text/csv;charset=utf-8,Student_ID,Math_Score,Reading_Score,Study_Hours%0A1001,88,92,5.5%0A1002,75,78,3.0%0A1003,95,91,6.5%0A1004,62,70,2.0%0A1005,80,85,4.0%0A1006,90,88,5.0"
+                    download="student_scores.csv"
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150"
+                    title="Download student_scores.csv">
+                    Download student_scores.csv 💾
+                </a>
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6 flex items-center">
+                <span class="mr-2">📝</span> Step 2: Load the Data
+            </h3>
+            <p class="text-gray-700 mb-4">Copy one of the following code blocks into a new cell in your Colab notebook and run it to load the exercise data. This loads a new DataFrame named <code>df_scores</code>.</p>
+            
+            <!-- Code Snippet for Exercise Setup - GitHub -->
+            <h4 class="text-lg font-semibold text-gray-700 mb-2">Option 1: Load from GitHub (Online)</h4>
+            <div class="code-block relative bg-gray-800 rounded-lg p-4 shadow-xl mb-4">
+                <pre id="code-snippet-exercise-github" class="text-white font-mono text-sm overflow-x-auto">
+# Load data using the public raw GitHub URL
+exercise_url = "https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/student_scores.csv"
+df_scores = pd.read_csv(exercise_url)
+                </pre>
+                <button onclick="copyToClipboard('code-snippet-exercise-github')" class="copy-button absolute top-3 right-3 px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150">
+                    Copy Code
+                </button>
+            </div>
+
+            <!-- Code Snippet for Exercise Setup - Local -->
+            <h4 class="text-lg font-semibold text-gray-700 mb-2">Option 2: Load Local File (Offline/Local Jupyter)</h4>
+            <div class="code-block relative bg-gray-800 rounded-lg p-4 shadow-xl">
+                <pre id="code-snippet-exercise-local" class="text-white font-mono text-sm overflow-x-auto">
+# Load file saved in the same directory (requires manual upload in Colab)
+file_path = "student_scores.csv"
+df_scores = pd.read_csv(file_path)
+                </pre>
+                <button onclick="copyToClipboard('code-snippet-exercise-local')" class="copy-button absolute top-3 right-3 px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150">
+                    Copy Code
+                </button>
+            </div>
+
 
             <h3 class="text-xl font-semibold text-gray-800 mt-8 flex items-center">
-                <span class="mr-2">📝</span> Your Task
+                <span class="mr-2">🧠</span> Step 3: Your Task
             </h3>
             <p class="text-gray-700">
-                Imagine you loaded this file using <code>df_scores = pd.read_csv("student_scores.csv")</code>. Using the inspection tools learned today, what would you learn about this dataset?
+                Now that you have <code>df_scores</code> loaded in Colab, run a new command for each question below to find the answer:
             </p>
             <ul class="list-disc list-inside text-gray-700 pt-2 space-y-2 pl-4">
-                <li>What is the size of the data? (Use <code>.shape</code>)</li>
-                <li>Are there any missing scores? (Check the <strong>Non-Null Count</strong> using <code>.info()</code>)</li>
-                <li>What is the average <code>Math_Score</code>? (Find the <strong>Mean</strong> using <code>.describe()</code>)</li>
+                <li>What is the size of the data? (Run <code>df_scores.shape</code>)</li>
+                <li>Are there any missing scores? (Run <code>df_scores.info()</code>)</li>
+                <li>What is the average <code>Math_Score</code>? (Run <code>df_scores.describe()</code>)</li>
             </ul>
         </section>
 
         <hr class="border-t-2 border-red-200">
 
-        <!-- Code Snippets -->
+        <!-- Code Snippets for Copying (Main Lesson) -->
         <section class="grid md:grid-cols-2 gap-6">
             <div>
                 <h2 class="text-xl font-bold text-gray-800 mb-2">Code: print(df)</h2>
