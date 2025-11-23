@@ -9,14 +9,20 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
         .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .draggable { cursor: grab; }
+        .draggable { cursor: grab; transition: transform 0.2s; }
+        .draggable:active { transform: scale(1.05); }
         /* dropzone defines the neutral dashed border */
         .dropzone { min-height: 8rem; border: 2px dashed #9ca3af; transition: border-color 0.3s; }
         .dropzone-hover { border-color: #2563eb; }
         /* These classes provide feedback colors after check/drop */
-        .dropzone.correct { border-color: #10b981; background-color: #d1fae5; }
-        .dropzone.incorrect { border-color: #ef4444; background-color: #fee2e2; }
+        .dropzone.correct-zone { border-color: #10b981; background-color: #d1fae5; }
+        .dropzone.incorrect-zone { border-color: #ef4444; background-color: #fee2e2; }
         .draggable.dropped { cursor: default; }
+        .drop-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start; /* items stick to the top */
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -35,7 +41,7 @@
         </ul>
     </div>
 
-    <!-- Section 2: AI vs. Rule-Based Classification - Now starting neutral -->
+    <!-- Section 2: AI vs. Rule-Based Classification - FIXED FOR MULTIPLE DROPS -->
     <div class="card bg-white p-6 rounded-xl mb-10 border-t-4 border-blue-500">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">AI or Not AI?</h2>
         <p class="text-gray-700 mb-6">Drag the items below into the correct category. Think: Does it learn/adapt, or just follow rules?</p>
@@ -50,17 +56,20 @@
             <div data-answer="RULE" draggable="true" class="draggable bg-gray-200 text-gray-800 p-3 rounded-lg shadow-md hover:ring-2 hover:ring-gray-400">Elevator door opening when sensor triggered</div>
         </div>
 
-        <!-- Drop Zones (Neutralized appearance by removing explicit border colors and using neutral text) -->
+        <!-- Drop Zones (Modified to allow multiple items with drop-container) -->
         <div class="grid md:grid-cols-2 gap-6">
             <div id="dropAI" data-target="AI" class="dropzone p-4 rounded-xl bg-gray-50">
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">AI Systems (Learns & Reasons)</h3>
+                <div class="drop-container"></div>
             </div>
             <div id="dropRULE" data-target="RULE" class="dropzone p-4 rounded-xl bg-gray-50">
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Rule-Based Systems (Defined Steps)</h3>
+                <div class="drop-container"></div>
             </div>
         </div>
 
-        <div class="mt-6 text-center">
+        <div class="mt-6 text-center space-x-4">
+            <button onclick="checkAIExercise()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-full">Check Answers</button>
             <button onclick="resetAIExercise()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-full">Reset Exercise</button>
             <p id="aiResult" class="mt-3 text-lg font-bold"></p>
         </div>
@@ -71,7 +80,7 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-4">AI History Timeline Game</h2>
         <p class="text-gray-700 mb-6">Match the year to the correct historic AI event.</p>
 
-        <!-- Draggable Years (Unified to purple theme) -->
+        <!-- Draggable Years -->
         <div id="yearItems" class="flex flex-wrap gap-3 justify-center mb-8">
             <div data-year="1956" draggable="true" class="draggable bg-purple-200 text-purple-900 p-3 rounded-lg shadow-md hover:ring-2 hover:ring-purple-400">1956</div>
             <div data-year="1997" draggable="true" class="draggable bg-purple-200 text-purple-900 p-3 rounded-lg shadow-md hover:ring-2 hover:ring-purple-400">1997</div>
@@ -101,7 +110,7 @@
             </div>
         </div>
 
-        <div class="mt-6 text-center">
+        <div class="mt-6 text-center space-x-4">
             <button onclick="checkHistoryGame()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-full">Check Answers</button>
             <button onclick="resetHistoryGame()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-full">Reset Game</button>
         </div>
@@ -129,7 +138,8 @@
             draggables.forEach(item => {
                 item.addEventListener('dragstart', (e) => {
                     draggedItem = item;
-                    e.dataTransfer.setData('text/plain', item.dataset.answer || item.dataset.year); // For data transfer info
+                    // Ensure we pass the answer/year data
+                    e.dataTransfer.setData('text/plain', item.dataset.answer || item.dataset.year); 
                     item.classList.add('opacity-50', 'ring-4', 'ring-blue-300');
                 });
                 item.addEventListener('dragend', () => {
@@ -150,50 +160,95 @@
             });
         }
 
+        // --- NEW handleDrop function to support multiple drops in Section 2 ---
         function handleDrop(e) {
             e.preventDefault();
             this.classList.remove('dropzone-hover');
             
-            if (!draggedItem) return;
+            if (!draggedItem || draggedItem.classList.contains('dropped')) return;
 
-            // Check if the dropzone is empty or if it's a history dropzone
-            // The history drops allow only one item (it will be the third child due to the Year: span).
-            if (this.children.length > 2 && this.classList.contains('history-drop')) {
-                // If a history dropzone already has an item, return the dragged item to its original location
-                return;
-            } else if (this.children.length > 1 && !this.classList.contains('history-drop')) {
-                // If the AI/Rule dropzone already has an item (plus the heading), return
-                return;
+            // Target the specific container for dropping items in Section 2
+            let targetContainer = this;
+            if (!this.classList.contains('history-drop')) {
+                // If it's an AI/RULE dropzone, use the inner .drop-container
+                targetContainer = this.querySelector('.drop-container');
             }
 
-            // Move the dragged item into the dropzone
-            this.appendChild(draggedItem);
+            if (!targetContainer) return;
+
+            // History Drop Zone (Section 3) - Only allows ONE item
+            if (this.classList.contains('history-drop')) {
+                // If it already contains a dropped item, prevent drop
+                if (targetContainer.querySelector('.draggable')) {
+                    return; 
+                }
+            }
+            
+            // Move the dragged item into the target container
+            targetContainer.appendChild(draggedItem);
             draggedItem.classList.add('dropped');
-            // Ensure the dropped items look good inside the box
             draggedItem.style.margin = '0.5rem';
             draggedItem.draggable = false; // Cannot be dragged once dropped
 
-            // Check correctness only for AI/Rule exercise (Section 2)
-            if (this.dataset.target) {
-                const isCorrect = draggedItem.dataset.answer === this.dataset.target;
-                
-                // Set immediate feedback (border color) - using inline styles
-                draggedItem.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
-                draggedItem.style.borderWidth = '2px';
-            }
-            
-            // Cleanup
+            // Clear previous feedback colors on the dropped item
+            draggedItem.style.borderColor = '';
+            draggedItem.style.borderWidth = '';
             draggedItem = null;
         }
 
+
         // --- Section 2 Functions (AI vs. Not AI) ---
+        function checkAIExercise() {
+            const dropZones = document.querySelectorAll('#dropAI, #dropRULE');
+            let correctCount = 0;
+            let totalItems = 0;
+
+            // Clear previous drop zone feedback
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct-zone', 'incorrect-zone');
+            });
+            
+            // Check all dropped items
+            const allDroppedItems = document.querySelectorAll('.draggable.dropped');
+            allDroppedItems.forEach(item => {
+                totalItems++;
+                const parentZone = item.closest('.dropzone');
+                if (parentZone) {
+                    const isCorrect = item.dataset.answer === parentZone.dataset.target;
+                    
+                    // Set item-specific feedback (uses inline style)
+                    item.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
+                    item.style.borderWidth = '2px';
+                    
+                    if (isCorrect) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            // Calculate score and provide general feedback
+            const totalRequired = 6; // Total number of items in the bank
+            const misplacedCount = totalRequired - correctCount;
+
+            const resultText = document.getElementById('aiResult');
+            resultText.classList.remove('text-green-600', 'text-red-600');
+
+            if (correctCount === totalRequired) {
+                resultText.textContent = "Excellent! You correctly identified all AI and Rule-Based systems.";
+                resultText.classList.add('text-green-600');
+            } else {
+                resultText.textContent = `Keep trying! You correctly placed ${correctCount} out of ${totalRequired} items.`;
+                resultText.classList.add('text-red-600');
+            }
+        }
+        
         function resetAIExercise() {
             const itemsContainer = document.getElementById('aiItems');
-            const dropZones = document.querySelectorAll('#dropAI, #dropRULE');
+            const dropContainers = document.querySelectorAll('#dropAI .drop-container, #dropRULE .drop-container');
             
-            dropZones.forEach(zone => {
+            dropContainers.forEach(container => {
                 // Move all children back to the original container
-                Array.from(zone.children).forEach(item => {
+                Array.from(container.children).forEach(item => {
                     if (item.classList.contains('draggable')) {
                         itemsContainer.appendChild(item);
                         item.classList.remove('dropped');
@@ -204,7 +259,12 @@
                     }
                 });
             });
+
+            // Clear general feedback
             document.getElementById('aiResult').textContent = '';
+            document.querySelectorAll('#dropAI, #dropRULE').forEach(zone => {
+                zone.classList.remove('correct-zone', 'incorrect-zone');
+            });
         }
 
         // --- Section 3 Functions (History Game) ---
@@ -214,23 +274,25 @@
             const totalRequired = 4; // Only 4 required events
 
             dropZones.forEach(zone => {
-                zone.classList.remove('correct', 'incorrect');
+                zone.classList.remove('correct-zone', 'incorrect-zone');
                 
-                // Find the dropped item (it's a child with class 'draggable')
-                const droppedItem = Array.from(zone.children).find(el => el.classList.contains('draggable'));
+                // Find the dropped item
+                const droppedItem = zone.querySelector('.draggable');
                 
                 if (droppedItem) {
-                    if (droppedItem.dataset.year === zone.dataset.year) {
-                        zone.classList.add('correct');
+                    const isCorrect = droppedItem.dataset.year === zone.dataset.year;
+                    
+                    if (isCorrect) {
+                        zone.classList.add('correct-zone');
                         droppedItem.style.borderColor = '#10b981';
                         correctCount++;
                     } else {
-                        zone.classList.add('incorrect');
+                        zone.classList.add('incorrect-zone');
                         droppedItem.style.borderColor = '#ef4444';
                     }
                     droppedItem.style.borderWidth = '2px';
                 } else {
-                    zone.classList.add('incorrect'); // Incorrect if empty
+                    zone.classList.add('incorrect-zone'); // Incorrect if empty
                 }
             });
 
@@ -259,7 +321,7 @@
             const dropZones = document.querySelectorAll('.history-drop');
 
             dropZones.forEach(zone => {
-                zone.classList.remove('correct', 'incorrect');
+                zone.classList.remove('correct-zone', 'incorrect-zone');
                 // Move back any dropped items
                 Array.from(zone.children).forEach(item => {
                     if (item.classList.contains('draggable')) {
