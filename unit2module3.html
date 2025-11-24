@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Simple Filtering Logic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; }
+        .action-button:hover { transform: translateY(-1px); }
+        .fade-row { opacity: 0.2; transition: opacity 0.3s; }
+        .active-row { opacity: 1; background-color: #f0fdf4; font-weight: bold; }
+        .genre-row.hidden { display: none; }
+        .logic-table td { padding: 4px 8px; border: 1px solid #e2e8f0; }
+
+        /* Debug Challenge Styles (Consistent with Page 3) */
+        .debug-challenge { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #f9fafb; }
+        .debug-code-line {
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 10px;
+            background-color: #374151; /* Dark background */
+            color: #fca5a5; /* Reddish color for error look */
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .debug-input {
+            width: 100%;
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 8px;
+            margin-top: 10px;
+            border: 2px solid #9ca3af;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+        .copy-btn { transition: all 0.2s; }
+        .copy-btn:hover { background-color: #3b82f6; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">4. Applying Logic: Simple Data Filtering</h1>
+            <p class="text-gray-600 mt-2">Translating a simple question into a powerful filter (both numeric and text).</p>
+        </header>
+        
+        <!-- NEW 1: Boolean Indexing Diagram -->
+        <div class="card p-6 mb-8 bg-yellow-50">
+             <h2 class="text-2xl font-semibold text-yellow-700 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3"><path d="M12 2v20"/><path d="M17 5H7"/></svg>
+                Core Concept: The 3-Step Filtering Machine
+            </h2>
+            <p class="text-yellow-900 mb-4">
+                Remember the three steps: 1. Ask a question (Create Mask), 2. Check each row, 3. Keep only the True rows.
+            </p>
+        </div>
+
+        <!-- A. Numeric Filtering (Threshold) -->
+        <div class="card p-6 mb-8 bg-green-50">
+            <h2 class="text-2xl font-semibold text-green-800 mb-4">A. Interactive: Numeric Filter Threshold (>)</h2>
+            <p class="text-green-900 mb-4">Move the slider to filter movies by **Release Year**. Rows that meet the condition (`Year > Threshold`) remain visible.</p>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <label class="font-bold">Year > </label>
+                <input type="range" id="yearSlider" min="1990" max="2020" value="1990" class="w-full cursor-pointer accent-green-600" oninput="updateNumericFilter(this.value)">
+                <span id="sliderValue" class="font-mono bg-white px-2 py-1 rounded border">1990</span>
+            </div>
+
+            <table class="w-full text-sm bg-white rounded border">
+                <thead><tr class="bg-gray-100"><th class="p-2 border">Title</th><th class="p-2 border">Year</th></tr></thead>
+                <tbody id="filterTable">
+                    <tr data-year="2009"><td class="p-2 border">Avatar</td><td class="p-2 border">2009</td></tr>
+                    <tr data-year="1994"><td class="p-2 border">Pulp Fiction</td><td class="p-2 border">1994</td></tr>
+                    <tr data-year="2019"><td class="p-2 border">Avengers: Endgame</td><td class="p-2 border">2019</td></tr>
+                    <tr data-year="1997"><td class="p-2 border">Titanic</td><td class="p-2 border">1997</td></tr>
+                    <tr data-year="2015"><td class="p-2 border">Jurassic World</td><td class="p-2 border">2015</td></tr>
+                    <tr data-year="2019"><td class="p-2 border">Frozen II</td><td class="p-2 border">2019</td></tr>
+                </tbody>
+            </table>
+            <p class="mt-2 text-sm text-gray-500 italic">Code: movies_df[movies_df['Release_Year'] > <span id="codeValue">1990</span>]</p>
+        </div>
+
+        <!-- B. String Filtering (Equality) -->
+        <div class="card p-6 mb-8 bg-red-50">
+            <h2 class="text-2xl font-semibold text-red-800 mb-4">B. Interactive: String Filter (==)</h2>
+            <p class="text-red-900 mb-4">Select a **Genre** below. Only rows where `Genre == 'Selection'` remain visible.</p>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <label class="font-bold">Genre == </label>
+                <select id="genreSelector" onchange="updateStringFilter(this.value)" class="p-2 border rounded font-mono">
+                    <option value="">-- Select Genre --</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                    <option value="Action">Action</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Adventure">Adventure</option>
+                </select>
+            </div>
+
+            <table class="w-full text-sm bg-white rounded border">
+                <thead><tr class="bg-gray-100"><th class="p-2 border">Title</th><th class="p-2 border">Genre</th></tr></thead>
+                <tbody id="genreTable">
+                    <tr data-genre="Sci-Fi" class="genre-row"><td class="p-2 border">Avatar</td><td class="p-2 border">Sci-Fi</td></tr>
+                    <tr data-genre="Crime" class="genre-row"><td class="p-2 border">Pulp Fiction</td><td class="p-2 border">Crime</td></tr>
+                    <tr data-genre="Action" class="genre-row"><td class="p-2 border">Avengers: Endgame</td><td class="p-2 border">Action</td></tr>
+                    <tr data-genre="Drama" class="genre-row"><td class="p-2 border">Titanic</td><td class="p-2 border">Drama</td></tr>
+                    <tr data-genre="Adventure" class="genre-row"><td class="p-2 border">Jurassic World</td><td class="p-2 border">Adventure</td></tr>
+                    <tr data-genre="Animation" class="genre-row"><td class="p-2 border">Frozen II</td><td class="p-2 border">Animation</td></tr>
+                </tbody>
+            </table>
+            <p id="genreCode" class="mt-2 text-sm text-gray-500 italic">Code: movies_df[movies_df['Genre'] == '...']</p>
+        </div>
+        
+        <!-- NEW: C. Interactive Debugger -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">C. Interactive Debugger (Fix Syntax)</h2>
+            <p class="text-gray-600 mb-4 font-bold">Find the error in the filtering code and type the correct version below it.</p>
+            
+            <!-- Challenge 1: The Assignment Error -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 1: Equals vs. Assignment</h3>
+                <p class="text-sm text-gray-500 mb-3">We want to check if Genre is 'Action'. What's wrong with the operator?</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug1-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug1-code"><code>movies_df[movies_df['Genre'] = 'Action']</code></pre>
+                </div>
+                
+                <input type="text" id="bug1-input" class="debug-input" placeholder="Type the corrected code (Hint: use ==)">
+                <button onclick="checkDebug(1)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 1</button>
+                <p id="bug1-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 2: Missing Wrapper -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 2: The Missing Wrapper</h3>
+                <p class="text-sm text-gray-500 mb-3">This code creates a True/False list, but doesn't actually filter the DataFrame. Wrap it!</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug2-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug2-code"><code>movies_df['Release_Year'] > 2000</code></pre>
+                </div>
+                
+                <input type="text" id="bug2-input" class="debug-input" placeholder="Type the corrected code (Hint: movies_df[ ... ])">
+                <button onclick="checkDebug(2)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 2</button>
+                <p id="bug2-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 3: Missing Quotes -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 3: Text requires Quotes</h3>
+                <p class="text-sm text-gray-500 mb-3">We are looking for the 'Drama' genre. Python thinks Drama is a variable name here.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug3-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug3-code"><code>movies_df[movies_df['Genre'] == Drama]</code></pre>
+                </div>
+                
+                <input type="text" id="bug3-input" class="debug-input" placeholder="Type the corrected code (Hint: 'Drama')">
+                <button onclick="checkDebug(3)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 3</button>
+                <p id="bug3-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+        </div>
+
+        <!-- D. Comparative Output -->
+        <div class="card p-6 mb-8 bg-indigo-50">
+            <h2 class="text-2xl font-semibold text-indigo-800 mb-4 flex items-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                D. Comparative Output: Numeric vs. Text Filter
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Numeric Output -->
+                <div class="p-4 border rounded bg-white shadow">
+                    <h4 class="font-bold text-blue-700 mb-2">Filter: Rating_Avg > 8.0</h4>
+                    <pre class="font-mono text-xs bg-gray-100 p-2 rounded">
+                 Title  Rating_Avg
+1  Avengers: Endgame         8.3
+5       Pulp Fiction         8.9
+                    </pre>
+                    <p class="text-xs mt-1 text-gray-500 italic">Result: Only two rows meet the numerical threshold.</p>
+                </div>
+                <!-- String Output -->
+                <div class="p-4 border rounded bg-white shadow">
+                    <h4 class="font-bold text-red-700 mb-2">Filter: Genre == 'Animation'</h4>
+                    <pre class="font-mono text-xs bg-gray-100 p-2 rounded">
+                 Title      Genre
+4          Frozen II  Animation
+                    </pre>
+                    <p class="text-xs mt-1 text-gray-500 italic">Result: Only one row matches the exact string.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- E. Interactive Logic Test -->
+        <div class="card p-6 mb-8 bg-yellow-50">
+            <h2 class="text-2xl font-semibold text-yellow-700 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                E. Boolean Indexing Test (Numeric)
+            </h2>
+            <p class="text-yellow-900 mb-4 font-semibold">
+                **Condition:** `Rating_Avg >= 7.9`. Predict the `True` or `False` result for the mask.
+            </p>
+            <table class="logic-table w-full mb-4 bg-white text-sm rounded-lg shadow-inner">
+                <thead>
+                    <tr><td class="font-bold">Title</td><td class="font-bold">Rating_Avg</td><td class="font-bold">Result (`>= 7.9`)</td></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Avatar</td><td>7.8</td><td><select id="r1" class="p-1 border rounded"><option value="">?</option><option value="True">True</option><option value="False">False</option></select></td></tr>
+                    <tr><td>Avengers: Endgame</td><td>8.3</td><td><select id="r2" class="p-1 border rounded"><option value="">?</option><option value="True">True</option><option value="False">False</option></select></td></tr>
+                    <tr><td>Titanic</td><td>7.9</td><td><select id="r3" class="p-1 border rounded"><option value="">?</option><option value="False">False</option><option value="True">True</option></select></td></tr>
+                    <tr><td>Pulp Fiction</td><td>8.9</td><td><select id="r4" class="p-1 border rounded"><option value="">?</option><option value="False">False</option><option value="True">True</option></select></td></tr>
+                </tbody>
+            </table>
+            <button onclick="checkLogicTest()" class="mt-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150 action-button">
+                Check Logic
+            </button>
+            <p id="logic-feedback" class="mt-4 font-semibold"></p>
+        </div>
+
+        <!-- F. Code Examples -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-blue-600"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                F. Code Examples (Copy & Run)
+            </h2>
+            <p class="text-gray-700 mb-4">Practice filtering the DataFrame using different operators and column types.</p>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 1: Filter movies released before year 2000 (`<`)</h3>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('ex1-year-less')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex1-year-less"><code>print(movies_df[movies_df['Release_Year'] < 2000])</code></pre>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 2: Filter movies that are 'Sci-Fi' (`==` on text)</h3>
+            <div class="code-container relative">
+                <button onclick="copyCode('ex2-genre-scifi')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex2-genre-scifi"><code>print(movies_df[movies_df['Genre'] == 'Sci-Fi'])</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Numeric Filter Logic (A) ---
+        function updateNumericFilter(val) {
+            document.getElementById('sliderValue').innerText = val;
+            document.getElementById('codeValue').innerText = val;
+            
+            const rows = document.querySelectorAll('#filterTable tr');
+            rows.forEach(row => {
+                const year = parseInt(row.dataset.year);
+                if (year > val) {
+                    row.classList.remove('fade-row');
+                    row.classList.add('active-row');
+                } else {
+                    row.classList.add('fade-row');
+                    row.classList.remove('active-row');
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => updateNumericFilter(1990));
+
+
+        // --- String Filter Logic (B) ---
+        const allGenreRows = [
+            { title: 'Avatar', genre: 'Sci-Fi' },
+            { title: 'Pulp Fiction', genre: 'Crime' },
+            { title: 'Avengers: Endgame', genre: 'Action' },
+            { title: 'Titanic', genre: 'Drama' },
+            { title: 'Jurassic World', genre: 'Adventure' },
+            { title: 'Frozen II', genre: 'Animation' }
+        ];
+
+        function renderGenreTable(selectedGenre) {
+            const tbody = document.getElementById('genreTable');
+            const codeOutput = document.getElementById('genreCode');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            allGenreRows.forEach(data => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-genre', data.genre);
+                tr.className = 'genre-row';
+
+                const matches = data.genre === selectedGenre;
+                
+                if (!selectedGenre) {
+                    // Show all when nothing is selected
+                    tr.classList.remove('hidden');
+                } else if (matches) {
+                    tr.classList.remove('hidden');
+                    tr.classList.add('active-row');
+                } else {
+                    tr.classList.add('hidden');
+                    tr.classList.remove('active-row');
+                }
+
+                tr.innerHTML = `<td class="p-2 border">${data.title}</td><td class="p-2 border">${data.genre}</td>`;
+                tbody.appendChild(tr);
+            });
+            
+            codeOutput.innerText = `Code: movies_df[movies_df['Genre'] == '${selectedGenre || '...'}'${selectedGenre ? ']' : ''}`;
+        }
+        
+        function updateStringFilter(selectedGenre) {
+            renderGenreTable(selectedGenre);
+        }
+        document.addEventListener('DOMContentLoaded', () => renderGenreTable(document.getElementById('genreSelector').value));
+
+
+        // --- Logic Test (E) ---
+        function checkLogicTest() {
+            const answers = {
+                'r1': 'False', // 7.8 < 7.9
+                'r2': 'True',  // 8.3 >= 7.9
+                'r3': 'True',  // 7.9 >= 7.9
+                'r4': 'True'   // 8.9 >= 7.9
+            };
+            let correctCount = 0;
+            const keys = Object.keys(answers);
+            const feedback = document.getElementById('logic-feedback');
+
+            keys.forEach(id => {
+                const element = document.getElementById(id);
+                if (element.value === answers[id]) {
+                    correctCount++;
+                    element.classList.add('bg-green-200');
+                    element.classList.remove('bg-red-200');
+                } else {
+                    element.classList.add('bg-red-200');
+                    element.classList.remove('bg-green-200');
+                }
+            });
+
+            if (correctCount === keys.length) {
+                feedback.innerHTML = '<span class="text-green-600">Perfect! You correctly generated the Boolean Mask.</span>';
+            } else {
+                feedback.innerHTML = `<span class="text-red-600">Try again! You got ${correctCount} out of ${keys.length} correct. Remember, 'greater than or equal to' (>=) includes the number itself.</span>`;
+            }
+        }
+        
+        // --- Debugger Logic (C) ---
+        const CORRECT_ANSWERS = {
+            1: "movies_df[movies_df['Genre'] == 'Action']",
+            2: "movies_df[movies_df['Release_Year'] > 2000]",
+            3: "movies_df[movies_df['Genre'] == 'Drama']"
+        };
+
+        function normalizeInput(input) {
+            return input.trim().replace(/\s+/g, ' ').replace(/"/g, "'");
+        }
+
+        function checkDebug(challengeNum) {
+            const inputEl = document.getElementById(`bug${challengeNum}-input`);
+            const feedbackEl = document.getElementById(`bug${challengeNum}-feedback`);
+            
+            // Flexible matching: Allow spaces or no spaces around operators
+            const userInput = normalizeInput(inputEl.value).replace(/\s*==\s*/g, '==').replace(/\s*>\s*/g, '>');
+            const correct = normalizeInput(CORRECT_ANSWERS[challengeNum]).replace(/\s*==\s*/g, '==').replace(/\s*>\s*/g, '>');
+
+            if (userInput.length === 0) {
+                 feedbackEl.innerHTML = '<span class="text-red-600">Please enter code first.</span>';
+                 return;
+            }
+
+            if (userInput === correct) {
+                feedbackEl.innerHTML = '<span class="text-green-600">🎉 Correct! Syntax fixed.</span>';
+                inputEl.classList.add('correct-input-style');
+                inputEl.classList.remove('incorrect-input-style');
+            } else {
+                feedbackEl.innerHTML = '<span class="text-red-600">❌ Incorrect. Check your operators, quotes, and brackets.</span>';
+                inputEl.classList.add('incorrect-input-style');
+                inputEl.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- Utility Functions ---
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

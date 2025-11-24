@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. Compound Filtering: OR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; }
+        .action-button:hover { transform: translateY(-1px); }
+
+        /* Gate Visuals */
+        .gate { width: 100px; padding: 10px; border-radius: 8px; font-weight: bold; color: white; transition: all 0.3s; text-align: center; cursor: pointer; }
+        .gate-false { background-color: #ef4444; }
+        .gate-true { background-color: #10b981; }
+        .set-circle { width: 100px; height: 100px; border-radius: 50%; opacity: 0.7; position: absolute; transition: background 0.3s; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+
+        /* Debug Challenge Styles */
+        .debug-challenge { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #f9fafb; }
+        .debug-code-line {
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 10px;
+            background-color: #374151;
+            color: #fca5a5;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .debug-input {
+            width: 100%;
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 8px;
+            margin-top: 10px;
+            border: 2px solid #9ca3af;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+        .copy-btn { transition: all 0.2s; }
+        .copy-btn:hover { background-color: #3b82f6; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">6. Compound Logic: OR (`|`)</h1>
+            <p class="text-gray-600 mt-2">Filtering for data that meets **AT LEAST ONE** condition.</p>
+        </header>
+
+        <!-- A. The OR Gate Visualizer -->
+        <div class="card p-6 mb-8 bg-blue-50">
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                A. Interactive: The Forgiving Gate
+            </h2>
+            <p class="text-blue-900 mb-6">In OR logic, electricity flows if **EITHER** switch is On. Click switches to test.</p>
+            
+            <div class="flex flex-col gap-4 relative pl-10 border-l-4 border-gray-300 ml-10">
+                <!-- Top Path -->
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-1 bg-gray-300"></div>
+                    <div id="sw1" class="gate gate-false" onclick="toggleSwitch(1)">Switch A (False)</div>
+                    <div id="line1" class="w-24 h-1 bg-gray-300"></div>
+                </div>
+                
+                <!-- Bottom Path -->
+                <div class="flex items-center gap-4">
+                     <div class="w-8 h-1 bg-gray-300"></div>
+                    <div id="sw2" class="gate gate-false" onclick="toggleSwitch(2)">Switch B (False)</div>
+                    <div id="line2" class="w-24 h-1 bg-gray-300"></div>
+                </div>
+
+                <!-- Convergence -->
+                 <div class="absolute right-0 top-0 bottom-0 flex items-center">
+                    <div id="bulb" class="w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-400 transition-all duration-300"></div>
+                 </div>
+            </div>
+            <p class="text-center mt-6 font-mono text-sm text-gray-600">Current Status: <span id="bulbStatus" class="font-bold">OFF</span></p>
+        </div>
+
+        <!-- B. Interactive Debugger -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">B. Interactive Debugger (Fix Syntax)</h2>
+            <p class="text-gray-600 mb-4 font-bold">Fix the errors below. Remember: `OR` uses `|` (Pipe) and requires `( )`.</p>
+            
+            <!-- Challenge 1: The 'or' keyword error -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 1: The Wrong Word</h3>
+                <p class="text-sm text-gray-500 mb-3">Pandas doesn't understand the English word `or`. Use the pipe symbol `|`.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug1-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug1-code"><code>movies_df[(movies_df['Year'] < 2000) or (movies_df['Popularity'] > 200)]</code></pre>
+                </div>
+                
+                <input type="text" id="bug1-input" class="debug-input" placeholder="Type corrected code (Hint: use |)">
+                <button onclick="checkDebug(1)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 1</button>
+                <p id="bug1-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 2: Missing Parentheses -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 2: The Logic Leak</h3>
+                <p class="text-sm text-gray-500 mb-3">Without parentheses, Python gets confused about what to compare.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug2-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug2-code"><code>movies_df[movies_df['Genre'] == 'Sci-Fi' | movies_df['Year'] > 2018]</code></pre>
+                </div>
+                
+                <input type="text" id="bug2-input" class="debug-input" placeholder="Type corrected code with parentheses ( )">
+                <button onclick="checkDebug(2)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 2</button>
+                <p id="bug2-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+        </div>
+
+        <!-- C. Logic Comparator -->
+        <div class="card p-6 mb-8 bg-gray-50">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">C. Visualizing: AND vs OR</h2>
+            <p class="text-gray-600 mb-4">Click buttons to see how the inclusion logic changes.</p>
+            
+            <div class="flex gap-2 mb-4">
+                <button onclick="showSet('and')" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition">Show AND (&)</button>
+                <button onclick="showSet('or')" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded transition">Show OR (|)</button>
+            </div>
+            
+            <div class="relative h-40 bg-white border rounded-lg overflow-hidden flex items-center justify-center">
+                <div id="circleA" class="set-circle bg-blue-500" style="left: 35%;">Set A</div>
+                <div id="circleB" class="set-circle bg-red-500" style="left: 45%;">Set B</div>
+                <div id="set-label" class="absolute bottom-2 font-bold text-gray-700 bg-white/80 px-2 rounded">Click a button...</div>
+            </div>
+        </div>
+
+        <!-- D. Code Examples -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-blue-600"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                D. Code Examples (Copy & Run)
+            </h2>
+            <p class="text-gray-700 mb-4">Practice using the forgiving OR operator (`|`) to find broad selections of data.</p>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 1: Filter (Rating > 8.5) OR (Release Year < 1995)</h3>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('ex1-or-high')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex1-or-high"><code>print(movies_df[(movies_df['Rating_Avg'] > 8.5) | (movies_df['Release_Year'] < 1995)])</code></pre>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 2: Filter (Genre == 'Animation') OR (Popularity > 200)</h3>
+            <div class="code-container relative">
+                <button onclick="copyCode('ex2-or-genre-pop')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex2-or-genre-pop"><code>print(movies_df[(movies_df['Genre'] == 'Animation') | (movies_df['Popularity'] > 200)])</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- OR Switch Logic ---
+        let s1 = false; let s2 = false;
+        function toggleSwitch(id) {
+            const el = document.getElementById('sw' + id);
+            const line = document.getElementById('line' + id);
+            const status = id === 1 ? !s1 : !s2;
+            
+            if (status) {
+                el.className = "gate gate-true"; el.innerText = "True";
+                line.classList.remove('bg-gray-300'); line.classList.add('bg-green-500');
+            } else {
+                el.className = "gate gate-false"; el.innerText = "False";
+                line.classList.remove('bg-green-500'); line.classList.add('bg-gray-300');
+            }
+            
+            if (id === 1) s1 = status; else s2 = status;
+            
+            // Logic: OR
+            const bulb = document.getElementById('bulb');
+            const bulbStatus = document.getElementById('bulbStatus');
+            if (s1 || s2) {
+                bulb.className = "w-16 h-16 rounded-full bg-yellow-400 border-4 border-yellow-600 shadow-lg shadow-yellow-500/50";
+                bulbStatus.innerText = "ON (Passed)"; bulbStatus.classList.add('text-green-600');
+            } else {
+                bulb.className = "w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-400";
+                bulbStatus.innerText = "OFF"; bulbStatus.classList.remove('text-green-600');
+            }
+        }
+
+        // --- Set Logic ---
+        function showSet(type) {
+            const a = document.getElementById('circleA');
+            const b = document.getElementById('circleB');
+            const lbl = document.getElementById('set-label');
+            
+            if (type === 'and') {
+                a.style.opacity = '0.3'; b.style.opacity = '0.3';
+                lbl.innerText = "AND: Only the overlapping part is TRUE.";
+            } else {
+                a.style.opacity = '0.8'; b.style.opacity = '0.8';
+                lbl.innerText = "OR: Everything colored is TRUE.";
+            }
+        }
+
+        // --- Debugger Logic ---
+        const CORRECT_ANSWERS = {
+            1: "movies_df[(movies_df['Year'] < 2000) | (movies_df['Popularity'] > 200)]",
+            2: "movies_df[(movies_df['Genre'] == 'Sci-Fi') | (movies_df['Year'] > 2018)]"
+        };
+
+        function normalizeInput(input) {
+            return input.trim().replace(/\s+/g, ' ').replace(/"/g, "'");
+        }
+
+        function checkDebug(challengeNum) {
+            const inputEl = document.getElementById(`bug${challengeNum}-input`);
+            const feedbackEl = document.getElementById(`bug${challengeNum}-feedback`);
+            
+            const userInput = normalizeInput(inputEl.value);
+            const correct = normalizeInput(CORRECT_ANSWERS[challengeNum]);
+
+            // Flexible check for spacing around |
+            const flexibleUser = userInput.replace(/\s*\|\s*/g, '|');
+            const flexibleCorrect = correct.replace(/\s*\|\s*/g, '|');
+
+            if (inputEl.value.trim().length === 0) {
+                 feedbackEl.innerHTML = '<span class="text-red-600">Please enter code first.</span>';
+                 return;
+            }
+
+            if (flexibleUser === flexibleCorrect) {
+                feedbackEl.innerHTML = '<span class="text-green-600">🎉 Correct! Syntax Fixed.</span>';
+                inputEl.classList.add('correct-input-style');
+                inputEl.classList.remove('incorrect-input-style');
+            } else {
+                feedbackEl.innerHTML = '<span class="text-red-600">❌ Incorrect. Check parentheses `( )` and the `|` symbol.</span>';
+                inputEl.classList.add('incorrect-input-style');
+                inputEl.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- Utility ---
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => console.log('Copied')).catch(err => fallbackCopyTextToClipboard(text));
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+        function fallbackCopyTextToClipboard(text) {
+             var textArea = document.createElement("textarea"); textArea.value = text;
+             textArea.style.position="fixed"; document.body.appendChild(textArea);
+             textArea.focus(); textArea.select();
+             try { document.execCommand('copy'); } catch (err) {}
+             document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

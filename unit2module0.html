@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1. Pandas Basics: DataFrame Structure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { 
+            background-color: white; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+            transition: transform 0.3s ease;
+        }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; }
+        .copy-btn { transition: all 0.2s; }
+        .copy-btn:hover { background-color: #3b82f6; transform: translateY(-1px); }
+        .action-button { transition: all 0.2s; }
+        .action-button:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .highlight-box { padding: 1rem; border-radius: 8px; margin-top: 1rem; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        
+        /* Data Type Sorter Styles */
+        .bucket { min-height: 100px; border: 2px dashed #cbd5e1; border-radius: 8px; transition: background-color 0.2s; }
+        .bucket.hover { background-color: #f1f5f9; border-color: #64748b; }
+        .draggable-item { cursor: grab; user-select: none; }
+        .draggable-item:active { cursor: grabbing; }
+        .table-row { transition: opacity 0.3s ease; }
+        
+        /* Loading Sequence Animation */
+        .sequence-step { transition: transform 0.3s ease, opacity 0.3s ease; }
+        .sequence-arrow { width: 30px; height: 3px; background-color: #9ca3af; margin: 0 10px; }
+        .sequence-arrow.active { background-color: #10b981; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-indigo-500"><path d="M3 3v18h18"/><path d="M18.7 8l-3.3 5.3-4.7-3.3-3.7 5.7"/></svg>
+                1. The Digital Catalog: Revisiting DataFrames
+            </h1>
+            <p class="text-gray-600 mt-2">Before we filter, let's understand the structure and tools of Pandas.</p>
+        </header>
+
+        <!-- Dataset Introduction and Code Breakdown -->
+        <div class="card p-6 mb-8 border-l-4 border-blue-500">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
+                A. Dataset Setup & Code Breakdown
+            </h2>
+            <div class="flex flex-wrap gap-4 mb-4">
+                <a href="https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/data/movies_data_sample.csv" download="movies_data_sample.csv" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 flex items-center">
+                    Download Movies CSV
+                </a>
+            </div>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('github-snippet')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="github-snippet"><code>import pandas as pd
+movies_df = pd.read_csv('https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/data/movies_data_sample.csv')
+print(movies_df)</code></pre>
+            </div>
+            <p class="text-sm text-gray-700 space-y-2">
+                <span class="font-bold text-blue-600">Code Breakdown:</span>
+                <ul class="list-disc list-inside ml-4">
+                    <li><code class="font-mono text-xs">import pandas as pd</code>: This makes the **Pandas tools** available in your code, giving it the common nickname `pd`.</li>
+                    <li><code class="font-mono text-xs">movies_df = pd.read_csv(...)</code>: This is the critical line! The `pd.read_csv()` function **fetches the data, processes it, and officially creates the DataFrame object**, which we name `movies_df`.</li>
+                </ul>
+            </p>
+        </div>
+
+        <!-- NEW SECTION: Data Loading Sequence -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-green-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                B. The Data Loading Sequence
+            </h2>
+            <p class="text-gray-700 mb-4">
+                When you run the code, your computer executes a sequence of steps to turn the external CSV file into the usable `movies_df` object.
+            </p>
+
+            <div class="flex items-center justify-center text-center">
+                
+                <div id="step-1" class="sequence-step p-3 flex flex-col items-center opacity-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M12 2v10"/><path d="M18.83 15C17.51 19.34 13.56 22 9 22H5C2.79 22 1 20.21 1 18s1.79-4 4-4h.5"/><path d="M5.5 14h13.17c2.32 0 4.33-1.79 4.33-4s-2.01-4-4.33-4H15"/></svg>
+                    <span class="text-sm font-bold text-blue-700">1. Fetch CSV</span>
+                </div>
+                
+                <div id="arrow-1" class="sequence-arrow active"></div>
+                
+                <div id="step-2" class="sequence-step p-3 flex flex-col items-center opacity-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M10 20l4-16"/><path d="M18 20l4-16"/><path d="M2 16h20"/><path d="M3 8h20"/></svg>
+                    <span class="text-sm font-bold text-blue-500">2. Pandas Process</span>
+                </div>
+
+                <div id="arrow-2" class="sequence-arrow active"></div>
+
+                <div id="step-3" class="sequence-step p-3 flex flex-col items-center opacity-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="8" y1="21" x2="8" y2="8"/><line x1="16" y1="21" x2="16" y2="8"/></svg>
+                    <span class="text-sm font-bold text-green-600">3. movies_df Ready!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW 1: Interactive Anatomy (Now Section C) -->
+        <div class="card p-6 mb-8 bg-gray-50">
+             <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-purple-600"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                C. Interactive: Anatomy of a DataFrame
+            </h2>
+            <p class="text-gray-600 mb-4">Hover over the table parts below to see what they are called in Data Science.</p>
+            
+            <div class="relative overflow-hidden border border-gray-300 rounded-lg">
+                <table class="w-full text-sm bg-white">
+                    <thead>
+                        <tr>
+                            <th class="bg-gray-200 p-3 w-16 cursor-help hover:bg-purple-200 transition-colors" onmouseover="showTooltip('Index Label', 'Identify rows.')" onmouseout="hideTooltip()"></th>
+                            <th class="bg-blue-100 p-3 border-b border-gray-300 cursor-help hover:bg-blue-300 transition-colors text-left" onmouseover="showTooltip('Column Header', 'The name of the variable (e.g., Title).')" onmouseout="hideTooltip()">Title</th>
+                            <th class="bg-blue-100 p-3 border-b border-gray-300 cursor-help hover:bg-blue-300 transition-colors text-left" onmouseover="showTooltip('Column Header', 'The name of the variable (e.g., Rating).')" onmouseout="hideTooltip()">Rating</th>
+                            <th class="bg-blue-100 p-3 border-b border-gray-300 cursor-help hover:bg-blue-300 transition-colors text-left" onmouseover="showTooltip('Column Header', 'The name of the variable (e.g., Year).')" onmouseout="hideTooltip()">Year</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th class="bg-gray-100 p-3 border-r border-gray-300 cursor-help hover:bg-purple-200 transition-colors" onmouseover="showTooltip('Index', 'The unique address/ID for the row (0).')" onmouseout="hideTooltip()">0</th>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (String)', 'Text data (Object).')" onmouseout="hideTooltip()">Avatar</td>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (Float)', 'Numeric data (Float64).')" onmouseout="hideTooltip()">7.8</td>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (Integer)', 'Whole number data (Int64).')" onmouseout="hideTooltip()">2009</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-gray-100 p-3 border-r border-gray-300 cursor-help hover:bg-purple-200 transition-colors" onmouseover="showTooltip('Index', 'The unique address/ID for the row (1).')" onmouseout="hideTooltip()">1</th>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (String)', 'Text data (Object).')" onmouseout="hideTooltip()">Titanic</td>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (Float)', 'Numeric data (Float64).')" onmouseout="hideTooltip()">7.9</td>
+                            <td class="p-3 border-b border-gray-200 hover:bg-yellow-100 cursor-help" onmouseover="showTooltip('Data Cell (Integer)', 'Whole number data (Int64).')" onmouseout="hideTooltip()">1997</td>
+                        </tr>
+                        <tr class="table-row hidden" id="hidden-row">
+                             <th class="bg-gray-100 p-3 border-r border-gray-300 cursor-help hover:bg-purple-200 transition-colors">5</th>
+                             <td class="p-3 border-b border-gray-200">Pulp Fiction</td>
+                             <td class="p-3 border-b border-gray-200">8.9</td>
+                             <td class="p-3 border-b border-gray-200">1994</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="anatomy-tooltip" class="mt-4 p-3 bg-white border-l-4 border-purple-500 shadow-sm h-16 text-gray-700 font-medium flex items-center">
+                Hover over the table to inspect parts...
+            </div>
+        </div>
+        
+        <!-- NEW SECTION: head() and tail() (Now Section D) -->
+        <div class="card p-6 mb-8 bg-teal-50">
+            <h2 class="text-2xl font-semibold text-teal-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-teal-600"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><path d="M12 9l3 3-3 3"></path></svg>
+                D. Quick Peek: `.head()` vs. `.tail()`
+            </h2>
+            <p class="text-teal-900 mb-4">
+                These functions give you a sample of the data. `.head(N)` shows the first **N** rows, and `.tail(N)` shows the last **N** rows.
+            </p>
+            
+            <div class="flex gap-4 mb-4">
+                <button onclick="showRows('head')" class="action-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Show `.head(3)` (Start)
+                </button>
+                <button onclick="showRows('tail')" class="action-button bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Show `.tail(3)` (End)
+                </button>
+            </div>
+            
+            <div class="bg-white p-3 rounded-lg border border-gray-200">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-100"><th class="p-2 border">Index</th><th class="p-2 border">Title</th><th class="p-2 border">Year</th></tr>
+                    </thead>
+                    <tbody id="peek-table">
+                        <tr data-index="0" class="table-row"><td class="p-2 border font-mono">0</td><td class="p-2 border">Avatar</td><td class="p-2 border">2009</td></tr>
+                        <tr data-index="1" class="table-row"><td class="p-2 border font-mono">1</td><td class="p-2 border">Avengers: Endgame</td><td class="p-2 border">2019</td></tr>
+                        <tr data-index="2" class="table-row"><td class="p-2 border font-mono">2</td><td class="p-2 border">Titanic</td><td class="p-2 border">1997</td></tr>
+                        <tr data-index="...3" class="table-row opacity-0 hidden"><td class="p-2 border font-mono italic">...</td><td class="p-2 border italic">... (Middle rows hidden)</td><td class="p-2 border italic">...</td></tr>
+                        <tr data-index="4" class="table-row hidden"><td class="p-2 border font-mono">4</td><td class="p-2 border">Frozen II</td><td class="p-2 border">2019</td></tr>
+                        <tr data-index="5" class="table-row hidden"><td class="p-2 border font-mono">5</td><td class="p-2 border">Pulp Fiction</td><td class="p-2 border">1994</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Concept 3: Data Types (Updated) (Now Section E) -->
+        <div class="card p-6 mb-8 bg-indigo-50">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-indigo-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                E. Understanding `.dtypes` and Data Types
+            </h2>
+            <p class="text-indigo-900 mb-4">
+                **Purpose:** The `.dtypes` property tells you the *format* of the data in each column. This is essential because text (Object) requires `==` for matching, while numbers (Int/Float) allow comparison operators like `>` or `<`.
+            </p>
+            
+            <h3 class="font-medium text-gray-700 mb-2">Challenge: Data Type Sorter</h3>
+            <p class="text-indigo-900 mb-4">Drag the data values into the correct Panda Type bucket.</p>
+            
+            <div class="flex justify-center gap-3 mb-6 flex-wrap">
+                <div id="item1" draggable="true" ondragstart="drag(event)" class="draggable-item bg-white px-4 py-2 rounded shadow text-gray-800 border border-gray-300 font-mono" data-type="float">7.8</div>
+                <div id="item2" draggable="true" ondragstart="drag(event)" class="draggable-item bg-white px-4 py-2 rounded shadow text-gray-800 border border-gray-300 font-mono" data-type="object">"Sci-Fi"</div>
+                <div id="item3" draggable="true" ondragstart="drag(event)" class="draggable-item bg-white px-4 py-2 rounded shadow text-gray-800 border border-gray-300 font-mono" data-type="int">2019</div>
+                <div id="item4" draggable="true" ondragstart="drag(event)" class="draggable-item bg-white px-4 py-2 rounded shadow text-gray-800 border border-gray-300 font-mono" data-type="object">"Avatar"</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div id="bucket-object" class="bucket bg-white p-4 flex flex-col items-center" ondrop="drop(event, 'object')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="font-bold text-gray-500 mb-2">Object (Text)</span>
+                </div>
+                <div id="bucket-int" class="bucket bg-white p-4 flex flex-col items-center" ondrop="drop(event, 'int')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="font-bold text-gray-500 mb-2">Int64 (Year)</span>
+                </div>
+                <div id="bucket-float" class="bucket bg-white p-4 flex flex-col items-center" ondrop="drop(event, 'float')" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="font-bold text-gray-500 mb-2">Float64 (Decimal)</span>
+                </div>
+            </div>
+            <p id="sort-feedback" class="mt-4 text-center font-semibold text-indigo-700"></p>
+        </div>
+        
+        <!-- NEW 4: Additional Code Examples (Now Section F) -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-blue-600"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                F. Code Examples (Copy & Run)
+            </h2>
+            <p class="text-gray-700 mb-4">Practice running these snippets to confirm your understanding of DataFrame inspection.</p>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 1: Peek at the first 4 rows (`.head(4)`)</h3>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('ex1-head4')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex1-head4"><code>print(movies_df.head(4))</code></pre>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 2: Check the data types of all columns (`.dtypes`)</h3>
+            <div class="code-container relative">
+                <button onclick="copyCode('ex2-dtypes')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex2-dtypes"><code>print(movies_df.dtypes)
+# Expected Output includes: Title (object), Release_Year (int64), Rating_Avg (float64), etc.</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data for the interactive peek table (only 0-5 are shown in total)
+        const allRows = [
+            { index: 0, title: 'Avatar', year: 2009 },
+            { index: 1, title: 'Avengers: Endgame', year: 2019 },
+            { index: 2, title: 'Titanic', year: 1997 },
+            { index: '...', title: '... (Middle rows hidden)', year: '...' },
+            { index: 4, title: 'Frozen II', year: 2019 },
+            { index: 5, title: 'Pulp Fiction', year: 1994 }
+        ];
+
+        function createRowHtml(data, isHidden) {
+            const indexClass = isHidden ? 'hidden' : '';
+            const rowClass = (data.index === '...') ? 'italic opacity-50' : '';
+            return `<tr data-index="${data.index}" class="table-row ${indexClass} ${rowClass}">
+                        <td class="p-2 border font-mono ${rowClass}">${data.index}</td>
+                        <td class="p-2 border ${rowClass}">${data.title}</td>
+                        <td class="p-2 border ${rowClass}">${data.year}</td>
+                    </tr>`;
+        }
+
+        function showRows(type) {
+            const tbody = document.getElementById('peek-table');
+            tbody.innerHTML = '';
+            
+            if (type === 'head') {
+                tbody.innerHTML += createRowHtml(allRows[0], false);
+                tbody.innerHTML += createRowHtml(allRows[1], false);
+                tbody.innerHTML += createRowHtml(allRows[2], false);
+                tbody.innerHTML += createRowHtml(allRows[3], false); // ... row
+            } else if (type === 'tail') {
+                tbody.innerHTML += createRowHtml(allRows[3], false); // ... row
+                tbody.innerHTML += createRowHtml(allRows[4], false);
+                tbody.innerHTML += createRowHtml(allRows[5], false);
+            }
+        }
+        
+        // Initialize the peek table on load to head(3)
+        document.addEventListener('DOMContentLoaded', () => showRows('head'));
+        
+        // Anatomy Tooltip
+        function showTooltip(title, desc) {
+            document.getElementById('anatomy-tooltip').innerHTML = `<strong>${title}:</strong> &nbsp; ${desc}`;
+        }
+        function hideTooltip() {
+            document.getElementById('anatomy-tooltip').innerText = "Hover over the table to inspect parts...";
+        }
+
+        // Drag and Drop Logic
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('hover'); }
+        function dragLeave(ev) { ev.currentTarget.classList.remove('hover'); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); ev.dataTransfer.setData("type", ev.target.dataset.type); }
+        
+        function drop(ev, bucketType) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('hover');
+            var data = ev.dataTransfer.getData("text");
+            var type = ev.dataTransfer.getData("type");
+            
+            if (type === bucketType) {
+                ev.currentTarget.appendChild(document.getElementById(data));
+                document.getElementById(data).classList.add('bg-green-100', 'border-green-400');
+                checkCompletion();
+            } else {
+                document.getElementById("sort-feedback").innerText = "❌ Incorrect bucket! Try again.";
+                setTimeout(() => document.getElementById("sort-feedback").innerText = "", 2000);
+            }
+        }
+
+        function checkCompletion() {
+            // Check if all items have been moved out of the source container
+            const source = document.querySelector('.flex.justify-center.gap-3');
+            if (source.children.length === 0) {
+                 document.getElementById("sort-feedback").innerText = "🎉 All sorted correctly! Great job understanding Data Types.";
+            }
+        }
+        
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    // Using console.log instead of alert for non-modal feedback
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                // Using console.log instead of alert for non-modal feedback
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. Selecting Multiple Columns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; }
+        .action-button:hover { transform: translateY(-1px); }
+        
+        /* Debug Challenge Styles */
+        .debug-challenge { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #f9fafb; }
+        .debug-code-line {
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 10px;
+            background-color: #374151; /* Dark background */
+            color: #fca5a5; /* Reddish color for error look */
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .debug-input {
+            width: 100%;
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 8px;
+            margin-top: 10px;
+            border: 2px solid #9ca3af;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+
+        /* Drag and Drop Reorder Styles */
+        .drag-item {
+            cursor: grab;
+            user-select: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-block;
+            background-color: #3b82f6;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .drag-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+        .drag-container {
+            min-height: 50px;
+            border: 2px dashed #a5b4fc;
+            background-color: #eff6ff;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #col-palette { border-color: #d8b4fe; background-color: #f3e8ff; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">3. Creating Sub-Tables: Multiple Columns</h1>
+            <p class="text-gray-600 mt-2">Isolating Title, Year, and Rating from the large catalog.</p>
+        </header>
+
+        <!-- A. Column Order Playground (Updated to Drag & Drop with Add/Remove) -->
+        <div class="card p-6 mb-8 bg-purple-50">
+            <h2 class="text-2xl font-semibold text-purple-800 mb-4 flex items-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M7 16V4"/><path d="M3 8h8"/><path d="M16 4h4"/><path d="M20 4v16"/><path d="M16 20h4"/></svg>
+                A. Interactive: Column Builder (Add, Remove, Reorder)
+            </h2>
+            <p class="text-purple-900 mb-4 font-semibold">
+                Drag columns from the **Palette (left)** into the **Selection (right)** to add them. Drag them back to remove!
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- 1. Column Palette (Source) -->
+                <div class="md:w-1/3 p-4 border border-purple-300 rounded-lg bg-purple-100">
+                    <h4 class="font-bold text-sm mb-2 text-purple-900">Column Palette (Drag to Add)</h4>
+                    <div id="col-palette" class="drag-container min-h-[100px]" ondragover="handleDragOver(event)" ondrop="handleDrop(event, 'palette')">
+                        <!-- Items initialized by JS -->
+                    </div>
+                </div>
+
+                <!-- 2. Selected Columns (Target/Reorder) -->
+                <div class="md:w-2/3 p-4 border border-purple-700 rounded-lg bg-purple-200">
+                    <h4 class="font-bold text-sm mb-2 text-purple-900">Selected Columns (Drag to Reorder)</h4>
+                    <div id="drag-container" class="drag-container min-h-[100px]" ondragover="handleDragOver(event)" ondrop="handleDrop(event, 'selection')">
+                        <!-- Items initialized by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2 mt-4">Generated Code:</h3>
+            <div class="font-mono bg-gray-800 text-green-400 p-3 rounded-lg overflow-x-auto mb-4">
+                <span id="code-output">print(movies_df[['Title', 'Rating_Avg', 'Release_Year']])</span>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Table Preview:</h3>
+            <div id="order-preview" class="border bg-white rounded-lg p-4 transition-all overflow-x-auto">
+                <!-- Table will be generated by JS -->
+            </div>
+        </div>
+
+        <!-- B. Interactive Syntax Debugging -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">B. Interactive Debugger (Fix All Bugs)</h2>
+            <p class="text-gray-600 mb-4 font-bold">Fix the syntax for each challenge below. Remember the required structure: `df[['Col1', 'Col2']]`</p>
+            
+            <!-- Challenge 1: Missing Comma and Inner Brackets -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 1: Two Columns</h3>
+                <p class="text-sm text-gray-500 mb-3">Fix the syntax to select **'Title'** and **'Genre'**.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug1-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug1-code"><code>movies_df['Title' 'Genre']</code></pre>
+                </div>
+                
+                <input type="text" id="bug1-input" class="debug-input" placeholder="Type the corrected, full line of code here (e.g., movies_df[['Title', 'Genre']])">
+                <button onclick="checkDebug(1)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 1</button>
+                <p id="bug1-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 2: Missing Outer Brackets and Quotes -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 2: Three Columns</h3>
+                <p class="text-sm text-gray-500 mb-3">Fix the syntax to select **'Release_Year'**, **'Rating_Avg'**, and **'Popularity'**.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug2-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug2-code"><code>movies_df[Release_Year, Rating_Avg, Popularity]</code></pre>
+                </div>
+                
+                <input type="text" id="bug2-input" class="debug-input" placeholder="Type the corrected, full line of code here">
+                <button onclick="checkDebug(2)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 2</button>
+                <p id="bug2-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 3: Missing Outer Brackets and Comma -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 3: Two Columns</h3>
+                <p class="text-sm text-gray-500 mb-3">Fix the syntax to select **'Release_Year'** and **'Popularity'**.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug3-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug3-code"><code>movies_df['Release_Year' 'Popularity']</code></pre>
+                </div>
+                
+                <input type="text" id="bug3-input" class="debug-input" placeholder="Type the corrected, full line of code here">
+                <button onclick="checkDebug(3)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 3</button>
+                <p id="bug3-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+        </div>
+
+        <!-- C. Core Concept -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">C. Core Concept: The List</h2>
+            <p class="text-gray-700 mb-4">Outer `[]` = Select. Inner `[]` = List of strings.</p>
+            <div class="code-container">
+                <pre><code># Correct Example
+title_and_genre = movies_df[['Title', 'Genre']] 
+print(title_and_genre)</code></pre>
+            </div>
+        </div>
+        
+        <!-- D. Code Examples -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-blue-600"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                D. Code Examples (Copy & Run)
+            </h2>
+            <p class="text-gray-700 mb-4">Practice selecting different combinations of columns.</p>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 1: Select Title and Release Year</h3>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('ex1-title-year')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex1-title-year"><code>print(movies_df[['Title', 'Release_Year']])</code></pre>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 2: Select Rating, Popularity, and Genre</h3>
+            <div class="code-container relative">
+                <button onclick="copyCode('ex2-rating-pop-genre')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex2-rating-pop-genre"><code>print(movies_df[['Rating_Avg', 'Popularity', 'Genre']])</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Column Data ---
+        const ALL_COLUMN_DATA = {
+            'Title': { label: 'Title', row: 'Avatar' },
+            'Rating_Avg': { label: 'Rating_Avg', row: '7.8' },
+            'Release_Year': { label: 'Release_Year', row: '2009' },
+            'Popularity': { label: 'Popularity', row: '150.4' },
+            'Genre': { label: 'Genre', row: 'Sci-Fi' }
+        };
+
+        const INITIAL_SELECTED = ['Title', 'Rating_Avg', 'Release_Year'];
+        const INITIAL_PALETTE = ['Popularity', 'Genre'];
+        
+        // --- Drag and Drop Reorder Logic ---
+        let draggedItem = null;
+        const selectedContainer = document.getElementById('drag-container');
+        const paletteContainer = document.getElementById('col-palette');
+
+        function createDragItem(colName) {
+            const div = document.createElement('div');
+            div.id = `col-${colName}`;
+            div.className = 'drag-item';
+            div.setAttribute('draggable', 'true');
+            div.setAttribute('data-col', colName);
+            div.textContent = colName;
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+            return div;
+        }
+
+        function handleDragStart(e) {
+            draggedItem = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', e.target.id);
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            // Check if the item is still in the selection area after the drag (internal reorder)
+            // If it moved to the palette, handleDrop will have handled updateDisplay
+            if (e.target.parentNode.id === 'drag-container') {
+                 updateDisplay();
+            }
+            draggedItem = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const container = e.currentTarget;
+            const targetEl = e.target.closest('.drag-item');
+
+            if (!draggedItem) return;
+
+            // Reordering logic only applies inside the selection container
+            if (container.id === 'drag-container' && draggedItem.parentNode.id === 'drag-container') {
+                if (targetEl && targetEl !== draggedItem) {
+                    const rect = targetEl.getBoundingClientRect();
+                    const center = (rect.left + rect.right) / 2;
+                    const isBefore = e.clientX < center;
+                    container.insertBefore(draggedItem, isBefore ? targetEl : targetEl.nextSibling);
+                } else if (!targetEl && container.children.length === 0) {
+                     container.appendChild(draggedItem);
+                }
+            } else if (container.id === 'col-palette' && targetEl) {
+                 // Simple position for palette
+                 container.appendChild(draggedItem);
+            }
+        }
+
+        function handleDrop(e, targetArea) {
+            e.preventDefault();
+            const targetContainer = e.currentTarget;
+            if (!draggedItem) return;
+
+            const sourceContainer = draggedItem.parentNode;
+            const itemMovedContainers = sourceContainer !== targetContainer;
+
+            if (itemMovedContainers) {
+                // If the item crossed containers (Add or Remove), append it to the target container.
+                targetContainer.appendChild(draggedItem); 
+            } else if (targetContainer.id === 'col-palette') {
+                // Dropping within the palette
+                targetContainer.appendChild(draggedItem);
+            }
+            
+            // Always update display if the drag operation finalized a move or change
+            updateDisplay();
+        }
+
+        function initializeBuilder() {
+            // Populate selected items
+            INITIAL_SELECTED.forEach(col => {
+                selectedContainer.appendChild(createDragItem(col));
+            });
+
+            // Populate palette items
+            INITIAL_PALETTE.forEach(col => {
+                paletteContainer.appendChild(createDragItem(col));
+            });
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const container = document.getElementById('drag-container');
+            const items = Array.from(container.children);
+            const currentOrder = items.map(item => item.dataset.col);
+            
+            // 1. Update Code Output
+            const codeString = currentOrder.length > 0 
+                ? `print(movies_df[['${currentOrder.join("', '")}']])`
+                : `print(movies_df[[]]) # Empty Selection!`;
+            document.getElementById('code-output').innerText = codeString;
+            
+            // 2. Update Table Preview
+            let tableHTML = `<table class="w-full text-sm"><thead><tr class="bg-gray-100">`;
+            
+            if (currentOrder.length === 0) {
+                 tableHTML = `<p class="text-center italic text-gray-500 py-4">Drag columns into the selection area to build your table!</p>`;
+            } else {
+                currentOrder.forEach(col => {
+                    tableHTML += `<th class="p-2 border">${ALL_COLUMN_DATA[col].label}</th>`;
+                });
+                tableHTML += `</tr></thead><tbody><tr>`;
+                currentOrder.forEach(col => {
+                    tableHTML += `<td class="p-2 border">${ALL_COLUMN_DATA[col].row}</td>`;
+                });
+                tableHTML += `</tr></tbody></table>`;
+            }
+            
+            document.getElementById('order-preview').innerHTML = tableHTML;
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeBuilder);
+
+        // --- Validation Logic (Unchanged) ---
+
+        const CORRECT_ANSWERS = {
+            1: "movies_df[['Title', 'Genre']]",
+            2: "movies_df[['Release_Year', 'Rating_Avg', 'Popularity']]",
+            3: "movies_df[['Release_Year', 'Popularity']]"
+        };
+
+        function normalizeInput(input) {
+            // Remove all whitespace, lower case, and standardize quotes
+            return input.trim()
+                .replace(/\s+/g, '')
+                .replace(/"/g, "'") // Standardize all quotes to single quotes
+                .toLowerCase();
+        }
+
+        function checkDebug(challengeNum) {
+            const inputElement = document.getElementById(`bug${challengeNum}-input`);
+            const feedbackElement = document.getElementById(`bug${challengeNum}-feedback`);
+            
+            const rawInput = inputElement.value;
+            const normalizedInput = normalizeInput(rawInput);
+            const normalizedCorrect = normalizeInput(CORRECT_ANSWERS[challengeNum]);
+
+            // Check if the input is empty
+            if (rawInput.length === 0) {
+                feedbackElement.innerHTML = '<span class="text-red-600">Please enter your corrected code first.</span>';
+                inputElement.classList.remove('correct-input-style', 'incorrect-input-style');
+                return;
+            }
+
+            if (normalizedInput === normalizedCorrect) {
+                feedbackElement.innerHTML = '<span class="text-green-600">🎉 Correct! You successfully fixed all the syntax errors.</span>';
+                inputElement.classList.add('correct-input-style');
+                inputElement.classList.remove('incorrect-input-style');
+            } else {
+                feedbackElement.innerHTML = '<span class="text-red-600">❌ Incorrect. Re-check your brackets (double required: [[]]), commas, and quotes.</span>';
+                inputElement.classList.add('incorrect-input-style');
+                inputElement.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- Utility Functions (Unchanged) ---
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

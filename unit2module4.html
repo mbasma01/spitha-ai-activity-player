@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. Compound Filtering: AND</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; }
+        .action-button:hover { transform: translateY(-1px); }
+        
+        /* Gate Visuals */
+        .gate { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; transition: all 0.3s; cursor: pointer; }
+        .gate-closed { background-color: #ef4444; box-shadow: 0 4px 0 #991b1b; }
+        .gate-open { background-color: #10b981; box-shadow: 0 4px 0 #065f46; transform: translateY(4px); }
+        .path { height: 10px; width: 60px; background: #e5e7eb; transition: background 0.3s; }
+        .path.active { background: #10b981; }
+
+        /* Debug Challenge Styles */
+        .debug-challenge { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #f9fafb; }
+        .debug-code-line {
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 10px;
+            background-color: #374151;
+            color: #fca5a5;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .debug-input {
+            width: 100%;
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 8px;
+            margin-top: 10px;
+            border: 2px solid #9ca3af;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+        .copy-btn { transition: all 0.2s; }
+        .copy-btn:hover { background-color: #3b82f6; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">5. Compound Logic: AND (`&`)</h1>
+            <p class="text-gray-600 mt-2">Filtering for data that meets **ALL** conditions simultaneously.</p>
+        </header>
+
+        <!-- A. The AND Gatekeeper -->
+        <div class="card p-6 mb-8 bg-indigo-50">
+            <h2 class="text-2xl font-semibold text-indigo-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                A. Interactive: The Strict Gatekeeper
+            </h2>
+            <p class="text-indigo-900 mb-6">Click the buttons (gates) to open them. The "Result" light only turns Green if **BOTH** gates are open.</p>
+            
+            <div class="flex items-center justify-center gap-2">
+                <!-- Condition 1 -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-2 font-bold text-sm">Is Action?</span>
+                    <button id="btn1" onclick="toggleGate(1)" class="gate gate-closed">FALSE</button>
+                </div>
+                
+                <!-- Wire -->
+                <div id="path1" class="path mt-8"></div>
+                
+                <!-- Condition 2 -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-2 font-bold text-sm">Rating > 8?</span>
+                    <button id="btn2" onclick="toggleGate(2)" class="gate gate-closed">FALSE</button>
+                </div>
+
+                <!-- Wire -->
+                <div id="path2" class="path mt-8"></div>
+
+                <!-- Result -->
+                <div class="flex flex-col items-center">
+                    <span class="mb-2 font-bold text-sm">Result</span>
+                    <div id="finalLight" class="w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-400 mt-4 transition-all duration-300"></div>
+                </div>
+            </div>
+            <p class="text-center mt-6 font-mono bg-white p-2 rounded border border-indigo-100 text-indigo-800 font-semibold">
+                Logic: (Gate 1 is Open) & (Gate 2 is Open)
+            </p>
+        </div>
+
+        <!-- B. Interactive Debugger -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">B. Interactive Debugger (Fix Syntax)</h2>
+            <p class="text-gray-600 mb-4 font-bold">Compound logic is tricky! Find the error and type the corrected code.</p>
+            
+            <!-- Challenge 1: Using 'and' keyword -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 1: The Wrong Word</h3>
+                <p class="text-sm text-gray-500 mb-3">Python Pandas doesn't use the English word `and`. It uses a symbol.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug1-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug1-code"><code>movies_df[(movies_df['Year'] > 2000) and (movies_df['Rating'] > 8)]</code></pre>
+                </div>
+                
+                <input type="text" id="bug1-input" class="debug-input" placeholder="Type corrected code (Hint: use &)">
+                <button onclick="checkDebug(1)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 1</button>
+                <p id="bug1-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 2: Missing Parentheses -->
+            <div class="debug-challenge">
+                <h3 class="font-semibold text-lg mb-3">Challenge 2: The Order of Operations</h3>
+                <p class="text-sm text-gray-500 mb-3">When using `&`, each condition MUST be wrapped in its own bubble `( )`.</p>
+                
+                <div class="debug-code-line relative">
+                    <button onclick="copyCode('bug2-code')" class="copy-btn absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Bug</button>
+                    <pre id="bug2-code"><code>movies_df[movies_df['Year'] > 2000 & movies_df['Rating'] > 8]</code></pre>
+                </div>
+                
+                <input type="text" id="bug2-input" class="debug-input" placeholder="Type corrected code with parentheses">
+                <button onclick="checkDebug(2)" class="mt-2 action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md">Validate Fix 2</button>
+                <p id="bug2-feedback" class="mt-2 font-bold h-6"></p>
+            </div>
+        </div>
+
+        <!-- C. Code Examples -->
+        <div class="card p-6 mb-8 bg-gray-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-blue-600"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                C. Code Examples (Copy & Run)
+            </h2>
+            <p class="text-gray-700 mb-4">Practice using the strict AND operator (`&`) to find specific data points.</p>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 1: Filter (Rating > 8.0) AND (Popularity > 100)</h3>
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('ex1-and-high')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex1-and-high"><code>print(movies_df[(movies_df['Rating_Avg'] > 8.0) & (movies_df['Popularity'] > 100)])</code></pre>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mb-2">Example 2: Filter (Release Year > 2000) AND (Genre == 'Drama')</h3>
+            <div class="code-container relative">
+                <button onclick="copyCode('ex2-and-year-genre')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="ex2-and-year-genre"><code>print(movies_df[(movies_df['Release_Year'] > 2000) & (movies_df['Genre'] == 'Drama')])</code></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Gatekeeper Logic ---
+        let g1 = false; let g2 = false;
+        function toggleGate(id) {
+            const btn = document.getElementById('btn' + id);
+            const status = id === 1 ? !g1 : !g2;
+            
+            if (status) {
+                btn.className = "gate gate-open"; btn.innerText = "TRUE";
+            } else {
+                btn.className = "gate gate-closed"; btn.innerText = "FALSE";
+            }
+            if (id === 1) g1 = status; else g2 = status;
+            checkLights();
+        }
+        function checkLights() {
+            const p1 = document.getElementById('path1');
+            const p2 = document.getElementById('path2');
+            const light = document.getElementById('finalLight');
+            
+            if (g1) p1.classList.add('active'); else p1.classList.remove('active');
+            
+            if (g1 && g2) {
+                p2.classList.add('active');
+                light.className = "w-16 h-16 rounded-full bg-green-500 border-4 border-green-600 mt-4 shadow-lg shadow-green-500/50";
+            } else {
+                p2.classList.remove('active');
+                light.className = "w-16 h-16 rounded-full bg-gray-300 border-4 border-gray-400 mt-4";
+            }
+        }
+
+        // --- Debugger Logic ---
+        const CORRECT_ANSWERS = {
+            1: "movies_df[(movies_df['Year'] > 2000) & (movies_df['Rating'] > 8)]",
+            2: "movies_df[(movies_df['Year'] > 2000) & (movies_df['Rating'] > 8)]"
+        };
+
+        function normalizeInput(input) {
+            // Normalize spaces, quotes, and case for comparison
+            return input.trim().replace(/\s+/g, ' ').replace(/"/g, "'");
+        }
+
+        function checkDebug(challengeNum) {
+            const inputEl = document.getElementById(`bug${challengeNum}-input`);
+            const feedbackEl = document.getElementById(`bug${challengeNum}-feedback`);
+            
+            const userInput = normalizeInput(inputEl.value);
+            const correct = normalizeInput(CORRECT_ANSWERS[challengeNum]);
+
+            // Flexible check for spacing around &
+            const flexibleUser = userInput.replace(/\s*&\s*/g, '&');
+            const flexibleCorrect = correct.replace(/\s*&\s*/g, '&');
+
+            if (inputEl.value.trim().length === 0) {
+                 feedbackEl.innerHTML = '<span class="text-red-600">Please enter code first.</span>';
+                 return;
+            }
+
+            if (flexibleUser === flexibleCorrect) {
+                feedbackEl.innerHTML = '<span class="text-green-600">🎉 Correct! Logic Fixed.</span>';
+                inputEl.classList.add('correct-input-style');
+                inputEl.classList.remove('incorrect-input-style');
+            } else {
+                feedbackEl.innerHTML = '<span class="text-red-600">❌ Incorrect. Check parentheses `( )` and the `&` symbol.</span>';
+                inputEl.classList.add('incorrect-input-style');
+                inputEl.classList.remove('correct-input-style');
+            }
+        }
+
+        // --- Utility ---
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => console.log('Copied')).catch(err => fallbackCopyTextToClipboard(text));
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+        function fallbackCopyTextToClipboard(text) {
+             var textArea = document.createElement("textarea"); textArea.value = text;
+             textArea.style.position="fixed"; document.body.appendChild(textArea);
+             textArea.focus(); textArea.select();
+             try { document.execCommand('copy'); } catch (err) {}
+             document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
