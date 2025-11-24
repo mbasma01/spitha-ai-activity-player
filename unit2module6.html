@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Filtering Exercise: Climate Change Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { 
+            background-color: white; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+        }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; }
+        .action-button:hover { transform: translateY(-1px); }
+        .exercise-item { border-left: 4px solid #3b82f6; padding-left: 1rem; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-red-500"><path d="M12 2v20"/><path d="M17 5H7"/><path d="M17 19H7"/></svg>
+                FINAL EXERCISE: Climate Change Data Analysis
+            </h1>
+            <p class="text-gray-600 mt-2">Apply everything you've learned about column selection and filtering logic to a new, complex real-world dataset.</p>
+        </header>
+
+        <!-- Data Loading Instructions -->
+        <div class="card p-6 mb-8 border-l-4 border-green-500 bg-green-50">
+            <h2 class="text-xl font-semibold text-green-800 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Step 0: Load the <code>climate_change_dataset.csv</code>
+            </h2>
+            <p class="text-green-900 mb-4">Copy the snippet below to load the dataset into a DataFrame named <code>climate_df</code>:</p>
+            
+            <div class="code-container relative mb-4">
+                <button onclick="copyCode('load-snippet')" class="copy-btn absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-md action-button">Copy Code</button>
+                <pre id="load-snippet"><code>import pandas as pd
+
+# Load the file from the provided context
+climate_df = pd.read_csv('climate_change_dataset.csv') 
+
+# Display the first few rows to confirm loading
+print("--- DataFrame Loaded ---")
+print(climate_df.head())</code></pre>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-2"><strong>Dataset Columns:</strong> Year, Country, Avg Temperature (°C), CO2 Emissions (Tons/Capita), Sea Level Rise (mm), Rainfall (mm), Population, Renewable Energy (%), Extreme Weather Events, Forest Area (%)</p>
+        </div>
+
+        <!-- Exercise Tasks -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-indigo-600"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Your Challenge: Write the Pandas Filter Code
+            </h2>
+
+            <!-- Task 1: Column Selection -->
+            <div class="exercise-item">
+                <h3 class="font-bold text-lg mb-2">Task 1: Essential Metrics (Selection)</h3>
+                <p class="text-gray-700 mb-3">Create and print a new sub-DataFrame containing only the <strong>'Country'</strong>, <strong>'CO2 Emissions (Tons/Capita)'</strong>, and <strong>'Avg Temperature (°C)'</strong> columns.</p>
+                
+                <h4 class="text-sm font-semibold text-gray-700 mt-3">Expected Outcome Check:</h4>
+                <div class="code-container bg-gray-100 text-gray-700 text-xs">
+                    <pre><code>(The output should be a 3-column table containing only the specified data.)</code></pre>
+                </div>
+            </div>
+
+            <!-- Task 2: Simple Numeric Filter -->
+            <div class="exercise-item">
+                <h3 class="font-bold text-lg mb-2">Task 2: High Emission Years (Single Filter: >)</h3>
+                <p class="text-gray-700 mb-3">Filter the <code>climate_df</code> to find and print all rows where <strong>'CO2 Emissions (Tons/Capita)'</strong> is <strong>greater than 10.0</strong>.</p>
+                
+                <h4 class="text-sm font-semibold text-gray-700 mt-3">Expected Outcome Check:</h4>
+                <div class="code-container bg-gray-100 text-gray-700 text-xs">
+                    <pre><code>(Your result should include rows for UK (16.3), Argentina (11.6), and South Africa (10.1), among others.)</code></pre>
+                </div>
+            </div>
+
+            <!-- Task 3: Compound Filter (AND) -->
+            <div class="exercise-item">
+                <h3 class="font-bold text-lg mb-2">Task 3: Hot and Dry (Compound Filter: &)</h3>
+                <p class="text-gray-700 mb-3">Filter the data to find countries that have an <strong>'Avg Temperature (°C)' greater than 30.0</strong> <strong>AND</strong> have <strong>'Rainfall (mm)' less than 1500</strong>.</p>
+                
+                <h4 class="text-sm font-semibold text-gray-700 mt-3">Expected Outcome Check:</h4>
+                <div class="code-container bg-gray-100 text-gray-700 text-xs">
+                    <pre><code>(Your result should include USA (31.0°C, 2407mm is too high), France (33.9°C, 1241mm is correct), and China (32.3°C, 2100mm is too high), among others.)</code></pre>
+                </div>
+            </div>
+
+            <!-- Task 4: Compound Filter (OR) -->
+            <div class="exercise-item">
+                <h3 class="font-bold text-lg mb-2">Task 4: High Impact or Low Renewal (Compound Filter: |)</h3>
+                <p class="text-gray-700 mb-3">Find all data points where the <strong>'Extreme Weather Events'</strong> count is <strong>greater than or equal to 12</strong> <strong>OR</strong> the <strong>'Renewable Energy (%)'</strong> is <strong>less than 15.0</strong>.</p>
+                
+                <h4 class="text-sm font-semibold text-gray-700 mt-3">Expected Outcome Check:</h4>
+                <div class="code-container bg-gray-100 text-gray-700 text-xs">
+                    <pre><code>(Your result should include any row with Extreme Events >= 12 OR Renewable Energy < 15.0, such as Germany (12.5% Renewable) and China (12 Extreme Events).)</code></pre>
+                </div>
+            </div>
+
+            <!-- Task 5: Complex Nested Filter -->
+            <div class="exercise-item">
+                <h3 class="font-bold text-lg mb-2">Task 5: Pre-2015 Hotspots (Nested Filter: & and |)</h3>
+                <p class="text-gray-700 mb-3">Find all data points that were recorded <strong>before the year 2015</strong> <strong>AND</strong> where the <strong>'Avg Temperature (°C)' is greater than 30.0 OR the 'Sea Level Rise (mm)' is greater than 4.0</strong>.</p>
+                
+                <h4 class="text-sm font-semibold text-gray-700 mt-3">Expected Outcome Check:</h4>
+                <div class="code-container bg-gray-100 text-gray-700 text-xs">
+                    <pre><code>(This requires YEAR < 2015 AND (AVG TEMP > 30.0 OR SEA LEVEL > 4.0). Expect a very small, specific subset of the data.)</code></pre>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="p-6 text-center text-gray-600 border-t mt-8">
+            <p>Once you have completed all tasks, compare your printed DataFrames with the original data and the expected outcomes to validate your filtering logic!</p>
+        </div>
+    </div>
+
+    <script>
+        // Utility for copying code
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    // console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                // console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
