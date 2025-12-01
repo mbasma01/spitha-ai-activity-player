@@ -42,7 +42,8 @@
                 <pre id="load-snippet"><code>import pandas as pd
 
 # Load the file from the provided context
-climate_df = pd.read_csv('climate_change_dataset.csv') 
+climate_change_dataset_url = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/refs/heads/main/climate_change_dataset.csv'
+climate_df = pd.read_csv(climate_change_dataset_url) 
 
 # Display the first few rows to confirm loading
 print("--- DataFrame Loaded ---")
@@ -153,4 +154,5 @@ print(climate_df.head())</code></pre>
         }
     </script>
 </body>
+
 </html>
