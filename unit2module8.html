@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8. Python Dictionaries: The Labeled Container</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; position: relative; }
+        .analogy-container { border: 2px solid #fdba74; background-color: #fff7ed; border-radius: 8px; padding: 1.5rem; }
+        .key-box { background-color: #fcd34d; color: #92400e; font-weight: bold; padding: 8px 16px; border-radius: 6px; }
+        .value-box { background-color: #fef3c7; color: #92400e; padding: 8px 16px; border-radius: 6px; }
+        
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+
+        /* Dictionary Builder Styles */
+        .dict-structure-table th, .dict-structure-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #fef3c7;
+        }
+        .dict-structure-table th { background-color: #fcd34d; }
+        .dict-structure-table {
+            border-collapse: collapse;
+            border: 1px solid #f97316;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .remove-btn {
+            color: #ef4444;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Copy Button Styles */
+        .copy-btn { 
+            transition: all 0.2s; 
+            position: absolute; 
+            top: 0.75rem; 
+            right: 0.75rem; 
+            background-color: #3b82f6; 
+            color: white; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 0.375rem;
+        }
+        .copy-btn:hover { background-color: #2563eb; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-orange-500"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+                8. Python Dictionaries: The Labeled Container
+            </h1>
+            <p class="text-gray-600 mt-2">The key-value structure that permanently links data by label, solving the list problem.</p>
+        </header>
+
+        <!-- A. Core Concept & Analogy -->
+        <div class="card p-6 mb-8 bg-yellow-50">
+            <h2 class="text-2xl font-semibold text-yellow-800 mb-4">A. Concept: The Permanent Key-Value Link</h2>
+            <p class="text-yellow-900 mb-4">
+                Unlike a List, a <strong>Dictionary</strong> stores data in pairs where the <strong>Key</strong> (Label) is permanently linked to its <strong>Value</strong>.
+            </p>
+            
+            <h3 class="font-bold text-orange-700 mt-4 mb-3 flex items-center text-xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Real-Life Analogy: The Bookshelf and Card Catalog
+            </h3>
+            <div class="analogy-container">
+                <p class="font-semibold text-orange-900 mb-2">The Permanent Link:</p>
+                <p class="text-orange-900 mb-3">
+                    Imagine the library's card catalog. The card's <strong>Title (Key)</strong> is permanently coupled to the book's <strong>Shelf Location (Value)</strong>. The book can be moved, but its assigned location code stays the same.
+                </p>
+                <div class="flex flex-col items-center space-y-2">
+                    <p class="font-bold text-lg text-red-600">Book Title (Key) &harr; Shelf Location (Value)</p>
+                    <p class="text-sm text-orange-700 italic">
+                        If you know the <strong>Title (Key)</strong>, you know the <strong>Shelf Location (Value)</strong>. <br>
+                        If the book's location changes, the Key (Title) automatically follows the Value (New Location).
+                    </p>
+                </div>
+                <p class="text-xs text-orange-700 italic mt-3 text-center">
+                    This <strong>labeled coupling</strong> is why Dictionaries are necessary for organized data.
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- B. Interactive Dictionary Builder (PRACTICE) -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">B. Interactive: Building Your Own Dictionary</h2>
+            <p class="text-gray-600 mb-4">
+                Name your dictionary, define the unique <strong>Key</strong> (Label) and its corresponding <strong>Value</strong> (Data), and see the code update!
+            </p>
+
+            <!-- Dictionary Name Creator -->
+            <label for="dict-name-input" class="block font-bold mt-2 mb-2 text-gray-700">1. Name Your Dictionary Variable:</label>
+            <input type="text" id="dict-name-input" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="e.g., movie_data" value="my_dict" oninput="updateDictBuilder()">
+
+            <!-- Key-Value Creator -->
+            <label class="block font-bold mt-2 mb-2 text-gray-700">2. Add Key: Value Pairs:</label>
+            <div class="grid grid-cols-5 gap-2 mb-4">
+                <input type="text" id="key-input" class="p-2 border rounded-lg col-span-2" placeholder="Key (e.g., 'Release Year')">
+                <input type="text" id="value-input" class="p-2 border rounded-lg col-span-2" placeholder="Value (e.g., 2023 or 'Action')">
+                <button onclick="addKeyValuePair()" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 rounded-lg">
+                    Add Pair
+                </button>
+            </div>
+
+            <!-- Visual Structure -->
+            <h3 class="font-bold text-orange-700 mt-4 mb-2">3. Dictionary Structure:</h3>
+            <table class="dict-structure-table" id="dict-structure">
+                <thead>
+                    <tr><th class="w-2/5">Key (The Label)</th><th class="w-2/5">Value (The Data)</th><th class="w-1/5">Remove</th></tr>
+                </thead>
+                <tbody id="dict-tbody">
+                    <!-- Initial pairs -->
+                    <tr data-key="Avatar" data-value="7.8"><td>'Avatar'</td><td>7.8</td><td class="text-center"><span class="remove-btn" onclick="removePair(this)">X</span></td></tr>
+                    <tr data-key="Titanic" data-value="7.9"><td>'Titanic'</td><td>7.9</td><td class="text-center"><span class="remove-btn" onclick="removePair(this)">X</span></td></tr>
+                    <tr data-key="Pulp Fiction" data-value="8.9"><td>'Pulp Fiction'</td><td>8.9</td><td class="text-center"><span class="remove-btn" onclick="removePair(this)">X</span></td></tr>
+                </tbody>
+            </table>
+            
+
+            <!-- Code Representation -->
+            <h3 class="font-bold text-gray-700 mt-4 mb-2">4. Real-time Python Code:</h3>
+            <div class="code-container">
+                <pre id="code-output"><code>movie_data = {'Avatar': 7.8, 'Titanic': 7.9, 'Pulp Fiction': 8.9}</code></pre>
+            </div>
+            <p class="text-sm text-gray-600 mt-2 italic">
+                Notice: The elements don't have a fixed Index like a List. They are accessed <em>only</em> by the Key.
+            </p>
+        </div>
+
+
+        <!-- C. Interactive Access (By Key) -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">C. Access Practice: Get Value by Key</h2>
+            <p class="text-gray-600 mb-4">Select the original movie key to retrieve its value (rating).</p>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <label class="font-bold">Access Key:</label>
+                <select id="dictKeySelector" class="p-2 border rounded font-mono" onchange="updateDictAccess(this.value)">
+                    <option value="Avatar">Avatar</option>
+                    <option value="Titanic">Titanic</option>
+                    <option value="Pulp Fiction">Pulp Fiction</option>
+                </select>
+            </div>
+            
+            <!-- Missing elements re-added here to fix the error -->
+            <div class="p-4 bg-gray-100 rounded-lg shadow-inner mb-4">
+                <p class="font-semibold mb-2 text-center text-xl">Key &rArr; Value</p>
+                <div class="flex items-center justify-center space-x-4">
+                    <span id="keyDisplay" class="key-box text-xl">Avatar</span>
+                    <span class="text-3xl font-bold text-gray-400">&rArr;</span>
+                    <span id="valueDisplay" class="value-box text-2xl font-bold">7.8</span>
+                </div>
+            </div>
+            <!-- End re-added elements -->
+            
+            <h3 class="font-medium text-gray-700 mt-4 mb-2">Resulting Code:</h3>
+            <div id="dictAccessOutput" class="font-mono bg-blue-100 text-blue-700 p-3 rounded-lg text-lg text-center font-bold">
+                <code>movie_data['Avatar']</code> is 7.8
+            </div>
+        </div>
+
+        <!-- D. Practice: Multiple Access Challenges -->
+        <div class="card p-6 mb-8 bg-green-50">
+            <h2 class="text-2xl font-semibold text-green-800 mb-4">D. Practice: Multiple Access Challenges</h2>
+            <p class="text-green-900 mb-4">
+                Use the correct dictionary syntax to retrieve the requested value from the provided movie data.
+            </p>
+
+            <!-- Challenge 1: Accessing an Integer Value -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h3 class="font-bold text-lg text-green-700 mb-2">Challenge 1: Accessing Release Year</h3>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Retrieve the release year for <strong>'Once'</strong>.
+                </p>
+                <div id="release-years-code" class="code-container bg-green-900 text-white text-sm mb-4">
+                     <button onclick="copyCode('release-years-code')" class="copy-btn">Copy Code</button>
+                    <pre><code>release_years = {
+    'Venom: Let There Be Carnage': 2021,
+    'Dune': 2021,
+    'Once': 2007
+}</code></pre>
+                </div>
+
+                <label for="practice-input-1" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code (e.g., <code>release_years['Key']</code>):</label>
+                <input type="text" id="practice-input-1" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="release_years[...]">
+                
+                <button onclick="checkPractice(1)" class="action-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Answer 1
+                </button>
+                <p id="practice-feedback-1" class="mt-4 font-bold h-6"></p>
+            </div>
+            
+            <!-- Challenge 2: Accessing a String Value -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h3 class="font-bold text-lg text-green-700 mb-2">Challenge 2: Accessing Genre</h3>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Retrieve the genre for movie ID <code>524434</code> (Eternals).
+                </p>
+                <div id="movie-metadata-code" class="code-container bg-green-900 text-white text-sm mb-4">
+                     <button onclick="copyCode('movie-metadata-code')" class="copy-btn">Copy Code</button>
+                    <pre><code>movie_metadata = {
+    580489: 'Science Fiction',
+    524434: 'Action',
+    438631: 'Science Fiction'
+}</code></pre>
+                </div>
+
+                <label for="practice-input-2" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code:</label>
+                <input type="text" id="practice-input-2" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="movie_metadata[524434]">
+                
+                <button onclick="checkPractice(2)" class="action-button bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Answer 2
+                </button>
+                <p id="practice-feedback-2" class="mt-4 font-bold h-6"></p>
+            </div>
+        </div>
+
+
+        <!-- E. Core Idea for Pandas (Renumbered from C) -->
+        <div class="card p-6 mb-8 bg-blue-50">
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4">E. The Direct Connection to Pandas</h2>
+            <p class="text-blue-900 font-semibold">
+                Every column in a Pandas DataFrame is a <strong>Series</strong>. A Series is nothing more than a powerful Python Dictionary.
+                This direct mapping is why Pandas is so reliable:
+                <ul>
+                    <li class="mt-2"><span class="font-bold text-orange-700">Dictionary Key</span> &rArr; Series <strong>Index</strong> (The Label)</li>
+                    <li><span class="font-bold text-yellow-700">Dictionary Value</span> &rArr; Series <strong>Data</strong> (The Value)</li>
+                </ul>
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        const movieData = {'Avatar': 7.8, 'Titanic': 7.9, 'Pulp Fiction': 8.9};
+        const dictTbody = document.getElementById('dict-tbody');
+        const dictNameInput = document.getElementById('dict-name-input');
+        
+        // --- C. Interactive Access Logic ---
+        function updateDictAccess(key) {
+            const value = movieData[key];
+            
+            // FIX: Ensure elements exist before setting properties
+            const keyDisplay = document.getElementById('keyDisplay');
+            const valueDisplay = document.getElementById('valueDisplay');
+            const output = document.getElementById('dictAccessOutput');
+
+            if (keyDisplay && valueDisplay && output) {
+                keyDisplay.innerText = key;
+                valueDisplay.innerText = value;
+                output.innerHTML = `<code>movie_data['${key}']</code> is <strong>${value}</strong>`;
+            } else {
+                 console.error("Missing elements for interactive access in Section C.");
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => updateDictAccess('Avatar'));
+
+        // --- B. Interactive Builder Logic ---
+
+        function formatValue(value) {
+            const trimmedValue = value.trim();
+            // Check if it's numeric (int or float)
+            if (!isNaN(parseFloat(trimmedValue)) && isFinite(trimmedValue)) {
+                return trimmedValue;
+            }
+            // Otherwise, treat as a string and wrap in single quotes
+            return `'${trimmedValue.replace(/'/g, '').replace(/"/g, '')}'`;
+        }
+        
+        function updateDictBuilder() {
+            const dictName = dictNameInput.value.trim() || 'my_dict';
+            let dictString = `{`;
+            
+            const rows = dictTbody.querySelectorAll('tr');
+            let pairs = [];
+
+            rows.forEach(row => {
+                const key = row.dataset.key;
+                const value = row.dataset.value;
+                
+                const formattedKey = formatValue(key);
+                const formattedValue = formatValue(value);
+                
+                pairs.push(`${formattedKey}: ${formattedValue}`);
+            });
+
+            dictString += pairs.join(', ');
+            dictString += `}`;
+            
+            document.getElementById('code-output').innerHTML = `<code>${dictName} = ${dictString}</code>`;
+        }
+
+        function addKeyValuePair() {
+            const keyInput = document.getElementById('key-input');
+            const valueInput = document.getElementById('value-input');
+            const key = keyInput.value.trim();
+            const value = valueInput.value.trim();
+
+            if (!key || !value) {
+                console.error("Key and Value cannot be empty.");
+                return;
+            }
+
+            // Check for duplicate keys in the current structure
+            const existingKeys = Array.from(dictTbody.querySelectorAll('tr')).map(row => row.dataset.key);
+            if (existingKeys.includes(key)) {
+                console.error(`Error: Key '${key}' already exists. Dictionary keys must be unique.`);
+                return;
+            }
+            
+            // Create new table row
+            const newRow = document.createElement('tr');
+            newRow.setAttribute('data-key', key);
+            newRow.setAttribute('data-value', value);
+            
+            // Display formatted values for readability in the table
+            const formattedKeyDisplay = formatValue(key);
+            const formattedValueDisplay = formatValue(value);
+            
+            newRow.innerHTML = `
+                <td>${formattedKeyDisplay}</td>
+                <td>${formattedValueDisplay}</td>
+                <td class="text-center"><span class="remove-btn" onclick="removePair(this)">X</span></td>
+            `;
+            
+            dictTbody.appendChild(newRow);
+
+            keyInput.value = '';
+            valueInput.value = '';
+
+            updateDictBuilder();
+        }
+        
+        window.removePair = function(button) {
+            const row = button.closest('tr');
+            row.remove();
+            updateDictBuilder();
+        }
+
+
+        // --- D. Practice Logic ---
+        const CORRECT_PRACTICE_ANSWERS = {
+            1: "release_years['once']", // Expected output: 2007
+            2: "movie_metadata[524434]" // Expected output: 'Action'
+        };
+
+        function normalizeInput(input) {
+            // Remove whitespace, standardize quotes to single, and lowercase for flexible checking
+            return input.trim().replace(/\s+/g, '').replace(/"/g, "'").toLowerCase();
+        }
+
+        function checkPractice(challengeNum) {
+            const inputElement = document.getElementById(`practice-input-${challengeNum}`);
+            const feedbackElement = document.getElementById(`practice-feedback-${challengeNum}`);
+            const expectedAnswer = normalizeInput(CORRECT_PRACTICE_ANSWERS[challengeNum]);
+            
+            const rawInput = inputElement.value;
+            const normalizedInput = normalizeInput(rawInput);
+            
+            if (rawInput.length === 0) {
+                feedbackElement.innerHTML = '<span class="text-red-600">Please enter the code snippet first.</span>';
+                inputElement.classList.remove('correct-input-style', 'incorrect-input-style');
+                return;
+            }
+
+            if (normalizedInput.includes(expectedAnswer)) {
+                let result = '';
+                if (challengeNum === 1) result = '2007';
+                if (challengeNum === 2) result = 'Action';
+
+                feedbackElement.innerHTML = `<span class="text-green-600">🎉 Correct! This code returns: ${result}</span>`;
+                inputElement.classList.add('correct-input-style');
+                inputElement.classList.remove('incorrect-input-style');
+            } else {
+                feedbackElement.innerHTML = '<span class="text-red-600">❌ Incorrect. Remember the structure: <code>dictionary_name[Key]</code>. Pay attention to quotes if the key is a string!</span>';
+                inputElement.classList.add('incorrect-input-style');
+                inputElement.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- Utility Functions for Copying ---
+        function copyCode(id) {
+            const codeEl = document.getElementById(id);
+            const preEl = codeEl.querySelector('pre');
+            const text = preEl ? preEl.innerText.trim() : codeEl.innerText.trim();
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>

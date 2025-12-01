@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9. Series Foundation: Dictionary to Pandas Column</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; position: relative; }
+        .comparison-table td, .comparison-table th { padding: 12px; border: 1px solid #e5e7eb; }
+        .comparison-table th { background-color: #eef2ff; }
+        .series-output { 
+            border: 2px solid #3b82f6; 
+            background-color: #eff6ff; 
+            border-radius: 8px; 
+            padding: 1rem; 
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .series-access-output { 
+            background-color: #ecfdf5; 
+            border: 1px solid #10b981; 
+            padding: 0.75rem; 
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .practice-challenge { border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+        
+        /* Copy Button Styles */
+        .copy-btn { 
+            transition: all 0.2s; 
+            position: absolute; 
+            top: 0.75rem; 
+            right: 0.75rem; 
+            background-color: #3b82f6; 
+            color: white; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 0.375rem;
+        }
+        .copy-btn:hover { background-color: #2563eb; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-indigo-500"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                9. Series Foundation: Dictionary to Pandas Column
+            </h1>
+            <p class="text-gray-600 mt-2">Connecting Python's dictionary structure to the powerful Pandas Series object.</p>
+        </header>
+
+        <!-- A. Review: The Challenge of Separate Lists -->
+        <div class="card p-6 mb-8 bg-red-50">
+            <h2 class="text-2xl font-semibold text-red-800 mb-4">A. Problem: Lists are Fragile and Unlabeled</h2>
+            <p class="text-red-900 mb-4">
+                Lists link data by <strong>position</strong> (index). If one list is reordered, the data link is <strong>broken</strong>.
+            </p>
+            <div id="titles-list-code" class="code-container mb-4">
+                 <button onclick="copyCode('titles-list-code')" class="copy-btn">Copy Code</button>
+                <pre><code>titles = ['Avatar', 'Titanic']
+ratings = [7.8, 7.9] 
+# Problem: If ratings are sorted, 7.9 no longer matches 'Titanic' by position.</code></pre>
+            </div>
+        </div>
+
+        <!-- B. Solution: The Dictionary Link -->
+        <div class="card p-6 mb-8 bg-green-50">
+            <h2 class="text-2xl font-semibold text-green-800 mb-4">B. Solution: Dictionaries Lock the Data by Label</h2>
+            <p class="text-green-900 mb-4">
+                The Dictionary permanently <strong>locks</strong> the <strong>Key</strong> (Title) to the <strong>Value</strong> (Rating). This explicit coupling is the foundation of Pandas reliability.
+            </p>
+            <div id="dict-code-source" class="code-container mb-4">
+                 <button onclick="copyCode('dict-code-source')" class="copy-btn">Copy Code</button>
+                <pre><code># Python Dictionary (Key is permanently mapped to Value)
+movie_data = {'Avatar': 7.8, 'Titanic': 7.9, 'Pulp Fiction': 8.9}</code></pre>
+            </div>
+            
+            <p class="text-green-900 font-semibold mt-4">
+                
+            </p>
+        </div>
+
+        <!-- C. The Conversion Step: pd.Series() Function -->
+        <div class="card p-6 mb-8 bg-blue-50">
+            <h2 class="text-2xl font-semibold text-blue-800 mb-4">C. The Conversion: Dictionary &rArr; Series via <code>pd.Series()</code></h2>
+            <p class="text-blue-900 mb-4">
+                The Pandas function <code>pd.Series()</code> converts a Python dictionary, where the dictionary <strong>Keys</strong> automatically become the Series <strong>Index Labels</strong>.
+            </p>
+            
+            <div id="series-creation-code" class="code-container mb-4 bg-blue-900 text-yellow-300">
+                 <button onclick="copyCode('series-creation-code')" class="copy-btn">Copy Code</button>
+                <pre><code>import pandas as pd
+movie_series = pd.Series(movie_data)
+movie_series</code></pre>
+            </div>
+            
+            <h3 class="font-medium text-gray-700 mt-4 mb-2">Interactive Preview:</h3>
+            <p class="text-gray-600 mb-4">Click the button to visualize the dictionary conversion:</p>
+            
+            <button onclick="displaySeries()" id="generateButton" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">
+                Generate Series Output
+            </button>
+            
+            <div id="seriesOutput" class="series-output mt-4 opacity-0 transition-opacity duration-500 text-base">
+                <p class="text-gray-600 italic">Click the button above to run the conversion!</p>
+            </div>
+        </div>
+        
+        <!-- D. Pandas Access: The Dual Power of the Series (Content from Page 11) -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">D. Pandas Access: The Dual Power of the Series</h2>
+            <p class="text-gray-700 mb-4">
+                The Pandas Series gives you the best of both worlds: access data by the descriptive <strong>Label</strong> (Dictionary Key) OR by the numerical <strong>Position</strong> (List Index).
+            </p>
+            
+            <table class="comparison-table w-full text-sm text-center rounded-lg overflow-hidden mb-6">
+                <thead>
+                    <tr>
+                        <th class="w-1/3 bg-purple-200">Python List</th>
+                        <th class="w-1/3 bg-yellow-200">Python Dictionary</th>
+                        <th class="w-1/3 bg-blue-200">Pandas Series</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Access by <strong>Position</strong> only.</td>
+                        <td>Access by <strong>Label</strong> only.</td>
+                        <td>Access by <strong>Index</strong> (Label or Position).</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="font-bold text-gray-700 mb-3 mt-4">Interactive Challenge: Dual Access</h3>
+            <p class="text-gray-600 mb-4">
+                Given the <code>popularity_series</code> below, write the code to retrieve the data in two different ways.
+            </p>
+            
+            <div id="popularity-series-code" class="code-container bg-gray-100 text-gray-800 mb-4">
+                 <button onclick="copyCode('popularity-series-code')" class="copy-btn">Copy Code</button>
+                <pre><code>popularity_series = pd.Series({
+    'Venom: Let There Be Carnage': 5401.308,
+    'Eternals': 3365.535,
+    'Dune': 2911.423
+})</code></pre>
+            </div>
+            
+            <!-- Challenge 1: Access by Label -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h4 class="font-bold text-lg text-blue-700 mb-2">Challenge 1: Access by Label ('Dune')</h4>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Retrieve the popularity score for <strong>'Dune'</strong> using the Series <strong>Index Label</strong>.
+                </p>
+                <label for="practice-input-1" class="block font-bold mt-2 mb-2 text-gray-700">Enter Pandas Code (e.g., <code>series_name['Label']</code>):</label>
+                <input type="text" id="practice-input-1" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="popularity_series[...]">
+                
+                <button onclick="checkPractice(1)" class="action-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Label Access
+                </button>
+                <p id="practice-feedback-1" class="mt-4 font-bold h-6"></p>
+            </div>
+            
+            <!-- Challenge 2: Access by Position -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h4 class="font-bold text-lg text-purple-700 mb-2">Challenge 2: Access by Position (Index 1)</h4>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Retrieve the popularity score for <strong>'Eternals'</strong> using the <strong>positional index</strong> (0-based list access).
+                </p>
+                <label for="practice-input-2" class="block font-bold mt-2 mb-2 text-gray-700">Enter Pandas Code (e.g., <code>series_name[position]</code>):</label>
+                <input type="text" id="practice-input-2" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="popularity_series[...]">
+                
+                <button onclick="checkPractice(2)" class="action-button bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Positional Access
+                </button>
+                <p id="practice-feedback-2" class="mt-4 font-bold h-6"></p>
+            </div>
+        </div>
+
+        <!-- E. Final Practice: Full Conversion Challenge (Content from Page 12) -->
+        <div class="card p-6 mb-8 bg-purple-50">
+            <h2 class="text-2xl font-semibold text-purple-800 mb-4">E. Final Challenge: Complete Series Conversion</h2>
+            <p class="text-purple-900 mb-4">
+                Write the single line of Pandas code needed to convert the dictionary below into a Series named <code>final_popularity</code>.
+            </p>
+
+            <div id="final-conversion-code" class="code-container bg-blue-900 text-white mb-4">
+                 <button onclick="copyCode('final-conversion-code')" class="copy-btn">Copy Code</button>
+                <pre><code>import pandas as pd
+data_source = {'Avatar': 150.4, 'Titanic': 100.2, 'Pulp Fiction': 85.7}
+# Your code here: final_popularity = ...</code></pre>
+            </div>
+            
+            <label for="code-input-final" class="block font-bold mt-4 mb-2 text-gray-700">Your Code Line:</label>
+            <input type="text" id="code-input-final" class="w-full p-3 border-2 border-indigo-400 rounded-lg font-mono" placeholder="final_popularity = ...">
+            
+            <button onclick="checkFinalConversion()" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg mt-4">
+                Check Code & Visualize Result
+            </button>
+            <p id="feedback-final" class="mt-4 font-bold h-6"></p>
+
+            <h3 class="font-medium text-purple-800 mt-6 mb-2">Visualization:</h3>
+            <div id="series-visualization-final" class="series-output">
+                <p class="text-gray-500 text-center">Output will appear here after correct code is entered.</p>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // --- Utility Functions ---
+        function copyCode(id) {
+            const codeEl = document.getElementById(id);
+            const preEl = codeEl.querySelector('pre');
+            const text = preEl ? preEl.innerText.trim() : codeEl.innerText.trim();
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- C. Interactive Output Logic (Conversion Preview) ---
+        const seriesOutputElement = document.getElementById('seriesOutput');
+        
+        function displaySeries() {
+            seriesOutputElement.innerHTML = `
+<pre>
+Avatar          7.8  <span class="text-purple-600"> &lt;-- Index (Key)</span>
+Titanic         7.9
+Pulp Fiction    8.9  <span class="text-green-600"> &lt;-- Data (Value)</span>
+dtype: float64
+</pre>
+            `;
+            seriesOutputElement.classList.add('opacity-100');
+            document.getElementById('generateButton').innerText = "Series Generated!";
+        }
+        
+        // --- D. Interactive Challenge Logic (Dual Access - FIXED FEEDBACK) ---
+        
+        const CORRECT_PRACTICE_ANSWERS = {
+            1: "popularity_series['dune']", // Access by Label
+            2: "popularity_series[1]"       // Access by Position
+        };
+        
+        const EXPECTED_RESULTS = {
+            1: 2911.423, // Dune's popularity
+            2: 3365.535  // Eternals' popularity (at index 1)
+        };
+
+        function normalizeInput(input) {
+            // Lowercase, remove whitespace, standardize quotes to single quote for checking core logic
+            return input.trim().replace(/\s+/g, '').replace(/"/g, "'").toLowerCase();
+        }
+
+        function checkPractice(challengeNum) {
+            const inputElement = document.getElementById(`practice-input-${challengeNum}`);
+            const feedbackElement = document.getElementById(`practice-feedback-${challengeNum}`);
+            const rawInput = inputElement.value.trim();
+            const normalizedInput = normalizeInput(rawInput);
+            
+            if (rawInput.length === 0) {
+                feedbackElement.innerHTML = '<span class="text-red-600">Please enter the code snippet first.</span>';
+                inputElement.classList.remove('correct-input-style', 'incorrect-input-style');
+                return;
+            }
+
+            let isCorrect = false;
+            let errorMessage = '';
+
+            if (challengeNum === 1) { // Label Access: 'Dune'
+                const expectedAnswer = normalizeInput(CORRECT_PRACTICE_ANSWERS[1]);
+                isCorrect = normalizedInput.includes(expectedAnswer);
+
+                if (!isCorrect) {
+                    // Check for common errors
+                    if (rawInput.includes('[') && rawInput.includes(']')) {
+                         // Check if quotes are missing
+                         if (!rawInput.includes("'") && !rawInput.includes('"') && rawInput.toLowerCase().includes('dune')) {
+                            errorMessage = '❌ Error: You must wrap the string label <code>\'Dune\'</code> in quotes.';
+                        } 
+                        // Check if trying to access by numerical position (e.g., [2])
+                        else if (!isNaN(parseInt(rawInput.match(/\[(.*?)\]/)?.[1]))) {
+                            errorMessage = '❌ Error: This challenge requires access by <strong>Label</strong> (string), not numerical <strong>Position</strong>.';
+                        } else {
+                            errorMessage = '❌ Incorrect label or syntax. Remember: <code>series_name[\'Label\']</code>.';
+                        }
+                    } else {
+                        errorMessage = '❌ Error: Missing the access brackets <code>[]</code>.';
+                    }
+                }
+            } 
+            
+            else if (challengeNum === 2) { // Positional Access: 1
+                const expectedAnswer = normalizeInput(CORRECT_PRACTICE_ANSWERS[2]);
+                isCorrect = normalizedInput.includes(expectedAnswer);
+
+                if (!isCorrect) {
+                     // Check if quotes are present (e.g., ['1'])
+                     if (rawInput.includes('\'') || rawInput.includes('"')) {
+                        errorMessage = '❌ Error: When accessing by <strong>Position</strong>, you must use the numerical index (e.g., <code>[1]</code>) without any quotes.';
+                    } 
+                    // Check if attempting to use a string label (e.g., ['Eternals'])
+                    else if (rawInput.toLowerCase().includes('eternals') || rawInput.toLowerCase().includes('dune')) {
+                        errorMessage = '❌ Error: This challenge requires access by numerical <strong>Position</strong>, not the string <strong>Label</strong>.';
+                    } else if (!rawInput.includes('[')) {
+                        errorMessage = '❌ Error: Missing the access brackets <code>[]</code>.';
+                    } else {
+                         errorMessage = '❌ Incorrect positional index. Remember the position for \'Eternals\' is 1 (0-based).';
+                    }
+                }
+            }
+            
+            if (isCorrect) {
+                const result = EXPECTED_RESULTS[challengeNum];
+                feedbackElement.innerHTML = `<span class="text-green-600">🎉 Correct! This code returns: ${result}</span>`;
+                inputElement.classList.add('correct-input-style');
+                inputElement.classList.remove('incorrect-input-style');
+            } else {
+                feedbackElement.innerHTML = `<span class="text-red-600">${errorMessage || '❌ Incorrect. Check your syntax, quotes, and whether you used Label or Position access.'}</span>`;
+                inputElement.classList.add('incorrect-input-style');
+                inputElement.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- E. Final Conversion Logic (From old Page 12) ---
+        const FINAL_CORRECT_ANSWER = "final_popularity=pd.series(data_source)";
+        
+        function displayFinalVisualization() {
+            const viz = document.getElementById('series-visualization-final');
+            viz.innerHTML = `
+<pre>
+Avatar          150.4
+Titanic         100.2
+Pulp Fiction     85.7
+dtype: float64
+</pre>
+            `;
+        }
+
+        function checkFinalConversion() {
+            const inputElement = document.getElementById('code-input-final');
+            const feedback = document.getElementById('feedback-final');
+            const normalizedInput = normalizeInput(inputElement.value);
+
+            if (normalizedInput.includes(normalizeInput(FINAL_CORRECT_ANSWER))) {
+                feedback.innerHTML = '<span class="text-green-600">🎉 Correct! You successfully created the Pandas Series!</span>';
+                inputElement.classList.remove('incorrect-style');
+                inputElement.classList.add('correct-style');
+                displayFinalVisualization();
+            } else {
+                feedback.innerHTML = '<span class="text-red-600">❌ Incorrect. Remember the structure: <code>series_name = pd.Series(data_source)</code>. Check capitalization and parentheses!</span>';
+                inputElement.classList.remove('correct-style');
+                inputElement.classList.add('incorrect-style');
+                document.getElementById('series-visualization-final').innerHTML = '<p class="text-gray-500 text-center">Output will appear here after correct code is entered.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initial setup for visual alignment
+        });
+    </script>
+</body>
+</html>

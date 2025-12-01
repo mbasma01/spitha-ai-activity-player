@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7. Python Lists: The Ordered Container</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; overflow-x: auto; position: relative; }
+        .action-button:hover { transform: translateY(-1px); }
+        .analogy-container { border: 2px solid #a5b4fc; background-color: #f3e8ff; border-radius: 8px; padding: 1.5rem; }
+        
+        /* Drag and Drop Styles */
+        .drag-palette, .list-container {
+            border: 2px dashed #9ca3af;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .drag-item {
+            cursor: grab;
+            user-select: none;
+            padding: 8px 12px;
+            margin: 5px;
+            border-radius: 4px;
+            background-color: #6d28d9; /* Indigo 700 */
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 100%; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .list-container {
+            border-color: #8b5cf6; /* Purple 500 */
+            background-color: #f5f3ff; /* Purple 50 */
+            gap: 5px;
+        }
+        .list-container .drag-item {
+            background-color: #8b5cf6; /* Purple 500 for list items */
+        }
+        .drag-palette.hover, .list-container.hover {
+            background-color: #e0e7ff; /* Blue 100 for drag over */
+            border-color: #3b82f6; /* Blue 500 */
+        }
+        
+        /* Index Container for Absolute Positioning */
+        #index-labels-wrapper {
+            position: relative;
+            min-height: 20px;
+        }
+
+        .index-label {
+            position: absolute;
+            font-weight: bold;
+            font-size: 0.875rem;
+            color: #8b5cf6;
+            white-space: nowrap;
+            transform: translateX(-50%); /* Centers the label text */
+        }
+        
+        /* Practice Challenge Styles */
+        .practice-challenge { border: 1px solid #d1d5db; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .correct-input-style { border-color: #10b981 !important; background-color: #f0fff4 !important; }
+        .incorrect-input-style { border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+        
+        /* Copy Button Styles */
+        .copy-btn { 
+            transition: all 0.2s; 
+            position: absolute; 
+            top: 0.75rem; 
+            right: 0.75rem; 
+            background-color: #3b82f6; 
+            color: white; 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 0.375rem;
+        }
+        .copy-btn:hover { background-color: #2563eb; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-purple-500"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="8" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/></svg>
+                7. Python Lists: The Ordered Container
+            </h1>
+            <p class="text-gray-600 mt-2">The most basic building block of data in Python: Access by Position.</p>
+        </header>
+
+        <!-- A. Analogy: Access by Fixed Position -->
+        <div class="card p-6 mb-8 bg-purple-50">
+            <h2 class="text-2xl font-semibold text-purple-800 mb-4">A. Concept: Access by Fixed Position</h2>
+            <p class="text-purple-900 mb-4">
+                A <strong>List</strong> stores items in a specific order. When you want to find an item, you must refer to its fixed numerical position, or <strong>Index</strong>.
+            </p>
+            
+            <!-- Analogy Section -->
+            <h3 class="font-bold text-purple-700 mt-4 mb-3 flex items-center text-xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14 18l7-7 2-2 3-3"/><path d="M22 17l-3 3-2 2-7 7"/><path d="M1 1l3 3 2 2 7 7 3-3 2-2 3-3"/></svg>
+                Real-Life Analogy: Numbering Airplane Seats
+            </h3>
+            <div class="analogy-container mb-4">
+                <p class="font-semibold text-purple-900 mb-2">The Problem (Vague Access):</p>
+                <p class="text-purple-900 mb-3">
+                    Imagine the seats in a single row (A, B, C). If you simply say "the middle seat," it's vague. How do you tell someone exactly which seat to go to?
+                </p>
+                
+                <p class="font-semibold text-purple-900 mb-2">The Solution (List Logic - Ordering):</p>
+                <p class="text-purple-900">
+                    You number the seats based on their order, starting from the very first available slot, which is <strong>0</strong> (Zero-Indexing). This position becomes the fixed address. 
+                </p>
+                
+                <div class="flex justify-between mt-3 font-mono text-base text-center font-bold">
+                    <span class="bg-white p-2 rounded-md border border-purple-400 w-1/4">Index 0 (Seat A)</span>
+                    <span class="bg-white p-2 rounded-md border border-purple-400 w-1/4">Index 1 (Seat B)</span>
+                    <span class="bg-white p-2 rounded-md border border-purple-400 w-1/4">Index 2 (Seat C)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- B. Interactive Code Translation -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">B. Interactive: Building Your Own List</h2>
+            <p class="text-gray-600 mb-4">
+                Name your list, <strong>create new items</strong> below, and drag them into the list container. See how the code updates!
+            </p>
+
+            <!-- List Name Creator -->
+            <label for="list-name-input" class="block font-bold mt-2 mb-2 text-gray-700">1. Name Your List Variable:</label>
+            <input type="text" id="list-name-input" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="e.g., movie_ratings" value="my_list" oninput="updateCodeAndIndices()">
+
+            <!-- Item Creator -->
+            <label for="new-item-input" class="block font-bold mt-2 mb-2 text-gray-700">2. Create New Items:</label>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="new-item-input" class="p-2 border rounded-lg flex-grow" placeholder="Enter new item (e.g., '8.5', 'Action', '2023')">
+                <button onclick="addNewItem()" class="action-button bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Add Item to Palette
+                </button>
+            </div>
+
+
+            <!-- Drag Palette -->
+            <h3 class="font-bold text-gray-700 mt-4 mb-2">3. Item Palette (Drag to List):</h3>
+            <div id="drag-palette" class="drag-palette mb-6 bg-gray-100" ondragover="allowDrop(event)" ondrop="drop(event, 'palette')">
+                <div id="val-78" class="drag-item" draggable="true" data-value="7.8" ondragstart="drag(event)">7.8</div>
+                <div id="val-83" class="drag-item" draggable="true" data-value="8.3" ondragstart="drag(event)">8.3</div>
+                <div id="val-79" class="drag-item" draggable="true" data-value="7.9" ondragstart="drag(event)">7.9</div>
+                <div id="val-89" class="drag-item" draggable="true" data-value="8.9" ondragstart="drag(event)">8.9</div>
+            </div>
+
+            <!-- List Container -->
+            <h3 class="font-bold text-purple-700 mt-4 mb-2">4. Your List Container (The Order Matters):</h3>
+            <div id="list-container" class="list-container mb-1" ondragover="allowDrop(event)" ondrop="drop(event, 'list')">
+                <!-- Dropped items go here -->
+            </div>
+            
+            <!-- Index Labels (Wrapper for absolute positioning) -->
+            <div id="index-labels-wrapper" class="w-full">
+                <div id="index-labels">
+                    <!-- Indices generated by JS -->
+                </div>
+            </div>
+
+            <!-- Code Representation -->
+            <h3 class="font-bold text-gray-700 mt-4 mb-2">Real-time Python Code:</h3>
+            <div class="code-container">
+                <pre id="code-output"><code>my_list = []</code></pre>
+            </div>
+            <p class="text-sm text-gray-600 mt-2 italic">
+                The index is automatically created based on the order you arrange the items in the container.
+            </p>
+        </div>
+
+        <!-- C. Interactive Access (Indexing) -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">C. Interactive: Access by Index (Position)</h2>
+            <p class="text-gray-600 mb-4">Enter a number (0-3) to retrieve the rating at that exact position (fixed example).</p>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <label class="font-bold">Access Index (Position):</label>
+                <input type="number" id="listIndexInput" min="0" max="3" value="0" class="p-2 border rounded font-mono w-20 text-center" oninput="updateListAccess()">
+            </div>
+            
+            <div class="grid grid-cols-4 text-center gap-2 mb-4 font-mono text-lg">
+                <div id="item0" class="p-3 bg-gray-100 rounded border border-gray-300">7.8</div>
+                <div id="item1" class="p-3 bg-gray-100 rounded border border-gray-300">8.3</div>
+                <div id="item2" class="p-3 bg-gray-100 rounded border border-gray-300">7.9</div>
+                <div id="item3" class="p-3 bg-gray-100 rounded border border-gray-300">8.9</div>
+                <div class="text-sm font-semibold text-purple-600">Index 0</div>
+                <div class="text-sm font-semibold text-purple-600">Index 1</div>
+                <div class="text-sm font-semibold text-purple-600">Index 2</div>
+                <div class="text-sm font-semibold text-purple-600">Index 3</div>
+            </div>
+
+            <h3 class="font-medium text-gray-700 mt-4 mb-2">Resulting Code and Value:</h3>
+            <div id="listAccessOutput" class="font-mono bg-green-100 text-green-700 p-3 rounded-lg text-lg text-center font-bold">
+                movie_ratings[0] is 7.8
+            </div>
+        </div>
+
+        <!-- D. Practice: Multiple Access Challenges (NEW) -->
+        <div class="card p-6 mb-8 bg-indigo-50">
+            <h2 class="text-2xl font-semibold text-indigo-800 mb-4">D. Practice: Multiple Access Challenges</h2>
+            <p class="text-indigo-900 mb-4">
+                Use the Python list syntax to access the requested data based on its zero-based index.
+            </p>
+
+            <div id="genres-list-code" class="code-container bg-indigo-900 text-white text-sm mb-4">
+                 <button onclick="copyCode('genres-list-code')" class="copy-btn">Copy Code</button>
+                <pre><code># The list of movie genres
+genres = ['Action', 'Thriller', 'Sci-Fi', 'Drama', 'Comedy']</code></pre>
+            </div>
+            
+            <!-- Challenge 1: Find the 3rd element -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h3 class="font-bold text-lg text-indigo-700 mb-2">Challenge 1: Find the 3rd Element</h3>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Write the code to access the genre at the <strong>3rd position</strong> (positional counting).
+                </p>
+                <label for="practice-input-1" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code (e.g., <code>list_name[index]</code>):</label>
+                <input type="text" id="practice-input-1" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="genres[...]">
+                
+                <button onclick="checkPractice(1)" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Answer 1
+                </button>
+                <p id="practice-feedback-1" class="mt-4 font-bold h-6"></p>
+            </div>
+            
+            <!-- Challenge 2: Find the last element -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h3 class="font-bold text-lg text-indigo-700 mb-2">Challenge 2: Find the Last Element</h3>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Write the code to access the genre at the <strong>last position</strong> (index 4).
+                </p>
+                <label for="practice-input-2" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code:</label>
+                <input type="text" id="practice-input-2" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="genres[...]">
+                
+                <button onclick="checkPractice(2)" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Answer 2
+                </button>
+                <p id="practice-feedback-2" class="mt-4 font-bold h-6"></p>
+            </div>
+
+            <!-- Challenge 3: Find the element with Index 1 -->
+            <div class="practice-challenge bg-white shadow-md">
+                <h3 class="font-bold text-lg text-indigo-700 mb-2">Challenge 3: Find the Element at Index 1</h3>
+                <p class="text-gray-700 mb-2">
+                    <strong>Goal:</strong> Write the code to access the genre at <strong>Index 1</strong>.
+                </p>
+                <label for="practice-input-3" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code:</label>
+                <input type="text" id="practice-input-3" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="genres[...]">
+                
+                <button onclick="checkPractice(3)" class="action-button bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Check Answer 3
+                </button>
+                <p id="practice-feedback-3" class="mt-4 font-bold h-6"></p>
+            </div>
+        </div>
+
+
+        <!-- E. Core Limitation (Elaborated) -->
+        <div class="card p-6 mb-8 bg-red-50">
+            <h2 class="text-2xl font-semibold text-red-800 mb-4">E. The List Limitation: Lack of Meaning</h2>
+            <p class="text-red-900 mb-4">
+                Lists are great for simple sequences, but they create a major problem when dealing with organized datasets like our <strong>movies</strong> or <strong>climate</strong> data.
+            </p>
+            
+            <h3 class="font-bold text-red-700 mb-2">The Mismatch Problem:</h3>
+            <p class="text-red-900 mb-3">
+                Imagine we have one list of movie titles and a second list of their ratings. Both lists rely on matching index positions:
+            </p>
+            <div class="code-container bg-red-900 text-white mb-4">
+                <pre><code>Titles = ['Avatar', 'Titanic']
+Ratings = [7.8, 7.9]
+
+# Accessing index 0 gives: 'Avatar' and 7.8 (Correct)</code></pre>
+            </div>
+
+            <p class="text-red-900 mb-3 font-bold">
+                If the <code>Ratings</code> list gets accidentally sorted (e.g., if we tried to find the highest rating first), the data would break:
+            </p>
+
+            <div class="code-container bg-red-900 text-white mb-4">
+                <pre><code>Titles = ['Avatar', 'Titanic']
+Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated from Titles!</span>
+
+# Accessing index 0 gives: 'Avatar' and 7.9 (INCORRECT MATCH)</code></pre>
+            </div>
+            
+            <h3 class="font-bold text-red-700 mt-4 mb-2">The Solution: Labeled Data</h3>
+            <p class="text-red-900 font-semibold">
+                We need a structure where the <strong>Name</strong> is permanently locked to the <strong>Value</strong>, regardless of the item's position. This concept of using a descriptive <strong>Label</strong> instead of a position is the foundation of Python <strong>Dictionaries</strong>, and ultimately, the <strong>Pandas Series</strong> Index.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Interactive Access (C) Logic (unchanged) ---
+        const ratings = [7.8, 8.3, 7.9, 8.9];
+        const ratingElements = [document.getElementById('item0'), document.getElementById('item1'), document.getElementById('item2'), document.getElementById('item3')];
+
+        function updateListAccess() {
+            const indexInput = document.getElementById('listIndexInput');
+            const output = document.getElementById('listAccessOutput');
+            const index = parseInt(indexInput.value);
+
+            // Reset styles
+            ratingElements.forEach(el => {
+                el.classList.remove('bg-purple-300', 'border-purple-600', 'font-bold');
+                el.classList.add('bg-gray-100', 'border-gray-300');
+            });
+            
+            if (index >= 0 && index < ratings.length) {
+                // Highlight selected item
+                ratingElements[index].classList.add('bg-purple-300', 'border-purple-600', 'font-bold');
+                ratingElements[index].classList.remove('bg-gray-100', 'border-gray-300');
+                
+                // Update output
+                output.innerHTML = `movie_ratings[${index}] is <strong>${ratings[index]}</strong>`;
+                output.classList.remove('bg-red-100', 'text-red-700');
+                output.classList.add('bg-green-100', 'text-green-700');
+
+            } else {
+                output.innerHTML = `<strong>Error:</strong> Index ${index} is out of bounds (valid indices are 0 to 3).`;
+                output.classList.remove('bg-green-100', 'text-green-700');
+                output.classList.add('bg-red-100', 'text-red-700');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateListAccess);
+
+
+        // --- List Building (B) Logic (FIXED INDEX ALIGNMENT) ---
+        const listContainer = document.getElementById('list-container');
+        const codeOutput = document.getElementById('code-output');
+        const indexLabels = document.getElementById('index-labels');
+        const listNameInput = document.getElementById('list-name-input');
+        let draggedItem = null;
+        let itemCounter = 5; // Start counter for unique IDs
+
+        function createDragItem(value) {
+            const sanitizedValue = value.replace(/'/g, '').trim(); // Remove quotes for data attribute
+            if (sanitizedValue === "") return null;
+
+            const div = document.createElement('div');
+            div.id = `val-${itemCounter++}`;
+            // If the input is numeric, we store it without quotes, otherwise, with quotes (for code representation)
+            const isNumeric = !isNaN(parseFloat(sanitizedValue)) && isFinite(sanitizedValue);
+            div.dataset.value = isNumeric ? sanitizedValue : `'${sanitizedValue}'`;
+            div.className = 'drag-item';
+            div.draggable = true;
+            div.textContent = sanitizedValue;
+            
+            div.addEventListener('dragstart', drag);
+            div.addEventListener('dragend', (e) => { e.target.style.opacity = '1'; draggedItem = null; });
+            return div;
+        }
+
+        function addNewItem() {
+            const input = document.getElementById('new-item-input');
+            const newItem = createDragItem(input.value);
+            if (newItem) {
+                document.getElementById('drag-palette').appendChild(newItem);
+                input.value = ''; // Clear input after adding
+            }
+        }
+
+        function drag(e) {
+            draggedItem = e.target;
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.style.opacity = '0.4';
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('hover');
+        }
+
+        listContainer.addEventListener('dragleave', (ev) => ev.currentTarget.classList.remove('hover'));
+        document.getElementById('drag-palette').addEventListener('dragleave', (ev) => ev.currentTarget.classList.remove('hover'));
+
+
+        function drop(ev, targetType) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('hover');
+            
+            if (!draggedItem) return;
+            
+            if (targetType === 'list') {
+                const targetContainer = ev.currentTarget;
+                // Move item from palette to list container (or reorder within)
+                const targetEl = ev.target.closest('.drag-item');
+                if (targetEl && targetEl !== draggedItem && targetEl.parentNode === targetContainer) {
+                    // Reorder within the list container
+                    const rect = targetEl.getBoundingClientRect();
+                    const center = (rect.left + rect.right) / 2;
+                    const isBefore = ev.clientX < center;
+                    targetContainer.insertBefore(draggedItem, isBefore ? targetEl : targetEl.nextSibling);
+                } else {
+                    // Append to end
+                    targetContainer.appendChild(draggedItem);
+                }
+            } else if (targetType === 'palette') {
+                // Move item from list back to palette
+                ev.currentTarget.appendChild(draggedItem);
+            }
+            
+            // Wait for DOM update before calculating positions
+            setTimeout(updateCodeAndIndices, 0); 
+        }
+
+        function updateCodeAndIndices() {
+            const listName = listNameInput.value.trim() || 'my_list';
+            const items = Array.from(listContainer.children);
+            const values = items.map(item => item.dataset.value);
+            
+            // 1. Update Code
+            codeOutput.innerHTML = `<code>${listName} = [${values.join(', ')}]</code>`;
+
+            // 2. Update Indices (FIXED LOGIC)
+            indexLabels.innerHTML = '';
+            
+            // Get the bounding box of the main content area for consistent referencing
+            const containerRect = document.querySelector('.max-w-4xl').getBoundingClientRect();
+            
+            // Since the list items are flex children, we iterate through them to find their true positions
+            items.forEach((item, index) => {
+                const itemRect = item.getBoundingClientRect();
+                
+                const label = document.createElement('div');
+                label.className = 'index-label';
+                
+                // Calculate position relative to the main container's left edge
+                // We want the center of the item relative to the main page structure.
+                const itemCenterPosition = itemRect.left + (itemRect.width / 2) - containerRect.left;
+                
+                // Position the label relative to the start of the 'index-labels' div
+                // The 'left' property needs to be relative to its absolutely positioned parent, 
+                // which, in turn, is relative to the page flow.
+                label.style.left = itemCenterPosition + 'px';
+                label.style.top = '0'; 
+                label.textContent = `[${index}]`;
+                indexLabels.appendChild(label);
+            });
+        }
+        
+        // Initial setup for code and indices
+        document.addEventListener('DOMContentLoaded', () => {
+             updateListAccess();
+             updateCodeAndIndices();
+             // Add resize listener to fix position when viewport changes
+             window.addEventListener('resize', updateCodeAndIndices); 
+        });
+
+        // --- D. Practice Logic ---
+        const CORRECT_PRACTICE_ANSWERS = {
+            1: "genres[2]", // 3rd position = index 2 ('Sci-Fi')
+            2: "genres[4]", // Last position = index 4 ('Comedy') or genres[-1]
+            3: "genres[1]"  // Index 1 = 'Thriller'
+        };
+        const EXPECTED_RESULTS = {
+            1: 'Sci-Fi',
+            2: 'Comedy',
+            3: 'Thriller'
+        };
+
+        function normalizeInput(input) {
+            // Remove whitespace and standardize to lowercase for flexible checking
+            return input.trim().replace(/\s+/g, '').toLowerCase();
+        }
+
+        function checkPractice(challengeNum) {
+            const inputElement = document.getElementById(`practice-input-${challengeNum}`);
+            const feedbackElement = document.getElementById(`practice-feedback-${challengeNum}`);
+            
+            const rawInput = inputElement.value;
+            const normalizedInput = normalizeInput(rawInput);
+            
+            if (rawInput.length === 0) {
+                feedbackElement.innerHTML = '<span class="text-red-600">Please enter the code snippet first.</span>';
+                inputElement.classList.remove('correct-input-style', 'incorrect-input-style');
+                return;
+            }
+
+            // Check if input matches the exact index or the common negative index (-1)
+            let isCorrect = false;
+            if (challengeNum === 1 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[1]))) {
+                isCorrect = true;
+            } else if (challengeNum === 2 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[2]) || normalizedInput === normalizeInput("genres[-1]"))) {
+                isCorrect = true;
+            } else if (challengeNum === 3 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[3]))) {
+                isCorrect = true;
+            }
+
+            if (isCorrect) {
+                const result = EXPECTED_RESULTS[challengeNum];
+                feedbackElement.innerHTML = `<span class="text-green-600">🎉 Correct! This code returns: '${result}'</span>`;
+                inputElement.classList.add('correct-input-style');
+                inputElement.classList.remove('incorrect-input-style');
+            } else {
+                feedbackElement.innerHTML = '<span class="text-red-600">❌ Incorrect. Remember lists start at Index 0! For the 3rd element, you need index 2.</span>';
+                inputElement.classList.add('incorrect-input-style');
+                inputElement.classList.remove('correct-input-style');
+            }
+        }
+        
+        // --- Utility Functions for Copying (Defined here for self-contained file) ---
+        function copyCode(id) {
+            const codeEl = document.getElementById(id);
+            const preEl = codeEl.querySelector('pre');
+            const text = preEl ? preEl.innerText.trim() : codeEl.innerText.trim();
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Code snippet copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                console.log('Code snippet copied to clipboard!');
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
