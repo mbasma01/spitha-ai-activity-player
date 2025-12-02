@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Exercise: Student Performance Analysis</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles based on the provided template */
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { 
+            background-color: white; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .code-container { 
+            background-color: #1e293b; 
+            color: #f8fafc; 
+            border-radius: 8px; 
+            padding: 1rem; 
+            overflow-x: auto; 
+            position: relative;
+            font-size: 0.875rem; /* text-sm */
+        }
+        /* New style for the data path pre element to force wrapping */
+        .data-path-pre {
+            white-space: pre-wrap; /* Forces long lines to wrap */
+            word-break: break-all; /* Ensures long words/URLs don't overflow */
+            overflow-x: hidden; /* Hide any remaining horizontal overflow */
+            margin-right: 1rem; /* Add space between text and copy button */
+            flex-grow: 1;
+        }
+        .action-button {
+            transition: all 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .action-button:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+        /* Style for the new validation button */
+        .validate-button {
+            background-color: #0d9488; /* Tailwind Teal-600 */
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .validate-button:hover {
+            background-color: #0f766e; /* Tailwind Teal-700 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.2);
+        }
+        .exercise-item { 
+            border-left: 4px solid #f97316; /* Tailwind orange-500 */
+            padding-left: 1rem; 
+            margin-bottom: 1.5rem; 
+        }
+        .exercise-title {
+            color: #f97316;
+            font-weight: 600;
+        }
+        /* Tab styling */
+        .tab-button {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tab-button.active {
+            color: #f97316; /* Orange-600 */
+            border-bottom-color: #f97316;
+        }
+        .tab-button:not(.active):hover {
+            color: #4b5563; /* Gray-600 */
+        }
+        /* Hint button style */
+        .hint-button {
+            background-color: #fcd34d; /* Tailwind Amber-300 */
+            color: #78350f; /* Tailwind Amber-900 */
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem; /* text-xs */
+            transition: background-color 0.1s ease;
+            margin-left: 0.5rem;
+            line-height: 1; /* Match text height */
+        }
+        .hint-button:hover {
+            background-color: #facc15; /* Tailwind Amber-400 */
+        }
+        /* Hint box style */
+        .hint-box {
+            background-color: #fffbeb; /* Tailwind Amber-50 */
+            border-left: 4px solid #f59e0b; /* Tailwind Amber-500 */
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Student Performance Analysis Exercise</h1>
+            <p class="text-xl text-gray-600">Apply data manipulation techniques to understand key factors influencing student scores.</p>
+        </header>
+
+        <!-- Dataset Information Card -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-orange-600">The Dataset: Students Performance</h2>
+            <p class="text-gray-700 mb-4">
+                This dataset contains anonymized examination scores (Math, Reading, and Writing) for students. Use the snippets below to load the data into a Pandas DataFrame.
+            </p>
+
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200 mb-4">
+                <nav class="flex space-x-4">
+                    <button id="tab-local-btn" class="tab-button" onclick="showTab('local')">
+                        1. Local File (Attached)
+                    </button>
+                    <button id="tab-github-btn" class="tab-button active" onclick="showTab('github')">
+                        2. GitHub URL
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Local File -->
+            <div id="tab-local-content" class="tab-content space-y-4 hidden">
+                <button id="download-btn" class="action-button bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 w-full sm:w-auto" onclick="downloadDataset()">
+                    Download CSV for Local Use
+                </button>
+                <p class="text-sm font-medium text-gray-700">Code Snippet for Local Load (Copy the whole line):</p>
+                <div class="code-container p-3 flex justify-between items-center bg-green-900/80">
+                    <pre id="local-data-path-display" class="text-white select-all data-path-pre">data_path = 'uploaded:StudentsPerformance.csv'</pre>
+                    <button class="action-button bg-green-700 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copySnippet('local-data-path')">Copy Path</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: GitHub URL -->
+            <div id="tab-github-content" class="tab-content space-y-4">
+                <p class="text-gray-700">Load the data directly from the public GitHub repository using the URL below.</p>
+                <p class="text-sm font-medium text-gray-700">Code Snippet for GitHub Load (Copy the whole line):</p>
+                <div class="code-container p-3 flex justify-between items-center">
+                    <pre id="github-data-url-display" class="text-white select-all data-path-pre">data_path = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/StudentsPerformance.csv'</pre>
+                    <button class="action-button bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copySnippet('github-data-url')">Copy Path</button>
+                </div>
+            </div>
+            
+            <!-- Hidden code snippets for copying (used by JS to get the actual path string) -->
+            <div id="local-data-path" class="hidden">data_path = 'uploaded:StudentsPerformance.csv'</div>
+            <div id="github-data-url" class="hidden">data_path = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/StudentsPerformance.csv'</div>
+
+        </div>
+
+        <!-- Programming Exercise Tasks Card -->
+        <div class="card p-8">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">The Tasks</h2>
+
+            <!-- Exercise 1: Load and Head -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 1: Load the Data 
+                    <button class="hint-button" onclick="showHint('hint-1')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Load the dataset using your chosen <code>data_path</code> variable and display the first 5 rows.</p>
+                <div id="hint-1" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-1')">Copy Code</button>
+                    <pre id="code-1">
+import pandas as pd
+
+# Paste your data_path snippet here, e.g.,
+data_path = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/StudentsPerformance.csv'
+
+# Load the dataset (Use pd.read_csv)
+# df = ...
+
+# Display the first 5 rows (Use df.head())
+# df.head()
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 2: Initial Exploration -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 2: Initial Exploration
+                    <button class="hint-button" onclick="showHint('hint-2')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Check the DataFrame structure by printing the column data types and non-null counts (<code>df.info()</code>), then print the descriptive statistics for numerical columns (<code>df.describe()</code>).</p>
+                <div id="hint-2" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-2')">Copy Code</button>
+                    <pre id="code-2">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Print the structure and data types (Use df.info())
+# ...
+
+# Print descriptive statistics for numerical columns (Use df.describe())
+# ...
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 3: Column Selection -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 3: Select Only Score Columns
+                    <button class="hint-button" onclick="showHint('hint-3')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">The original dataset contains many columns. Create a new DataFrame called <code>scores_only</code> containing <b>only</b> the <code>MathScore</code>, <code>ReadingScore</code>, and <code>WritingScore</code> columns.</p>
+                <div id="hint-3" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-3')">Copy Code</button>
+                    <pre id="code-3">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Create the scores_only DataFrame using double bracket notation
+# scores_only = df[['...', '...', '...']]
+
+# Display the scores_only head
+# scores_only.head()
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 4: Calculate the Mean Score -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 4: Calculate the Average Math Score
+                    <button class="hint-button" onclick="showHint('hint-4')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Calculate the overall average score for the <code>MathScore</code> column and display the result.</p>
+                <div id="hint-4" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-4')">Copy Code</button>
+                    <pre id="code-4">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Calculate the mean of the MathScore column
+# avg_math_score = df['MathScore'].mean()
+
+# Display the result
+# avg_math_score
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 5: Simple Filtering -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 5: Filter for High Math Scores
+                    <button class="hint-button" onclick="showHint('hint-5')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Find all students who scored <b>90 or above in MathScore only</b>. Store the result in a new DataFrame called <code>high_math_achievers</code> and display it.</p>
+                <div id="hint-5" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-5')">Copy Code</button>
+                    <pre id="code-5">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Define the filtering condition (MathScore >= 90)
+# high_math_condition = (df['MathScore'] >= 90)
+
+# Apply the filter
+# high_math_achievers = df[high_math_condition]
+
+# Display the results
+# high_math_achievers
+                    </pre>
+                </div>
+            </div>
+            
+            <!-- NEW Exercise 6: Compound Filtering (AND) -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 6: Find All-Around High Performers
+                    <button class="hint-button" onclick="showHint('hint-6')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Filter the dataset to find students who scored <b>90 or above in BOTH ReadingScore AND WritingScore</b>. Save the result as <code>elite_readers_writers</code> and display it.</p>
+                <div id="hint-6" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-6')">Copy Code</button>
+                    <pre id="code-6">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Define the compound condition (Reading >= 90 AND Writing >= 90)
+# compound_condition_and = ...
+
+# Apply the filter
+# elite_readers_writers = df[compound_condition_and]
+
+# Display the results
+# elite_readers_writers
+                    </pre>
+                </div>
+            </div>
+
+            <!-- NEW Exercise 7: Compound Filtering (OR) -->
+            <div class="exercise-item">
+                <p class="exercise-title text-lg mb-1">
+                    Task 7: Identify Course-Takers or Standard Lunch Students
+                    <button class="hint-button" onclick="showHint('hint-7')">Hint</button>
+                </p>
+                <p class="text-gray-700 mb-3">Filter the dataset to find students who either <b>Completed</b> the <code>TestPreparationCourse</code> <b>OR</b> have a <code>Standard</code> type of lunch. Save the result as <code>prepared_or_standard</code> and display it.</p>
+                <div id="hint-7" class="hint-box hidden"></div>
+                <div class="code-container">
+                    <button class="action-button absolute top-3 right-3 bg-gray-600 hover:bg-gray-500 text-white text-xs font-semibold py-1 px-3 rounded" onclick="copyCode('code-7')">Copy Code</button>
+                    <pre id="code-7">
+# The DataFrame 'df' from Task 1 is needed here.
+
+# Define the compound condition (Course Completed OR Lunch Standard)
+# compound_condition_or = ...
+
+# Apply the filter
+# prepared_or_standard = df[compound_condition_or]
+
+# Display the results
+# prepared_or_standard
+                    </pre>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Footer Section -->
+        <div class="p-6 text-center text-gray-600 border-t mt-8 rounded-lg card">
+            <p>Complete the tasks in order. You'll be practicing essential Pandas functions like data loading, inspection, selection, basic arithmetic, and filtering.</p>
+        </div>
+
+        <!-- Validation Button (NEW) -->
+        <div class="mt-6">
+            <button id="validate-btn" class="validate-button" onclick="validateAnswers()">
+                Validate Your Answers (Show Solutions)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- SOLUTIONS OBJECT ---
+        const SOLUTIONS = {
+            'code-1': `
+import pandas as pd
+
+# Load the dataset using the default path
+data_path = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/StudentsPerformance.csv'
+df = pd.read_csv(data_path)
+
+# Display the first 5 rows
+df.head()
+`,
+            'code-2': `
+# Check structure and statistics
+print("--- DataFrame Info (Structure and Types) ---")
+df.info()
+
+print("\\n--- Descriptive Statistics ---")
+df.describe()
+`,
+            'code-3': `
+# Create scores_only DataFrame
+scores_only = df[['MathScore', 'ReadingScore', 'WritingScore']]
+
+# Display the new DataFrame's head
+scores_only.head()
+`,
+            'code-4': `
+# Calculate the mean of the MathScore column
+avg_math_score = df['MathScore'].mean()
+
+# Display the result
+print("Overall Average Math Score:")
+avg_math_score
+`,
+            'code-5': `
+# Define filtering condition for >= 90 in MathScore
+high_math_condition = (df['MathScore'] >= 90)
+
+# Apply the filter and display results
+high_math_achievers = df[high_math_condition]
+
+high_math_achievers
+`,
+            'code-6': `
+# Define the compound condition (Reading >= 90 AND Writing >= 90)
+compound_condition_and = (df['ReadingScore'] >= 90) & (df['WritingScore'] >= 90)
+
+# Apply the filter
+elite_readers_writers = df[compound_condition_and]
+
+# Display the results
+elite_readers_writers
+`,
+            'code-7': `
+# Define the compound condition (Course Completed OR Lunch Standard)
+course_completed = (df['TestPreparationCourse'] == 'completed')
+standard_lunch = (df['Lunch'] == 'standard')
+
+compound_condition_or = course_completed | standard_lunch
+
+# Apply the filter
+prepared_or_standard = df[compound_condition_or]
+
+# Display the results
+prepared_or_standard
+`,
+        };
+
+        // --- HINTS OBJECT ---
+        const HINTS = {
+            'hint-1': {
+                concept: "Use the `pd.read_csv()` function to load the data, and then use the `.head()` method to see the first few rows.",
+                code: `import pandas as pd\nmy_df = pd.read_csv('...')\nmy_df.head()`
+            },
+            'hint-2': {
+                concept: "Use the `.info()` and `.describe()` methods directly on the DataFrame to see its structure and numerical summaries.",
+                code: `df.info()\ndf.describe()`
+            },
+            'hint-3': {
+                concept: "To select multiple columns and create a new DataFrame, pass a Python <b>list of column names</b> inside the square brackets: <code>df[['col1', 'col2']]</code>.",
+                code: `new_df = df[['ColumnA', 'ColumnB']]`
+            },
+            'hint-4': {
+                concept: "To calculate the average (mean) of a single column, select the column (<code>df['ColumnName']</code>) and call the <code>.mean()</code> method on the resulting Series.",
+                code: `df['Score_Column'].mean()`
+            },
+            'hint-5': {
+                concept: "Filtering requires creating a boolean Series and passing it back to the DataFrame. This can be done in two steps or in one inline step.",
+                code: `
+# Two steps:
+is_high = df['Score'] >= 90
+df[is_high]
+# OR inline:
+df[df['Score'] >= 90]
+`
+            },
+            'hint-6': {
+                concept: "For an <b>AND</b> condition (both conditions must be true), you must combine two conditions using the ampersand symbol (<code>&</code>). This can be done in multiple steps or in one inline step.",
+                code: `
+# Two steps:
+condition = (df['Cond1']) & (df['Cond2'])
+df[condition]
+# OR inline:
+df[(df['Cond1']) & (df['Cond2'])]
+`
+            },
+            'hint-7': {
+                concept: "For an <b>OR</b> condition (at least one condition must be true), you must combine two conditions using the pipe symbol (<code>|</code>). Wrap each condition in parentheses.",
+                code: `(df['Value'] == 'X') | (df['Value'] == 'Y')`
+            }
+        };
+
+        // --- HINT DISPLAY LOGIC ---
+        function showHint(hintId) {
+            const hintData = HINTS[hintId];
+            const hintBox = document.getElementById(hintId);
+            
+            // Check if the box is already visible
+            if (hintBox.classList.contains('active-hint')) {
+                hintBox.classList.add('hidden');
+                hintBox.classList.remove('active-hint');
+                return;
+            }
+
+            // Build hint content (handling multiline code for hints 5 and 6)
+            let codeBlock = '';
+            if (hintId === 'hint-5' || hintId === 'hint-6') {
+                // For multiline hints, display them nicely
+                codeBlock = `<pre class="bg-amber-100 p-2 text-sm rounded text-gray-800 border border-amber-300">${hintData.code}</pre>`;
+            } else {
+                // For single-line hints
+                codeBlock = `<pre class="bg-amber-100 p-2 text-sm rounded text-gray-800 border border-amber-300">${hintData.code}</pre>`;
+            }
+
+            hintBox.innerHTML = `
+                <p class="font-bold text-amber-700 mb-2">Concept:</p>
+                <p class="text-gray-700">${hintData.concept}</p>
+                <p class="font-bold text-amber-700 mt-3 mb-1">Example Code Snippet:</p>
+                ${codeBlock}
+            `;
+
+            // Display box
+            hintBox.classList.remove('hidden');
+            hintBox.classList.add('active-hint');
+        }
+
+
+        // --- UTILITY FUNCTIONS ---
+        // Function to transform code snippets to solutions
+        function validateAnswers() {
+            const button = document.getElementById('validate-btn');
+            
+            // Iterate over all solution IDs (1 through 7)
+            for (let i = 1; i <= 7; i++) {
+                const id = 'code-' + i;
+                const preElement = document.getElementById(id);
+                if (preElement) {
+                    const solutionCode = SOLUTIONS[id].trim().replace(/^\s*\n/g, '').replace(/\n\s*$/g, '');
+                    preElement.textContent = solutionCode;
+                }
+            }
+
+            // Change button text and disable it to prevent re-click
+            button.textContent = 'Solutions Displayed (Run to Test)';
+            button.disabled = true;
+            button.classList.remove('validate-button');
+            button.classList.add('bg-gray-400', 'cursor-default', 'shadow-none');
+            showTemporaryMessage("Solutions loaded into code boxes!", "bg-teal-600");
+        }
+
+
+        // Utility for copying code (rest of JS functions remain unchanged)
+        function copyCode(id) {
+            const text = document.getElementById(id).innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showTemporaryMessage("Code snippet copied!", "bg-gray-500");
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function copySnippet(id) {
+            const text = document.getElementById(id).innerText.trim();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showTemporaryMessage("Data source path copied!", "bg-orange-600");
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position="fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showTemporaryMessage("Text copied!", "bg-gray-500");
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                showTemporaryMessage("Copy failed!", "bg-red-500");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showTemporaryMessage(message, bgColorClass) {
+            let messageBox = document.getElementById('temp-message');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'temp-message';
+                messageBox.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 p-3 rounded-lg text-white font-semibold shadow-xl transition-opacity duration-300 ease-out z-50';
+                document.body.appendChild(messageBox);
+            }
+            
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 p-3 rounded-lg text-white font-semibold shadow-xl transition-opacity duration-300 ease-out z-50 ${bgColorClass}`;
+            messageBox.style.opacity = '1';
+
+            if (messageBox.timeoutId) {
+                clearTimeout(messageBox.timeoutId);
+            }
+
+            messageBox.timeoutId = setTimeout(() => {
+                messageBox.style.opacity = '0';
+            }, 1500);
+        }
+
+        function showTab(tabName) {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => button.classList.remove('active'));
+            tabContents.forEach(content => content.classList.add('hidden'));
+
+            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+            document.getElementById(`tab-${tabName}-content`).classList.remove('hidden');
+        }
+
+        function downloadDataset() {
+            const dataUrl = "data:text/csv;charset=utf-8," + encodeURIComponent(
+                "Gender,Group,ParentEducation,Lunch,TestPreparationCourse,MathScore,ReadingScore,WritingScore\r\n" +
+                "female,group B,bachelor's degree,standard,none,72,72,74\r\n" +
+                "female,group C,some college,standard,completed,69,90,88\r\n" +
+                "female,group B,master's degree,standard,none,90,95,93\r\n" +
+                "male,group A,associate's degree,free/reduced,none,47,57,44\r\n" +
+                "male,group C,some college,standard,none,76,78,75\r\n" +
+                "female,group B,associate's degree,standard,none,71,83,78\r\n" +
+                "female,group B,some college,standard,completed,88,95,92\r\n" +
+                "male,group B,some college,free/reduced,none,40,43,39\r\n" +
+                "male,group D,high school,free/reduced,completed,64,64,67\r\n" +
+                "female,group B,high school,free/reduced,none,38,60,50\r\n" +
+                "male,group C,associate's degree,standard,none,58,54,52\r\n" +
+                "male,group D,associate's degree,standard,none,40,52,43\r\n" +
+                "female,group B,high school,standard,none,65,81,73\r\n" +
+                "male,group A,some college,standard,completed,78,72,70\r\n" +
+                "female,group A,master's degree,standard,none,50,53,58\r\n" +
+                "female,group C,some college,standard,none,65,75,70\r\n" +
+                "male,group C,associate's degree,free/reduced,completed,62,55,54\r\n" +
+                "male,group C,some college,standard,none,58,57,59\r\n" +
+                "female,group C,associate's degree,free/reduced,none,69,75,78\r\n" +
+                "female,group C,bachelor's degree,free/reduced,none,85,83,83\r\n" +
+                "male,group D,high school,free/reduced,none,66,69,63\r\n" +
+                "female,group B,some college,free/reduced,completed,65,75,70\r\n" +
+                "male,group D,some college,standard,none,70,69,68\r\n" +
+                "female,group C,bachelor's degree,standard,none,69,73,73\r\n" +
+                "male,group D,some college,free/reduced,completed,74,71,80\r\n" +
+                "male,group A,master's degree,free/reduced,none,73,74,72\r\n" +
+                "male,group B,some college,standard,none,69,54,55\r\n" +
+                "female,group C,bachelor's degree,standard,none,63,67,65\r\n" +
+                "female,group C,high school,standard,none,67,69,75\r\n" +
+                "female,group D,master's degree,standard,none,62,70,75\r\n" +
+                "female,group D,some college,standard,none,69,74,74\r\n" +
+                "female,group B,some college,standard,none,63,65,61\r\n" +
+                "female,group A,some college,standard,none,54,63,67\r\n" +
+                "female,group C,some college,standard,completed,64,82,77\r\n" +
+                "male,group B,some college,free/reduced,completed,60,62,60\r\n" +
+                "male,group C,associate's degree,standard,none,62,65,58\r\n" +
+                "male,group D,high school,standard,completed,55,41,48\r\n" +
+                "female,group C,associate's degree,standard,none,91,95,94\r\n" +
+                "female,group B,high school,free/reduced,none,8,24,23\r\n" +
+                "male,group D,some high school,standard,none,81,78,78\r\n" +
+                "male,group B,some high school,standard,completed,79,85,86\r\n" +
+                "female,group A,some college,standard,completed,78,87,91\r\n" +
+                "female,group C,some high school,standard,none,74,75,82\r\n" +
+                "male,group A,high school,standard,none,57,51,54\r\n" +
+                "female,group C,associate's degree,standard,none,40,59,51\r\n" +
+                "male,group E,some high school,standard,completed,81,75,76\r\n" +
+                "female,group A,some high school,free/reduced,none,44,45,45\r\n" +
+                "female,group D,some college,free/reduced,completed,67,86,88\r\n"
+            );
+            
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = "StudentsPerformance.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showTemporaryMessage("Dataset download started!", "bg-blue-500");
+        }
+
+        // Initialize to show the GitHub tab content on load
+        window.onload = () => {
+             showTab('github'); 
+        };
+    </script>
+</body>
+</html>
