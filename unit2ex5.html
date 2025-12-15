@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prep: Filtering & Logic</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        /* Table Styles */
+        .dataframe-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .dataframe-table th { background-color: #e2e8f0; text-align: left; padding: 8px; border-bottom: 2px solid #cbd5e1; color: #2d3748; }
+        .dataframe-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+        .dataframe-table tr:nth-child(even) { background-color: #f7fafc; }
+        
+        /* Flashcard Styles */
+        .flashcard {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 4px solid #10b981;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 p-4 shadow-sm z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800">Attendance Data: Logic & Filtering</h1>
+                    <p class="text-xs text-slate-500 font-medium">UNIT 2 • EXERCISE 5: POWER OF DATAFRAMES</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm font-medium text-slate-500">
+                    Step <span id="current-step-display">1</span> of 6
+                </div>
+                <div class="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 15%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full">
+        
+        <!-- Left Panel: Instructions & Code -->
+        <div class="w-1/2 p-6 overflow-y-auto border-r border-slate-200 bg-white flex flex-col">
+            <div id="instruction-card" class="fade-in flex-1 flex flex-col">
+                <!-- Dynamic Content Loads Here -->
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="mt-6 pt-6 border-t border-slate-100 flex justify-between items-center">
+                <button onclick="prevStep()" id="prev-btn" class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    &larr; Previous
+                </button>
+                <div class="flex space-x-3">
+                    <button onclick="revealCode()" id="reveal-btn" class="px-5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg font-semibold text-sm transition-colors border border-emerald-200">
+                        Reveal Solution
+                    </button>
+                    <button onclick="nextStep()" id="next-btn" class="hidden px-5 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-semibold text-sm transition-transform active:scale-95 shadow-md shadow-emerald-200">
+                        Run & Next &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Data Visualization -->
+        <div class="w-1/2 bg-slate-50 flex flex-col">
+            <div class="p-3 border-b border-slate-200 bg-white flex justify-between items-center">
+                <h3 id="panel-title" class="text-xs font-bold text-slate-400 uppercase tracking-wider">DataFrame Preview</h3>
+                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded font-mono">Output</span>
+            </div>
+            <div class="flex-1 p-6 overflow-auto" id="data-display-area">
+                <!-- Table renders here -->
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden" id="dataframe-container">
+                    <table class="dataframe-table">
+                        <thead id="table-head"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Console/Info Output -->
+                <div class="mt-4 bg-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 shadow-inner">
+                    <div class="flex items-center mb-2 border-b border-slate-700 pb-2">
+                        <span class="text-yellow-400 mr-2">●</span> Output Log:
+                    </div>
+                    <div id="console-output" class="space-y-1">
+                        <!-- Dynamic Info -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- DATA MANAGEMENT ---
+        function getInitialData() {
+            return [
+                { student_id: 200, course: 'Pharmacy', class_type: 'offline', attendance: 1, absence_reason: 'none' },
+                { student_id: 201, course: 'B.Tech', class_type: 'online', attendance: 0, absence_reason: 'no reason' },
+                { student_id: 202, course: 'B.Tech', class_type: 'offline', attendance: 1, absence_reason: 'none' },
+                { student_id: 203, course: 'Pharmacy', class_type: 'online', attendance: 0, absence_reason: 'project' },
+                { student_id: 204, course: 'Medical', class_type: 'offline', attendance: 0, absence_reason: 'none' }, // Anomalous row (absent but no reason)
+                { student_id: 205, course: 'B.Tech', class_type: 'offline', attendance: 1, absence_reason: 'none' }
+            ];
+        }
+
+        let currentData = [];
+        let displayData = []; // What is actually shown in the table
+        let displayColumns = []; // Columns shown in table
+        
+        // --- TRANSFORM FUNCTIONS ---
+        const TransformActions = {
+            reset: () => {
+                currentData = getInitialData();
+                displayData = currentData;
+                displayColumns = ['student_id', 'course', 'class_type', 'attendance', 'absence_reason'];
+            },
+            countCourse: () => {
+                // Logic to simulate value_counts()
+                const counts = {};
+                currentData.forEach(r => {
+                    counts[r.course] = (counts[r.course] || 0) + 1;
+                });
+                // Convert to array for display
+                displayData = Object.keys(counts).map(k => ({ 'Course': k, 'Count': counts[k] }));
+                displayColumns = ['Course', 'Count'];
+            },
+            filterBTech: () => {
+                // Logic to simulate df[df['course'] == 'B.Tech']
+                const filtered = currentData.filter(r => r.course === 'B.Tech');
+                displayData = filtered;
+                displayColumns = ['student_id', 'course', 'class_type', 'attendance', 'absence_reason'];
+            },
+            updatePharmacy: () => {
+                // Logic: df.loc[df['course'] == 'Pharmacy', 'course'] = 'B.Pharm'
+                // We perform this on currentData (the "Main DataFrame")
+                currentData.forEach(r => {
+                    if (r.course === 'Pharmacy') r.course = 'B.Pharm';
+                });
+                displayData = currentData;
+                displayColumns = ['student_id', 'course', 'class_type', 'attendance', 'absence_reason'];
+            },
+            updateUnexcused: () => {
+                // Logic: df.loc[(df['attendance'] == 0) & (df['absence_reason'] == 'none'), 'absence_reason'] = 'Unexcused'
+                currentData.forEach(r => {
+                    if (r.attendance === 0 && r.absence_reason === 'none') {
+                        r.absence_reason = 'Unexcused';
+                    }
+                });
+                displayData = currentData;
+            },
+            countReason: () => {
+                const counts = {};
+                currentData.forEach(r => {
+                    counts[r.absence_reason] = (counts[r.absence_reason] || 0) + 1;
+                });
+                displayData = Object.keys(counts).map(k => ({ 'Absence Reason': k, 'Count': counts[k] }));
+                displayColumns = ['Absence Reason', 'Count'];
+            }
+        };
+
+        // --- EXERCISE STEPS CONFIGURATION ---
+        const steps = [
+            {
+                title: "1. Loading & Initializing",
+                flashcard: {
+                    title: "The DataFrame",
+                    content: "Remember: A DataFrame is a collection of Series (columns). We can operate on the whole table, specific columns, or specific rows."
+                },
+                instruction: "Let's load our dataset again. This time we have a mix of courses and attendance data.",
+                task: "Load the data using <code>pd.read_csv()</code>.",
+                code: "import pandas as pd\n\nurl = 'https://raw.githubusercontent.com/.../Attendance.csv'\ndf = pd.read_csv(url)\n\ndf.head()",
+                explanation: "We have columns like <code>course</code>, <code>class_type</code>, and <code>absence_reason</code>. Understanding the variety in these text columns is our next step.",
+                action: () => { 
+                    TransformActions.reset();
+                    renderTable();
+                    renderConsole("Data loaded. 6 rows, 5 columns.");
+                }
+            },
+            {
+                title: "2. Aggregating: Counting Categories",
+                flashcard: {
+                    title: "Aggregation: .value_counts()",
+                    content: "This is the #1 tool for categorical data. It counts how many times each unique value appears in a column.<br><br>Result: A Series where Index=Category and Value=Count."
+                },
+                instruction: "We want to know how many students are in each course. A list of 1000 rows is hard to read. We need a summary.",
+                task: "Use <code>.value_counts()</code> on the 'course' column.",
+                code: "# Count occurrence of each unique value\ncourse_counts = df['course'].value_counts()\n\nprint(course_counts)",
+                explanation: "Pandas groups the data by 'course' and counts the rows. We see that 'B.Tech' appears 3 times, 'Pharmacy' 2 times, etc.",
+                action: () => {
+                    TransformActions.reset(); TransformActions.countCourse();
+                    renderTable();
+                    renderConsole("Output type: Series (Index: Course, Data: Count)");
+                }
+            },
+            {
+                title: "3. Creating a Sub-Table (Filtering)",
+                flashcard: {
+                    title: "Boolean Masking",
+                    content: "<strong>Step 1:</strong> Ask a question <code>df['col'] == 'val'</code>. This gives True/False for every row.<br><strong>Step 2:</strong> Pass that True/False list back to the DF: <code>df[ ... ]</code>.<br>Result: A new DF with only the True rows."
+                },
+                instruction: "Let's isolate the Engineering students. We want a separate table containing <strong>only</strong> students where the course is 'B.Tech'.",
+                task: "Create a new DataFrame <code>btech_df</code> by filtering.",
+                code: "# Filter rows where course is 'B.Tech'\nbtech_df = df[df['course'] == 'B.Tech']\n\nbtech_df.head()",
+                explanation: "Notice the table below. The other courses are gone. We haven't deleted them from the original <code>df</code>, we just created a new view called <code>btech_df</code>.",
+                action: () => {
+                    TransformActions.reset(); TransformActions.filterBTech();
+                    renderTable();
+                    renderConsole("Created new DataFrame: 3 rows.");
+                }
+            },
+            {
+                title: "4. Conditional Update (The .loc Accessor)",
+                flashcard: {
+                    title: "Surgical Updates: .loc",
+                    content: "Syntax: <code>df.loc[condition, 'column_to_change'] = new_value</code><br><br>It says: 'Find rows matching the condition. In those rows, go to this specific column. Put the new value there.'"
+                },
+                instruction: "The course name 'Pharmacy' is too vague. We want to rename it to 'B.Pharm' in our <strong>Main DataFrame</strong>.",
+                task: "Use <code>.loc</code> to change 'Pharmacy' to 'B.Pharm'.",
+                code: "# Update 'course' column ONLY where it is currently 'Pharmacy'\ndf.loc[df['course'] == 'Pharmacy', 'course'] = 'B.Pharm'\n\ndf.head()",
+                explanation: "This is powerful. 'B.Tech' and 'Medical' rows were untouched. Only 'Pharmacy' rows were updated to 'B.Pharm'.",
+                action: () => {
+                    TransformActions.reset(); TransformActions.updatePharmacy();
+                    renderTable('course');
+                    renderConsole("Updated rows where course was 'Pharmacy'.");
+                }
+            },
+            {
+                title: "5. Complex Logic (Multiple Conditions)",
+                flashcard: {
+                    title: "Logic: & (AND) / | (OR)",
+                    content: "You can combine conditions using <code>&</code> (AND) and <code>|</code> (OR).<br>Make sure to wrap each condition in parentheses <code>( )</code>!"
+                },
+                instruction: "Data cleanup! Look at <strong>Student 204</strong>. They have <code>attendance: 0</code> (Absent) but <code>absence_reason: 'none'</code>. This doesn't make sense.<br><br>If a student is Absent AND has 'none' as a reason, let's mark the reason as <strong>'Unexcused'</strong>.",
+                task: "Update 'absence_reason' where attendance is 0 AND reason is 'none'.",
+                code: "# Complex condition: Absent AND No Reason\ncondition = (df['attendance'] == 0) & (df['absence_reason'] == 'none')\n\n# Apply update\ndf.loc[condition, 'absence_reason'] = 'Unexcused'\n\ndf.head()",
+                explanation: "We targeted specifically Student 204. Other absent students (like 201) had a reason, so they weren't changed. Present students weren't changed.",
+                action: () => {
+                    TransformActions.reset(); TransformActions.updatePharmacy(); TransformActions.updateUnexcused();
+                    renderTable('absence_reason');
+                    renderConsole("Corrected anomalous data for Student 204.");
+                }
+            },
+            {
+                title: "6. Verify with Aggregation",
+                flashcard: {
+                    title: "The Cleaning Cycle",
+                    content: "1. Inspect (value_counts)<br>2. Clean (loc/filter)<br>3. Verify (value_counts)<br><br>Always check your work!"
+                },
+                instruction: "Let's verify our changes by counting the values in the <code>absence_reason</code> column.",
+                task: "Run <code>.value_counts()</code> on 'absence_reason'.",
+                code: "# Check the new distribution\nprint(df['absence_reason'].value_counts())",
+                explanation: "We should now see 'Unexcused' in the list of reasons, confirming our logic worked.",
+                action: () => {
+                    TransformActions.reset(); TransformActions.updatePharmacy(); TransformActions.updateUnexcused(); TransformActions.countReason();
+                    renderTable();
+                    renderConsole("Verification complete.");
+                }
+            }
+        ];
+
+        // --- APP STATE ---
+        let currentStep = 0;
+        let isCodeRevealed = false;
+
+        // --- DOM ELEMENTS ---
+        const instructionCard = document.getElementById('instruction-card');
+        const progressBar = document.getElementById('progress-bar');
+        const currentStepDisplay = document.getElementById('current-step-display');
+        const revealBtn = document.getElementById('reveal-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const tableHead = document.getElementById('table-head');
+        const tableBody = document.getElementById('table-body');
+        const consoleOutput = document.getElementById('console-output');
+
+        // --- INITIALIZATION ---
+        function init() {
+            renderContent();
+            steps[0].action(); // Run initial state setup
+        }
+
+        // --- RENDERING ---
+        function renderContent() {
+            const step = steps[currentStep];
+            
+            // Update Header info
+            currentStepDisplay.innerText = currentStep + 1;
+            const progress = ((currentStep + 1) / steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Generate Flashcard HTML
+            const flashcardHtml = step.flashcard ? `
+                <div class="flashcard rounded-lg p-4 mb-6 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg class="w-16 h-16 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+                    </div>
+                    <h3 class="text-emerald-800 font-bold text-xs uppercase tracking-wide mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Concept Card: ${step.flashcard.title}
+                    </h3>
+                    <p class="text-emerald-900 text-sm relative z-10 leading-relaxed">${step.flashcard.content}</p>
+                </div>
+            ` : '';
+            
+            // Update Instructions
+            instructionCard.innerHTML = `
+                <div class="mb-4">
+                    <span class="inline-block px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded uppercase tracking-wide">Step ${currentStep + 1}</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">${step.title}</h2>
+                </div>
+                
+                ${flashcardHtml}
+                
+                <div class="prose prose-slate text-sm text-slate-600 mb-6 flex-grow">
+                    <p class="mb-4 text-base">${step.instruction}</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                        <p class="font-bold text-blue-800 text-xs uppercase mb-1">Your Task</p>
+                        <p class="font-medium text-blue-900">${step.task}</p>
+                    </div>
+                </div>
+
+                <!-- Code Section (Hidden initially) -->
+                <div id="code-section" class="relative rounded-lg overflow-hidden bg-slate-900 shadow-lg transition-all duration-300 ${isCodeRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 hidden'}">
+                    <div class="flex justify-between items-center px-4 py-2 bg-slate-800 border-b border-slate-700">
+                        <span class="text-xs font-mono text-slate-400">solution.py</span>
+                        <button onclick="copyToClipboard()" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8z" /></svg>
+                            Copy
+                        </button>
+                    </div>
+                    <pre class="m-0 p-4 text-sm font-mono text-slate-300 overflow-x-auto"><code class="language-python">${step.code}</code></pre>
+                    <div class="px-4 py-3 bg-blue-900/30 border-t border-slate-700">
+                        <p class="text-xs text-blue-200"><strong>Insight:</strong> ${step.explanation}</p>
+                    </div>
+                </div>
+            `;
+
+            // Highlight Code
+            if (isCodeRevealed) {
+                hljs.highlightAll();
+            }
+
+            // Button States
+            prevBtn.disabled = currentStep === 0;
+            if (isCodeRevealed) {
+                revealBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+            } else {
+                revealBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function renderTable(highlightColName = null) {
+            // Render Headers
+            let headersHtml = '<tr>';
+            displayColumns.forEach(col => {
+                const isHighlighted = col === highlightColName ? 'highlight-col' : '';
+                headersHtml += `<th class="${isHighlighted}">${col}</th>`;
+            });
+            headersHtml += '</tr>';
+            tableHead.innerHTML = headersHtml;
+
+            // Render Rows
+            let rowsHtml = '';
+            displayData.forEach(row => {
+                rowsHtml += '<tr>';
+                displayColumns.forEach(col => {
+                    let val = row[col];
+                    const isHighlighted = col === highlightColName ? 'highlight-col' : '';
+                    rowsHtml += `<td class="${isHighlighted}">${val !== undefined ? val : '-'}</td>`;
+                });
+                rowsHtml += '</tr>';
+            });
+            tableBody.innerHTML = rowsHtml;
+        }
+
+        function renderConsole(text) {
+            consoleOutput.innerText = text;
+        }
+
+        // --- ACTIONS ---
+        function revealCode() {
+            isCodeRevealed = true;
+            renderContent();
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                isCodeRevealed = false; // Reset for next task
+                steps[currentStep].action(); 
+                renderContent();
+            } else {
+                alert("Module Complete! You are now a Filtering Master.");
+                currentStep = 0;
+                isCodeRevealed = false;
+                steps[0].action();
+                renderContent();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                isCodeRevealed = false;
+                steps[currentStep].action();
+                renderContent();
+            }
+        }
+
+        function copyToClipboard() {
+            const text = steps[currentStep].code;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => alert("Code copied!"))
+                    .catch(err => fallbackCopyTextToClipboard(text));
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("Code copied!");
+            } catch (err) {
+                alert("Manual copy required.");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

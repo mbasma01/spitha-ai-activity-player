@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. The DataFrame: The Big Container</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .code-container { background-color: #1e293b; color: #f8fafc; border-radius: 8px; padding: 1rem; font-family: monospace; overflow-x: auto; }
+        
+        /* DataFrame Visualization Styles */
+        .df-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+        .df-table th, .df-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; position: relative; }
+        
+        /* Anatomy Highlights */
+        .highlight-col { background-color: #dbeafe !important; border: 2px solid #2563eb !important; }
+        .highlight-row { background-color: #fce7f3 !important; border: 2px solid #db2777 !important; }
+        .highlight-index { background-color: #f3e8ff !important; font-weight: bold; color: #7e22ce; }
+        
+        /* Interactive Toggle Buttons */
+        .toggle-btn { opacity: 0.6; transition: all 0.2s; }
+        .toggle-btn:hover { opacity: 1; transform: translateY(-2px); }
+        .toggle-btn.active { opacity: 1; ring: 2px; }
+
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-teal-500"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                6. The DataFrame: The Big Container
+            </h1>
+            <p class="text-gray-600 mt-2">Putting the "Atoms" together into a structured table.</p>
+        </header>
+
+        <!-- A. Concept: The Organized Box -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">A. What is a DataFrame?</h2>
+            <p class="text-gray-600 mb-4">
+                Imagine a messy pile of documents. Hard to find anything, right? <br>
+                A <strong>DataFrame</strong> is like a filing cabinet or an Excel sheet. It organizes data into a strict grid of <strong>Rows</strong> and <strong>Columns</strong>.
+            </p>
+            
+            <div class="bg-teal-50 border border-teal-200 p-4 rounded-lg flex flex-col md:flex-row items-center justify-center gap-6">
+                <div class="text-center">
+                    <div class="bg-white p-3 rounded shadow-sm font-mono text-sm border border-gray-300 mb-2">["Avatar", 2009]</div>
+                    <div class="bg-white p-3 rounded shadow-sm font-mono text-sm border border-gray-300">["Titanic", 1997]</div>
+                    <p class="text-xs text-gray-500 mt-2">Unorganized Lists</p>
+                </div>
+                <div class="text-2xl text-teal-500 font-bold">&rarr;</div>
+                <div>
+                    <table class="bg-white border border-gray-400 text-sm">
+                        <tr class="bg-gray-200 border-b border-gray-400"><th class="p-2">Title</th><th class="p-2">Year</th></tr>
+                        <tr class="border-b border-gray-200"><td class="p-2">Avatar</td><td class="p-2">2009</td></tr>
+                        <tr><td class="p-2">Titanic</td><td class="p-2">1997</td></tr>
+                    </table>
+                    <p class="text-xs text-gray-500 mt-2 text-center">DataFrame</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- B. Anatomy of a DataFrame (Interactive) -->
+        <div class="card p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">B. Interactive Anatomy</h2>
+            <p class="text-gray-600 mb-6">
+                Hover over the buttons below to highlight the different parts of a DataFrame.
+            </p>
+
+            <!-- Controls -->
+            <div class="flex flex-wrap gap-4 mb-6 justify-center">
+                <button class="toggle-btn bg-blue-500 text-white px-4 py-2 rounded-lg font-bold shadow-md" onmouseover="highlight('col')" onmouseout="resetHighlight()">
+                    Columns (Variables)
+                </button>
+                <button class="toggle-btn bg-pink-500 text-white px-4 py-2 rounded-lg font-bold shadow-md" onmouseover="highlight('row')" onmouseout="resetHighlight()">
+                    Rows (Observations)
+                </button>
+                <button class="toggle-btn bg-purple-500 text-white px-4 py-2 rounded-lg font-bold shadow-md" onmouseover="highlight('index')" onmouseout="resetHighlight()">
+                    The Index (Labels)
+                </button>
+            </div>
+
+            <!-- The DataFrame Visual -->
+            <div class="overflow-x-auto">
+                <table class="df-table" id="anatomyTable">
+                    <thead>
+                        <tr>
+                            <th class="bg-gray-100 text-gray-500 italic w-16 text-center border-r-2 border-gray-300">Index</th>
+                            <th class="bg-blue-50 text-blue-900 font-bold df-col">Title</th>
+                            <th class="bg-blue-50 text-blue-900 font-bold df-col">Rating</th>
+                            <th class="bg-blue-50 text-blue-900 font-bold df-col">Genre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="df-row">
+                            <td class="bg-gray-50 font-mono text-center text-gray-600 border-r-2 border-gray-300 df-idx">0</td>
+                            <td class="df-data">Avatar</td>
+                            <td class="df-data text-green-600 font-mono">7.8</td>
+                            <td class="df-data">Sci-Fi</td>
+                        </tr>
+                        <tr class="df-row">
+                            <td class="bg-gray-50 font-mono text-center text-gray-600 border-r-2 border-gray-300 df-idx">1</td>
+                            <td class="df-data">Titanic</td>
+                            <td class="df-data text-green-600 font-mono">7.9</td>
+                            <td class="df-data">Romance</td>
+                        </tr>
+                        <tr class="df-row">
+                            <td class="bg-gray-50 font-mono text-center text-gray-600 border-r-2 border-gray-300 df-idx">2</td>
+                            <td class="df-data">The Avengers</td>
+                            <td class="df-data text-green-600 font-mono">8.1</td>
+                            <td class="df-data">Action</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="anatomy-text" class="mt-4 p-3 bg-gray-100 rounded text-center text-gray-700 font-medium h-12">
+                Hover buttons above to explore.
+            </div>
+        </div>
+
+        <!-- C. Creating a DataFrame -->
+        <div class="card p-6 mb-8 bg-blue-50">
+            <h2 class="text-2xl font-semibold text-blue-900 mb-4">C. How to Build One (Syntax)</h2>
+            <p class="text-blue-800 mb-4">
+                We usually build DataFrames from a <strong>Dictionary</strong> (which you'll learn next). The Dictionary <em>Keys</em> become the <em>Column Names</em>.
+            </p>
+            
+            <div class="code-container mb-4">
+                <pre><code>import pandas as pd
+
+data = {
+    'Title': ['Avatar', 'Titanic'], 
+    'Rating': [7.8, 7.9]
+}
+
+df = pd.DataFrame(data)</code></pre>
+            </div>
+            
+            <p class="text-sm text-blue-800 italic">
+                Notice: The <code>'Title'</code> list must be the same length as the <code>'Rating'</code> list!
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        function highlight(part) {
+            const table = document.getElementById('anatomyTable');
+            const infoText = document.getElementById('anatomy-text');
+            
+            resetHighlight();
+
+            if (part === 'col') {
+                // Highlight Headers
+                const headers = table.querySelectorAll('th.df-col');
+                headers.forEach(h => h.classList.add('highlight-col'));
+                
+                // Highlight Data Cells (simulating columns)
+                const cells = table.querySelectorAll('td.df-data');
+                cells.forEach(c => c.classList.add('bg-blue-50'));
+                
+                infoText.innerHTML = "<strong>Columns:</strong> Vertical lists. Each column must have the <span class='text-blue-600'>same data type</span>.";
+            } 
+            else if (part === 'row') {
+                const rows = table.querySelectorAll('tr.df-row');
+                rows.forEach(r => {
+                    const cells = r.querySelectorAll('td');
+                    cells.forEach(c => c.classList.add('highlight-row'));
+                });
+                infoText.innerHTML = "<strong>Rows:</strong> Horizontal entries. Represents one single movie (observation).";
+            } 
+            else if (part === 'index') {
+                const indices = table.querySelectorAll('.df-idx');
+                indices.forEach(i => i.classList.add('highlight-index'));
+                infoText.innerHTML = "<strong>Index:</strong> The labels on the left (0, 1, 2) that act like an address for the row.";
+            }
+        }
+
+        function resetHighlight() {
+            const table = document.getElementById('anatomyTable');
+            
+            // Remove Col Styles
+            table.querySelectorAll('th').forEach(el => el.classList.remove('highlight-col'));
+            table.querySelectorAll('td').forEach(el => el.classList.remove('bg-blue-50', 'highlight-row', 'highlight-index'));
+            
+            document.getElementById('anatomy-text').innerText = "Hover buttons above to explore.";
+        }
+    </script>
+</body>
+</html>

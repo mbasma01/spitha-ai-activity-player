@@ -129,6 +129,27 @@
             </div>
         </div>
 
+        <!-- A.2 Negative Indexing -->
+        <div class="card p-6 mb-8 bg-pink-50">
+            <h2 class="text-2xl font-semibold text-pink-800 mb-4">A.2 The Negative Shortcut</h2>
+            <p class="text-pink-900 mb-4">
+                What if you have a massive list with 10,000 items and you just want the <strong>last</strong> one? You don't want to count all the way to 9,999.
+            </p>
+            <p class="text-pink-900 mb-4">
+                Python allows you to count <strong>backwards</strong> using negative numbers.
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-center font-mono text-sm font-bold">
+                <div class="bg-white border-2 border-pink-300 p-3 rounded-lg text-center">
+                    <span class="block text-2xl text-pink-600 mb-1">-1</span>
+                    <span class="text-gray-600">The Last Item</span>
+                </div>
+                <div class="bg-white border-2 border-pink-300 p-3 rounded-lg text-center">
+                    <span class="block text-2xl text-pink-600 mb-1">-2</span>
+                    <span class="text-gray-600">Second to Last</span>
+                </div>
+            </div>
+        </div>
+
         <!-- B. Interactive Code Translation -->
         <div class="card p-6 mb-8">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">B. Interactive: Building Your Own List</h2>
@@ -184,12 +205,14 @@
 
         <!-- C. Interactive Access (Indexing) -->
         <div class="card p-6 mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">C. Interactive: Access by Index (Position)</h2>
-            <p class="text-gray-600 mb-4">Enter a number (0-3) to retrieve the rating at that exact position (fixed example).</p>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">C. Interactive: Access by Index (Positional & Negative)</h2>
+            <p class="text-gray-600 mb-4">
+                Enter an index to retrieve data. Try positive numbers (0, 1) or <strong>negative numbers</strong> (-1, -2) to count from the end.
+            </p>
             
             <div class="flex items-center gap-4 mb-4">
-                <label class="font-bold">Access Index (Position):</label>
-                <input type="number" id="listIndexInput" min="0" max="3" value="0" class="p-2 border rounded font-mono w-20 text-center" oninput="updateListAccess()">
+                <label class="font-bold">Access Index:</label>
+                <input type="number" id="listIndexInput" min="-4" max="3" value="0" class="p-2 border rounded font-mono w-20 text-center" oninput="updateListAccess()">
             </div>
             
             <div class="grid grid-cols-4 text-center gap-2 mb-4 font-mono text-lg">
@@ -197,10 +220,18 @@
                 <div id="item1" class="p-3 bg-gray-100 rounded border border-gray-300">8.3</div>
                 <div id="item2" class="p-3 bg-gray-100 rounded border border-gray-300">7.9</div>
                 <div id="item3" class="p-3 bg-gray-100 rounded border border-gray-300">8.9</div>
+                
+                <!-- Positive Index Labels -->
                 <div class="text-sm font-semibold text-purple-600">Index 0</div>
                 <div class="text-sm font-semibold text-purple-600">Index 1</div>
                 <div class="text-sm font-semibold text-purple-600">Index 2</div>
                 <div class="text-sm font-semibold text-purple-600">Index 3</div>
+
+                <!-- Negative Index Labels -->
+                <div class="text-sm font-semibold text-pink-600">Index -4</div>
+                <div class="text-sm font-semibold text-pink-600">Index -3</div>
+                <div class="text-sm font-semibold text-pink-600">Index -2</div>
+                <div class="text-sm font-semibold text-pink-600">Index -1</div>
             </div>
 
             <h3 class="font-medium text-gray-700 mt-4 mb-2">Resulting Code and Value:</h3>
@@ -239,9 +270,9 @@ genres = ['Action', 'Thriller', 'Sci-Fi', 'Drama', 'Comedy']</code></pre>
             
             <!-- Challenge 2: Find the last element -->
             <div class="practice-challenge bg-white shadow-md">
-                <h3 class="font-bold text-lg text-indigo-700 mb-2">Challenge 2: Find the Last Element</h3>
+                <h3 class="font-bold text-lg text-indigo-700 mb-2">Challenge 2: Find the Last Element (Shortcut)</h3>
                 <p class="text-gray-700 mb-2">
-                    <strong>Goal:</strong> Write the code to access the genre at the <strong>last position</strong> (index 4).
+                    <strong>Goal:</strong> Write the code to access the genre at the <strong>last position</strong> using the <strong>Negative Index</strong> shortcut.
                 </p>
                 <label for="practice-input-2" class="block font-bold mt-2 mb-2 text-gray-700">Enter Code:</label>
                 <input type="text" id="practice-input-2" class="w-full p-2 border rounded-lg mb-4 font-mono" placeholder="genres[...]">
@@ -307,33 +338,44 @@ Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated f
     </div>
 
     <script>
-        // --- Interactive Access (C) Logic (unchanged) ---
+        // --- Interactive Access (C) Logic (UPDATED FOR NEGATIVE INDICES) ---
         const ratings = [7.8, 8.3, 7.9, 8.9];
         const ratingElements = [document.getElementById('item0'), document.getElementById('item1'), document.getElementById('item2'), document.getElementById('item3')];
 
         function updateListAccess() {
             const indexInput = document.getElementById('listIndexInput');
             const output = document.getElementById('listAccessOutput');
-            const index = parseInt(indexInput.value);
+            const rawIndex = parseInt(indexInput.value);
+            
+            // Normalize Negative Index to Positive for validation/highlighting
+            // If rawIndex is -1 and length is 4, actual index is 3.
+            let actualIndex = rawIndex;
+            if (rawIndex < 0) {
+                actualIndex = ratings.length + rawIndex;
+            }
 
             // Reset styles
             ratingElements.forEach(el => {
-                el.classList.remove('bg-purple-300', 'border-purple-600', 'font-bold');
+                el.classList.remove('bg-purple-300', 'border-purple-600', 'font-bold', 'bg-pink-200', 'border-pink-600');
                 el.classList.add('bg-gray-100', 'border-gray-300');
             });
             
-            if (index >= 0 && index < ratings.length) {
-                // Highlight selected item
-                ratingElements[index].classList.add('bg-purple-300', 'border-purple-600', 'font-bold');
-                ratingElements[index].classList.remove('bg-gray-100', 'border-gray-300');
+            if (actualIndex >= 0 && actualIndex < ratings.length) {
+                // Determine highlight color based on input type (Positive vs Negative)
+                if (rawIndex < 0) {
+                    ratingElements[actualIndex].classList.add('bg-pink-200', 'border-pink-600', 'font-bold');
+                } else {
+                    ratingElements[actualIndex].classList.add('bg-purple-300', 'border-purple-600', 'font-bold');
+                }
+                ratingElements[actualIndex].classList.remove('bg-gray-100', 'border-gray-300');
                 
                 // Update output
-                output.innerHTML = `movie_ratings[${index}] is <strong>${ratings[index]}</strong>`;
+                output.innerHTML = `movie_ratings[${rawIndex}] is <strong>${ratings[actualIndex]}</strong>`;
                 output.classList.remove('bg-red-100', 'text-red-700');
                 output.classList.add('bg-green-100', 'text-green-700');
 
             } else {
-                output.innerHTML = `<strong>Error:</strong> Index ${index} is out of bounds (valid indices are 0 to 3).`;
+                output.innerHTML = `<strong>Error:</strong> Index ${rawIndex} is out of bounds.`;
                 output.classList.remove('bg-green-100', 'text-green-700');
                 output.classList.add('bg-red-100', 'text-red-700');
             }
@@ -442,12 +484,8 @@ Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated f
                 label.className = 'index-label';
                 
                 // Calculate position relative to the main container's left edge
-                // We want the center of the item relative to the main page structure.
                 const itemCenterPosition = itemRect.left + (itemRect.width / 2) - containerRect.left;
                 
-                // Position the label relative to the start of the 'index-labels' div
-                // The 'left' property needs to be relative to its absolutely positioned parent, 
-                // which, in turn, is relative to the page flow.
                 label.style.left = itemCenterPosition + 'px';
                 label.style.top = '0'; 
                 label.textContent = `[${index}]`;
@@ -466,7 +504,7 @@ Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated f
         // --- D. Practice Logic ---
         const CORRECT_PRACTICE_ANSWERS = {
             1: "genres[2]", // 3rd position = index 2 ('Sci-Fi')
-            2: "genres[4]", // Last position = index 4 ('Comedy') or genres[-1]
+            2: "genres[-1]", // Last position using Negative Index
             3: "genres[1]"  // Index 1 = 'Thriller'
         };
         const EXPECTED_RESULTS = {
@@ -493,14 +531,26 @@ Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated f
                 return;
             }
 
-            // Check if input matches the exact index or the common negative index (-1)
             let isCorrect = false;
-            if (challengeNum === 1 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[1]))) {
-                isCorrect = true;
-            } else if (challengeNum === 2 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[2]) || normalizedInput === normalizeInput("genres[-1]"))) {
-                isCorrect = true;
-            } else if (challengeNum === 3 && (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[3]))) {
-                isCorrect = true;
+            let errorMessage = '';
+
+            if (challengeNum === 1) {
+                if (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[1])) isCorrect = true;
+                else errorMessage = "Incorrect. The 3rd element is at Index 2.";
+            } 
+            else if (challengeNum === 2) {
+                // Strict check for negative index
+                if (normalizedInput === "genres[-1]") {
+                    isCorrect = true;
+                } else if (normalizedInput === "genres[4]") {
+                     errorMessage = "Technically correct value, but use the <strong>Negative Index</strong> shortcut (e.g., -1)!";
+                } else {
+                    errorMessage = "Incorrect. Use [-1] to access the last element.";
+                }
+            } 
+            else if (challengeNum === 3) {
+                 if (normalizedInput === normalizeInput(CORRECT_PRACTICE_ANSWERS[3])) isCorrect = true;
+                 else errorMessage = "Incorrect. Index 1 refers to the second item.";
             }
 
             if (isCorrect) {
@@ -509,13 +559,13 @@ Ratings = [7.9, 7.8] <span class="text-yellow-400"># Now sorted, but separated f
                 inputElement.classList.add('correct-input-style');
                 inputElement.classList.remove('incorrect-input-style');
             } else {
-                feedbackElement.innerHTML = '<span class="text-red-600">❌ Incorrect. Remember lists start at Index 0! For the 3rd element, you need index 2.</span>';
+                feedbackElement.innerHTML = `<span class="text-red-600">❌ ${errorMessage}</span>`;
                 inputElement.classList.add('incorrect-input-style');
                 inputElement.classList.remove('correct-input-style');
             }
         }
         
-        // --- Utility Functions for Copying (Defined here for self-contained file) ---
+        // --- Utility Functions for Copying ---
         function copyCode(id) {
             const codeEl = document.getElementById(id);
             const preEl = codeEl.querySelector('pre');
