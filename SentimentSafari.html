@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Safari: NLP Quest v3.0</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --leaf: #2ecc71;
+            --jungle: #219d55;
+            --bark: #5d4037;
+            --sand: #f4f1ea;
+            --danger: #e74c3c;
+            --gold: #f1c40f;
+            --sky: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--sand);
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 700px; width: 90%; margin: 30px auto; text-align: center; }
+        .hidden { display: none !important; }
+
+        h1 { color: var(--jungle); text-transform: uppercase; letter-spacing: 2px; border-bottom: 3px solid var(--leaf); display: inline-block; padding-bottom: 10px;}
+        
+        .progress-track {
+            display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.8rem; color: #888;
+        }
+        .p-step { width: 15%; border-bottom: 3px solid #ccc; padding-bottom: 5px; }
+        .p-step.active { border-color: var(--jungle); color: var(--jungle); font-weight: bold; }
+        .p-step.done { border-color: var(--leaf); color: var(--leaf); }
+
+        /* --- Cards --- */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        
+        .card h2 { margin-top: 0; color: var(--bark); }
+
+        /* --- Educational Note --- */
+        .note {
+            background: #e8f5e9;
+            border-left: 5px solid var(--leaf);
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #1b5e20;
+        }
+
+        /* --- Interactive Elements --- */
+        .btn {
+            background: var(--jungle); color: white; border: none; padding: 12px 30px;
+            font-size: 1.1rem; border-radius: 25px; cursor: pointer; font-weight: bold;
+            transition: 0.2s; display: block; margin: 20px auto; width: fit-content;
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        .btn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* --- Stage 2: Tokenization --- */
+        .sentence-display { font-size: 1.4rem; padding: 20px; border: 2px dashed #ccc; margin: 10px 0; border-radius: 10px; background: #fafafa; text-align: center; }
+        .token-box { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        .token {
+            background: white; border: 2px solid var(--bark); padding: 8px 12px; border-radius: 8px;
+            font-weight: bold; cursor: pointer; user-select: none;
+        }
+        .token.stopword { opacity: 0.4; text-decoration: line-through; border-color: #ccc; background: #eee; }
+        .token:hover:not(.stopword) { background: var(--leaf); color: white; border-color: var(--leaf); }
+
+        /* --- Stage 3: Labeling --- */
+        .label-card { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #ddd; }
+        .label-btns { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .l-btn { padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; opacity: 0.7; }
+        .l-btn:hover { opacity: 1; transform: scale(1.05); }
+        .l-btn.pos { background: #d4edda; color: #155724; }
+        .l-btn.neg { background: #f8d7da; color: #721c24; }
+        
+        /* --- Stage 4: Interactive Vector --- */
+        .vector-builder { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .v-cell { 
+            display: flex; justify-content: space-between; width: 250px; background: #333; color: white; padding: 10px; border-radius: 5px; cursor: pointer;
+        }
+        .v-bit { font-family: monospace; font-size: 1.2rem; color: #555; }
+        .v-cell.active .v-bit { color: var(--leaf); text-shadow: 0 0 5px var(--leaf); }
+        .v-cell:hover { background: #444; }
+
+        /* --- Stage 5: Weights --- */
+        .weight-control {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+        }
+        input[type=range] { flex-grow: 1; margin: 0 15px; accent-color: var(--jungle); cursor: pointer; }
+        .accuracy-panel { background: #333; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .accuracy-bar-fill { background: var(--danger); width: 0%; height: 10px; border-radius: 5px; transition: 0.3s; }
+
+        /* --- Stage 6: Audit --- */
+        .audit-card { text-align: center; padding: 20px; border: 2px solid #eee; border-radius: 10px; margin: 10px 0; }
+        .ai-badge { display: inline-block; padding: 5px 10px; background: #eee; border-radius: 15px; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
+        .stat-box { display: flex; justify-content: space-around; margin-top: 10px; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <h1>Sentiment Safari <i class="fas fa-compass"></i></h1>
+        <div class="progress-track">
+            <div id="p1" class="p-step active">1. Clean</div>
+            <div id="p2" class="p-step">2. Label</div>
+            <div id="p3" class="p-step">3. Vector</div>
+            <div id="p4" class="p-step">4. Train</div>
+            <div id="p5" class="p-step">5. Audit</div>
+        </div>
+    </header>
+
+    <!-- STAGE 1: INTRO -->
+    <div id="stage-1" class="container">
+        <div class="card">
+            <h2><i class="fas fa-map"></i> Mission Briefing</h2>
+            <p>Welcome, Data Scientist. The Jungle Tourism Board has thousands of reviews, but no one to read them.</p>
+            <p>Your goal is to build an <b>AI Pipeline</b> to read them automatically.</p>
+            <div class="note">
+                <b>Total Estimated Time:</b> 5-10 Minutes<br>
+                <b>Objective:</b> Achieve >90% Accuracy in Field Testing.
+            </div>
+            <button class="btn" onclick="nextStage(2)">Start Mission</button>
+        </div>
+    </div>
+
+    <!-- STAGE 2: MULTI-ROUND TOKENIZATION -->
+    <div id="stage-2" class="container hidden">
+        <h2>Phase 1: Data Cleaning</h2>
+        <div class="card">
+            <p>Computers get confused by "Stop Words" (the, is, a). Remove them so the AI focuses on meaning.</p>
+            <div style="font-weight: bold; color: var(--jungle); margin-bottom: 5px;">Sentence <span id="tok-round">1</span>/3</div>
+            
+            <div id="tok-sentence" class="sentence-display"></div>
+            
+            <div id="tok-area" class="token-box"></div>
+            
+            <p id="tok-feedback" style="height: 20px; font-weight: bold; color: var(--danger); text-align: center;"></p>
+            <button id="btn-tok-next" class="btn hidden" onclick="nextTokRound()">Next Sentence ></button>
+        </div>
+    </div>
+
+    <!-- STAGE 3: DATA LABELING (NEW) -->
+    <div id="stage-3" class="container hidden">
+        <h2>Phase 2: Ground Truth Labeling</h2>
+        <div class="card">
+            <div class="note">
+                <b>Concept: Supervised Learning</b><br>
+                Before the AI can learn, a human (you!) must create a "Training Set" with the correct answers.
+            </div>
+            <p>Classify these 5 raw reviews to build your dataset.</p>
+            
+            <div id="label-container">
+                <!-- Labeling UI injected here -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px;">Progress: <span id="label-prog">0</span>/5</div>
+        </div>
+    </div>
+
+    <!-- STAGE 4: INTERACTIVE VECTORIZATION (NEW) -->
+    <div id="stage-4" class="container hidden">
+        <h2>Phase 3: Vectorization</h2>
+        <div class="card">
+            <p>Words must become Numbers. This is called "One-Hot Encoding".</p>
+            <p><b>Task:</b> Toggle the bits (0 -> 1) for words present in the sentence below.</p>
+            
+            <div style="text-align: center; font-size: 1.2rem; font-weight: bold; margin: 15px; padding: 10px; background: #eee; border-radius: 8px;">
+                "Tiger was scary"
+            </div>
+
+            <div class="vector-builder">
+                <div class="v-cell" onclick="toggleBit(this, 'tiger')"><span>Tiger</span> <span class="v-bit">0</span></div>
+                <div class="v-cell" onclick="toggleBit(this, 'scary')"><span>Scary</span> <span class="v-bit">0</span></div>
+                <div class="v-cell" onclick="toggleBit(this, 'beautiful')"><span>Beautiful</span> <span class="v-bit">0</span></div>
+                <div class="v-cell" onclick="toggleBit(this, 'boring')"><span>Boring</span> <span class="v-bit">0</span></div>
+                <div class="v-cell" onclick="toggleBit(this, 'fun')"><span>Fun</span> <span class="v-bit">0</span></div>
+            </div>
+            
+            <p id="vec-feedback" style="text-align: center; height: 20px; color: var(--danger); font-weight: bold;"></p>
+            <button id="btn-vec-next" class="btn" disabled onclick="nextStage(5)">Vector Correct ></button>
+        </div>
+    </div>
+
+    <!-- STAGE 5: TRAINING -->
+    <div id="stage-5" class="container hidden">
+        <h2>Phase 4: Model Training</h2>
+        <div class="card">
+            <p>Now, adjust the "Weights" (Importance) of each word to help the AI make the right decision.</p>
+            <p>Goal: <b>100% Accuracy</b> on your training set.</p>
+            
+            <div id="sliders-container">
+                <!-- Sliders injected here -->
+            </div>
+
+            <div class="accuracy-panel">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Accuracy:</span> <span id="acc-text">0%</span>
+                </div>
+                <div style="background:#555; height:10px; border-radius:5px; overflow:hidden;">
+                    <div id="acc-bar" class="accuracy-bar-fill"></div>
+                </div>
+                <div id="cal-feedback" style="margin-top:10px; font-size:0.85rem; color:#ccc;">Adjust weights to start...</div>
+            </div>
+
+            <button id="btn-train-done" class="btn" disabled onclick="nextStage(6)">Deploy Model ></button>
+        </div>
+    </div>
+
+    <!-- STAGE 6: AI AUDITOR (NEW) -->
+    <div id="stage-6" class="container hidden">
+        <h2>Phase 5: Field Audit</h2>
+        <div class="card">
+            <p>The AI is now live! As the Senior Engineer, you must <b>Audit</b> its decisions.</p>
+            <div class="stat-box">
+                <span style="color:var(--jungle)">Correct: <span id="audit-score">0</span></span>
+                <span style="color:var(--danger)">Wrong: <span id="audit-fail">0</span></span>
+            </div>
+
+            <div id="audit-area" style="margin-top: 20px;">
+                <!-- Audit cards appear here -->
+            </div>
+            
+            <div id="final-cert" class="hidden" style="text-align: center; margin-top: 20px;">
+                <h3 style="color: var(--jungle)">Certification Complete! 🎓</h3>
+                <p>You have successfully trained and audited the pipeline.</p>
+                <button class="btn" onclick="location.reload()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL DATA ---
+        const vocab = ['tiger', 'scary', 'beautiful', 'boring', 'fun'];
+        const stopwords = ['the', 'was', 'but', 'is', 'a', 'an', 'and', 'very'];
+        
+        let weights = { tiger:0, scary:0, beautiful:0, boring:0, fun:0 };
+        
+        // Stage 2 Data
+        const sentences = [
+            { text: "The tiger was scary", tokens: ["the","tiger","was","scary"], stops: [0, 2] },
+            { text: "A boring and long trip", tokens: ["a","boring","and","long","trip"], stops: [0, 2] },
+            { text: "The guide was fun but the rain was bad", tokens: ["the","guide","was","fun","but","the","rain","was","bad"], stops: [0, 2, 4, 5, 7] }
+        ];
+        let sentIdx = 0;
+
+        // Stage 3 Data
+        const rawReviews = [
+            { text: "Tiger is beautiful", label: "pos" },
+            { text: "Scary bugs", label: "neg" },
+            { text: "Boring trip", label: "neg" },
+            { text: "Fun and beautiful", label: "pos" },
+            { text: "Scary but beautiful", label: "neu" } // Tricky one
+        ];
+        let labelIdx = 0;
+
+        // Stage 6 Data
+        const auditReviews = [
+            { text: "The tiger was fun", words:['tiger','fun'], correct: 1 },
+            { text: "Very boring trip", words:['boring'], correct: -1 },
+            { text: "Scary and boring", words:['scary','boring'], correct: -1 },
+            { text: "Beautiful and fun day", words:['beautiful','fun'], correct: 1 },
+            { text: "The tiger was scary", words:['tiger','scary'], correct: -1 } 
+        ];
+        let auditIdx = 0;
+        let auditScore = 0;
+
+        // --- NAVIGATION ---
+        function nextStage(n) {
+            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`stage-${n}`).classList.remove('hidden');
+            
+            // Update Progress Bar
+            document.querySelectorAll('.p-step').forEach((el, i) => {
+                if(i < n-1) el.className = 'p-step done';
+                else if(i === n-1) el.className = 'p-step active';
+                else el.className = 'p-step';
+            });
+
+            if(n === 2) loadSentence();
+            if(n === 3) loadLabelTask();
+            if(n === 5) initTraining();
+            if(n === 6) loadAuditTask();
+        }
+
+        // --- STAGE 2: TOKENIZATION ---
+        function loadSentence() {
+            const data = sentences[sentIdx];
+            document.getElementById('tok-round').innerText = sentIdx + 1;
+            document.getElementById('tok-sentence').innerText = `"${data.text}"`;
+            document.getElementById('tok-area').innerHTML = '';
+            document.getElementById('btn-tok-next').classList.add('hidden');
+            document.getElementById('tok-feedback').innerText = "Click the STOP WORDS to remove them.";
+            
+            data.tokens.forEach((word, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'token';
+                btn.innerText = word;
+                btn.dataset.idx = i;
+                btn.onclick = () => handleTokClick(btn, data.stops.includes(i));
+                document.getElementById('tok-area').appendChild(btn);
+            });
+        }
+
+        function handleTokClick(el, isStop) {
+            if(isStop) {
+                el.classList.add('stopword');
+                checkTokComplete();
+            } else {
+                // Wrong click
+                el.style.background = 'var(--danger)';
+                el.style.color = 'white';
+                setTimeout(() => { el.style.background = 'white'; el.style.color = '#333'; }, 500);
+            }
+        }
+
+        function checkTokComplete() {
+            const current = sentences[sentIdx];
+            const removed = document.querySelectorAll('.token.stopword').length;
+            if(removed === current.stops.length) {
+                document.getElementById('tok-feedback').innerText = "Great! Only useful words remain.";
+                document.getElementById('tok-feedback').style.color = "var(--jungle)";
+                document.getElementById('btn-tok-next').classList.remove('hidden');
+            }
+        }
+
+        function nextTokRound() {
+            sentIdx++;
+            if(sentIdx < sentences.length) {
+                loadSentence();
+            } else {
+                nextStage(3);
+            }
+        }
+
+        // --- STAGE 3: LABELING ---
+        function loadLabelTask() {
+            if(labelIdx >= rawReviews.length) {
+                nextStage(4);
+                return;
+            }
+            const item = rawReviews[labelIdx];
+            const container = document.getElementById('label-container');
+            container.innerHTML = `
+                <div class="label-card">
+                    <h3>Review #${labelIdx + 1}</h3>
+                    <p style="font-size:1.2rem; font-style:italic;">"${item.text}"</p>
+                    <div class="label-btns">
+                        <button class="l-btn pos" onclick="handleLabel('pos')"><i class="fas fa-smile"></i> Positive</button>
+                        <button class="l-btn" style="background:#eee" onclick="handleLabel('neu')"><i class="fas fa-meh"></i> Neutral</button>
+                        <button class="l-btn neg" onclick="handleLabel('neg')"><i class="fas fa-frown"></i> Negative</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('label-prog').innerText = labelIdx;
+        }
+
+        function handleLabel(choice) {
+            // In a real app we'd save this. Here we just simulate effort.
+            labelIdx++;
+            loadLabelTask();
+        }
+
+        // --- STAGE 4: VECTOR ---
+        // Target: "Tiger was scary" -> tiger(1), scary(1), others(0)
+        function toggleBit(el, word) {
+            const bit = el.querySelector('.v-bit');
+            const isOne = bit.innerText === '1';
+            bit.innerText = isOne ? '0' : '1';
+            el.classList.toggle('active');
+            
+            checkVector();
+        }
+
+        function checkVector() {
+            // Check DOM state
+            const tiger = document.querySelector(".v-cell[onclick*='tiger'] .v-bit").innerText === '1';
+            const scary = document.querySelector(".v-cell[onclick*='scary'] .v-bit").innerText === '1';
+            const beautiful = document.querySelector(".v-cell[onclick*='beautiful'] .v-bit").innerText === '1';
+            
+            // Correct: Tiger=1, Scary=1, Others=0
+            if(tiger && scary && !beautiful) { // Simplified check
+                document.getElementById('vec-feedback').innerText = "Correct! The sentence is encoded.";
+                document.getElementById('vec-feedback').style.color = "var(--jungle)";
+                document.getElementById('btn-vec-next').disabled = false;
+            }
+        }
+
+        // --- STAGE 5: TRAINING ---
+        function initTraining() {
+            const container = document.getElementById('sliders-container');
+            container.innerHTML = '';
+            
+            vocab.forEach(w => {
+                const div = document.createElement('div');
+                div.className = 'weight-control';
+                div.innerHTML = `
+                    <span style="width:80px; text-transform:capitalize; font-weight:bold;">${w}</span>
+                    <input type="range" min="-5" max="5" value="0" step="1" data-w="${w}" oninput="updateWeights()">
+                    <span id="val-${w}" style="width:30px; text-align:right;">0</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateWeights() {
+            vocab.forEach(w => {
+                const val = document.querySelector(`input[data-w="${w}"]`).value;
+                weights[w] = parseInt(val);
+                document.getElementById(`val-${w}`).innerText = val;
+            });
+            
+            checkAccuracy();
+        }
+
+        function checkAccuracy() {
+            // Using rawReviews as calibration set
+            // Simplified Logic: 
+            // Pos reviews need score > 0
+            // Neg reviews need score < 0
+            // Neu reviews need score approx 0 (or >= -1 and <= 1)
+            
+            let correct = 0;
+            let total = rawReviews.length;
+            
+            rawReviews.forEach(r => {
+                // Quick tokenize
+                const words = r.text.toLowerCase().split(' ');
+                let score = 0;
+                words.forEach(w => score += (weights[w] || 0));
+                
+                if(r.label === 'pos' && score > 0) correct++;
+                else if(r.label === 'neg' && score < 0) correct++;
+                else if(r.label === 'neu' && score === 0) correct++; // Strict neutral for game difficulty
+            });
+
+            const pct = Math.round((correct/total)*100);
+            document.getElementById('acc-text').innerText = pct + '%';
+            document.getElementById('acc-bar').style.width = pct + '%';
+            
+            if(pct === 100) {
+                document.getElementById('acc-bar').style.background = 'var(--leaf)';
+                document.getElementById('btn-train-done').disabled = false;
+                document.getElementById('cal-feedback').innerText = "Model Optimized!";
+            } else {
+                document.getElementById('acc-bar').style.background = 'var(--danger)';
+                document.getElementById('btn-train-done').disabled = true;
+                // Hint
+                document.getElementById('cal-feedback').innerText = "Try: Tiger/Fun/Beautiful (+), Scary/Boring (-)";
+            }
+        }
+
+        // --- STAGE 6: AUDIT ---
+        function loadAuditTask() {
+            if(auditIdx >= auditReviews.length) {
+                document.getElementById('audit-area').innerHTML = '';
+                document.getElementById('final-cert').classList.remove('hidden');
+                return;
+            }
+            
+            const review = auditReviews[auditIdx];
+            
+            // Calculate AI Decision
+            let score = 0;
+            review.words.forEach(w => score += (weights[w] || 0));
+            let aiDecision = "NEUTRAL";
+            let badgeColor = "#eee";
+            
+            if(score > 0) { aiDecision = "POSITIVE"; badgeColor = "#d4edda"; }
+            if(score < 0) { aiDecision = "NEGATIVE"; badgeColor = "#f8d7da"; }
+            
+            const area = document.getElementById('audit-area');
+            area.innerHTML = `
+                <div class="audit-card">
+                    <p style="font-size:1.1rem">"${review.text}"</p>
+                    <div class="ai-badge" style="background:${badgeColor}">AI Says: ${aiDecision}</div>
+                    <p style="font-size:0.9rem; margin-top:15px;">Is the AI correct?</p>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <button class="l-btn pos" onclick="handleAudit(true)">Yes (Approve)</button>
+                        <button class="l-btn neg" onclick="handleAudit(false)">No (Flag)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleAudit(userAgreed) {
+            const review = auditReviews[auditIdx];
+            // Determine if AI was actually right
+            let score = 0;
+            review.words.forEach(w => score += weights[w]);
+            
+            // True label logic
+            const isPos = review.correct === 1;
+            const isNeg = review.correct === -1;
+            
+            const aiPos = score > 0;
+            const aiNeg = score < 0;
+            
+            const aiIsRight = (isPos && aiPos) || (isNeg && aiNeg);
+            
+            // User gets points if they AGREED with a RIGHT AI, or DISAGREED with a WRONG AI
+            if(userAgreed === aiIsRight) {
+                auditScore++;
+                document.getElementById('audit-score').innerText = auditScore;
+            } else {
+                document.getElementById('audit-fail').innerText = parseInt(document.getElementById('audit-fail').innerText) + 1;
+            }
+            
+            auditIdx++;
+            loadAuditTask();
+        }
+
+    </script>
+</body>
+</html>

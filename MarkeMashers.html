@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Masher: Data Science Quest v6.0 (Max)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #4285F4;
+            --secondary: #34A853;
+            --accent: #FBBC05;
+            --danger: #EA4335;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #202124;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- Layout --- */
+        .container { max-width: 800px; width: 95%; margin: 30px auto; padding-bottom: 50px; }
+        .hidden { display: none !important; }
+
+        header {
+            background: white; width: 100%; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+        .logo span:nth-child(1) { color: var(--primary); }
+        .logo span:nth-child(2) { color: var(--danger); }
+        .logo span:nth-child(3) { color: var(--accent); }
+        .logo span:nth-child(4) { color: var(--primary); }
+        .logo span:nth-child(5) { color: var(--secondary); }
+        .logo span:nth-child(6) { color: var(--danger); }
+
+        /* --- Progress Bar --- */
+        .progress-track {
+            display: flex; justify-content: space-between; margin-top: 10px; padding: 0 5px;
+        }
+        .p-dot { width: 8px; height: 8px; background: #ddd; border-radius: 50%; position: relative; }
+        .p-dot.active { background: var(--primary); transform: scale(1.5); }
+        .p-dot.done { background: var(--secondary); }
+        
+        /* --- Cards --- */
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 30px; margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; transition: 0.3s;
+        }
+        .concept-card {
+            background: #e8f0fe; border-left: 5px solid var(--primary); text-align: left;
+            padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.95rem; color: #333;
+        }
+        .concept-title { font-weight: bold; color: var(--primary); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px; }
+
+        /* --- Explainers --- */
+        .explainer-toggle {
+            color: var(--primary); cursor: pointer; font-size: 0.9rem; text-decoration: underline; margin-bottom: 10px; display: inline-block;
+        }
+        .explainer-box {
+            background: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 15px; font-size: 0.9rem;
+        }
+        .explainer-box strong { color: #f57f17; }
+
+        /* --- Buttons --- */
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 24px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3); }
+        .btn:disabled { background: #dadce0; color: #80868b; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* --- Module 2: Feature Grid --- */
+        .filter-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin: 20px 0;
+        }
+        .feature-item {
+            border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; user-select: none;
+        }
+        .feature-item:hover { transform: translateY(-3px); }
+        .feature-item.selected { border-color: var(--primary); background-color: #e8f0fe; color: var(--primary); font-weight: bold; }
+        .feature-item i { display: block; font-size: 1.5rem; margin-bottom: 8px; color: #5f6368; }
+        .feature-item.selected i { color: var(--primary); }
+
+        /* --- Module 3 & 5: Charts --- */
+        .eda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .eda-card {
+            border: 2px solid #eee; border-radius: 8px; padding: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .eda-card:hover { border-color: var(--primary); transform: scale(1.02); }
+        .eda-card.selected { border-color: var(--primary); background: #f1f8ff; box-shadow: 0 0 10px rgba(66, 133, 244, 0.2); }
+        .eda-title { font-weight: bold; margin-bottom: 10px; color: #555; }
+        canvas.mini-chart { width: 100% !important; height: 150px !important; }
+
+        /* --- Module 4: Cleaning Table --- */
+        .data-table {
+            width: 100%; border-collapse: collapse; margin: 20px 0; font-family: monospace;
+        }
+        .data-table th { background: #f1f3f4; padding: 10px; text-align: center; }
+        .data-table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .missing-cell { background: #fce8e6; cursor: pointer; color: var(--danger); font-weight: bold; }
+        .missing-cell:hover { background: #fad2cf; }
+        .fixed-cell { background: #e6f4ea; color: var(--secondary); font-weight: bold; animation: pulse 0.5s; }
+
+        /* --- Module 7: Gradient Descent --- */
+        .gd-container {
+            position: relative; height: 200px; background: #fff; border: 2px solid #eee; border-radius: 8px; margin: 20px 0; overflow: hidden;
+        }
+        .gd-ball {
+            width: 20px; height: 20px; background: var(--danger); border-radius: 50%; position: absolute; bottom: 0; left: 0; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(234, 67, 53, 0.5);
+        }
+
+        /* --- Module 8: Training Controls --- */
+        .train-controls {
+            background: #f8f9fa; padding: 20px; border-radius: 12px; margin-top: 20px;
+        }
+        .slider-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .slider-row label { width: 140px; text-align: right; margin-right: 15px; font-weight: bold; font-size: 0.9rem; }
+        input[type=range] { flex-grow: 1; cursor: pointer;}
+        .val-display { width: 50px; text-align: right; font-family: monospace; }
+        .error-box { 
+            background: #333; color: white; padding: 10px; border-radius: 8px; display: inline-block; margin-top: 10px; min-width: 150px;
+        }
+        .eqn-display {
+            font-family: monospace; font-size: 1.2rem; background: white; padding: 10px; border-radius: 8px; border: 2px solid #eee; margin-bottom: 15px; display: inline-block;
+        }
+
+        /* --- Module 10: Profit --- */
+        .profit-viz { display: flex; gap: 0; height: 30px; border-radius: 15px; overflow: hidden; margin: 20px auto; max-width: 400px; background: #ddd; border: 2px solid #ccc;}
+        .pv-cost { background: var(--danger); width: 0%; transition: 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; overflow: hidden; white-space: nowrap;}
+        .pv-profit { background: var(--secondary); width: 0%; transition: 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; overflow: hidden; white-space: nowrap;}
+        
+        .math-box {
+            font-family: monospace; font-size: 1rem; color: #555; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;
+        }
+
+        /* --- Module 11: Simulation --- */
+        .sim-grid { display: flex; gap: 10px; justify-content: center; overflow-x: auto; padding: 10px; }
+        .sim-day {
+            background: #f8f9fa; border: 2px solid #ddd; border-radius: 8px; padding: 10px; min-width: 80px; text-align: center; opacity: 0.5; transition: 0.3s;
+        }
+        .sim-day.active { border-color: var(--primary); opacity: 1; transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .sim-temp { font-size: 0.8rem; color: #888; }
+        .sim-sales { font-weight: bold; font-size: 1.2rem; margin: 5px 0; color: var(--primary); }
+        .sim-profit { font-size: 0.9rem; color: var(--secondary); font-weight: bold; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>M</span><span>a</span><span>r</span><span>k</span><span>e</span><span>t</span>
+            Masher
+        </div>
+        <div style="font-size: 0.9rem; color: #5f6368; margin-top:5px;">AI Analyst Training Quest</div>
+        <div class="container" style="margin: 10px auto; padding: 0;">
+            <div class="progress-track">
+                <div id="d1" class="p-dot active"></div>
+                <div id="d2" class="p-dot"></div>
+                <div id="d3" class="p-dot"></div>
+                <div id="d4" class="p-dot"></div>
+                <div id="d5" class="p-dot"></div>
+                <div id="d6" class="p-dot"></div>
+                <div id="d7" class="p-dot"></div>
+                <div id="d8" class="p-dot"></div>
+                <div id="d9" class="p-dot"></div>
+                <div id="d10" class="p-dot"></div>
+                <div id="d11" class="p-dot"></div>
+                <div id="d12" class="p-dot"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- MODULE 1: INTRO -->
+        <div id="module-1" class="card">
+            <div style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"><i class="fas fa-robot"></i></div>
+            <h2>Welcome, Intern</h2>
+            <p>Our Lemonade Startup needs help. We need you to build a Sales Prediction AI.</p>
+            
+            <div class="explainer-toggle" onclick="toggleExplainer(1)">Wait, what is "AI"? <i class="fas fa-chevron-down"></i></div>
+            <div id="exp-1" class="explainer-box hidden">
+                <strong>Artificial Intelligence (AI)</strong> is just math. We show the computer history (Data), and it finds a math formula (Model) to guess the future.
+            </div>
+
+            <div class="concept-card">
+                <div class="concept-title">Your 12-Stage Plan</div>
+                1. <b>Hypothesize:</b> Select relevant features.<br>
+                2. <b>Clean:</b> Fix tabular errors.<br>
+                3. <b>Inspect:</b> Visual sanity check.<br>
+                4. <b>Split:</b> Separate Training vs Testing data.<br>
+                5. <b>Train:</b> Teach the AI.<br>
+                6. <b>Simulate:</b> Run a 7-day live forecast.
+            </div>
+            <button class="btn" onclick="nextModule(2)">Start Analyzing <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- MODULE 2: FEATURE SELECTION -->
+        <div id="module-2" class="card hidden">
+            <h2>Phase 1: Hypothesis Generation</h2>
+            
+            <div class="explainer-toggle" onclick="toggleExplainer(2)">What is a "Feature"? <i class="fas fa-chevron-down"></i></div>
+            <div id="exp-2" class="explainer-box hidden">
+                A <strong>Feature</strong> is a piece of data that helps predict the answer.
+            </div>
+
+            <p>Select the <b>3 Factors</b> that logically affect Lemonade Sales. Filter out the noise.</p>
+            
+            <div class="filter-grid">
+                <div class="feature-item" onclick="toggleFeature(this, 'Temperature')"><i class="fas fa-thermometer-half"></i> Temperature</div>
+                <div class="feature-item" onclick="toggleFeature(this, 'Cats')"><i class="fas fa-cat"></i> Cat Videos</div>
+                <div class="feature-item" onclick="toggleFeature(this, 'Weekend')"><i class="fas fa-calendar-day"></i> Is Weekend?</div>
+                <div class="feature-item" onclick="toggleFeature(this, 'Shoes')"><i class="fas fa-shoe-prints"></i> CEO Shoe Size</div>
+                <div class="feature-item" onclick="toggleFeature(this, 'Price')"><i class="fas fa-tag"></i> Price</div>
+                <div class="feature-item" onclick="toggleFeature(this, 'Moon')"><i class="fas fa-moon"></i> Moon Phase</div>
+            </div>
+
+            <p id="feature-feedback" style="height: 20px; font-weight: bold; color: var(--danger);"></p>
+            <button id="btn-features" class="btn" disabled onclick="checkFeatures()">Submit Hypothesis <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 3: EDA -->
+        <div id="module-3" class="card hidden">
+            <h2>Phase 2: Visual Confirmation (EDA)</h2>
+            <p>Let's check our "Temperature" hypothesis with a graph.</p>
+            <p>Which graph shows a <b>Strong Pattern</b>?</p>
+            
+            <div class="eda-grid">
+                <div class="eda-card" onclick="selectGraph(1, this)">
+                    <div class="eda-title">A: Cat Videos vs Sales</div>
+                    <canvas id="chart-eda-1" class="mini-chart"></canvas>
+                </div>
+                <div class="eda-card" onclick="selectGraph(2, this)">
+                    <div class="eda-title">B: Temp vs Sales</div>
+                    <canvas id="chart-eda-2" class="mini-chart"></canvas>
+                </div>
+                <div class="eda-card" onclick="selectGraph(3, this)">
+                    <div class="eda-title">C: Day of Week vs Sales</div>
+                    <canvas id="chart-eda-3" class="mini-chart"></canvas>
+                </div>
+            </div>
+            
+            <p id="eda-feedback" style="height: 20px; font-weight: bold; color: var(--danger);"></p>
+            <button id="btn-eda" class="btn" disabled onclick="nextModule(4)">Confirm Pattern <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 4: TABLE CLEANING -->
+        <div id="module-4" class="card hidden">
+            <h2>Phase 3a: Tabular Cleaning</h2>
+            
+            <div class="explainer-toggle" onclick="toggleExplainer(3)">What is NaN? <i class="fas fa-chevron-down"></i></div>
+            <div id="exp-3" class="explainer-box hidden">
+                <strong>NaN</strong> (Not a Number) means missing data. We fill it with the Average.
+            </div>
+
+            <p><b>Task:</b> Locate the missing value in the table.</p>
+
+            <table class="data-table">
+                <thead><tr><th>Day</th><th>Temp (°C)</th><th>Sales</th></tr></thead>
+                <tbody>
+                    <tr><td>Mon</td><td>25</td><td>120</td></tr>
+                    <tr><td>Tue</td><td>28</td><td>145</td></tr>
+                    <tr><td>Wed</td><td id="missing-cell" class="missing-cell" onclick="fixNaN()">NaN (Fix Me)</td><td>138</td></tr>
+                    <tr><td>Thu</td><td>30</td><td>160</td></tr>
+                    <tr><td>Fri</td><td>32</td><td>180</td></tr>
+                </tbody>
+            </table>
+            
+            <button id="btn-clean" class="btn" disabled onclick="nextModule(5)">Table Fixed <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- MODULE 5: VISUAL CLEANING (NEW) -->
+        <div id="module-5" class="card hidden">
+            <h2>Phase 3b: Visual Sanity Check</h2>
+            <div class="concept-card">
+                <div class="concept-title">Concept: Outliers</div>
+                Sometimes the table looks fine, but the graph reveals a glitch.
+            </div>
+            <p><b>Task:</b> One point on this graph is impossible. <b>Click it</b> to remove the sensor error.</p>
+            
+            <div class="chart-container">
+                <canvas id="outlierChart"></canvas>
+            </div>
+            
+            <p id="outlier-feedback" style="height: 20px; font-weight: bold; color: var(--danger);"></p>
+            <button id="btn-outlier" class="btn" disabled onclick="nextModule(6)">Outlier Removed <i class="fas fa-trash"></i></button>
+        </div>
+
+        <!-- MODULE 6: SPLITTING -->
+        <div id="module-6" class="card hidden">
+            <h2>Phase 4: Train / Test Split</h2>
+            <div class="explainer-toggle" onclick="toggleExplainer(99)">Why Split Data? <i class="fas fa-chevron-down"></i></div>
+            <div id="exp-99" class="explainer-box hidden">
+                You can't test a student on the exact same questions they studied!
+            </div>
+            
+            <p>Drag slider to set <b>80% Training</b> and <b>20% Testing</b>.</p>
+            
+            <div class="chart-container">
+                <canvas id="splitChart"></canvas>
+            </div>
+            
+            <div class="train-controls">
+                <div class="slider-row">
+                    <label>Split %:</label>
+                    <input type="range" id="split-slider" min="50" max="90" step="10" value="50" oninput="updateSplit()">
+                    <div class="val-display" id="split-val">50%</div>
+                </div>
+            </div>
+            
+            <button id="btn-split" class="btn" disabled onclick="nextModule(7)">Lock Split <i class="fas fa-lock"></i></button>
+        </div>
+
+        <!-- MODULE 7: GRADIENT DESCENT (NEW) -->
+        <div id="module-7" class="card hidden">
+            <h2>Phase 5a: How AI Learns</h2>
+            <div class="concept-card">
+                <div class="concept-title">Concept: Gradient Descent</div>
+                Computers use this algorithm to "roll" down the Error Mountain to find the bottom (lowest error).
+            </div>
+            <p><b>Task:</b> Click <b>Step</b> to descend the error curve.</p>
+            
+            <div class="gd-container">
+                <div id="gd-ball" class="gd-ball" style="left: 10px; bottom: 150px;"></div>
+                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M0,0 Q50,200 100,0" fill="none" stroke="#ddd" stroke-width="2"/>
+                </svg>
+            </div>
+            <div style="font-weight:bold; margin-bottom:10px;">Current Error: <span id="gd-error" style="color:var(--danger)">High</span></div>
+            
+            <button id="btn-gd-step" class="btn" onclick="stepGradient()">Step Down <i class="fas fa-shoe-prints"></i></button>
+            <button id="btn-gd-next" class="btn hidden" onclick="nextModule(8)">Algorithm Understood <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 8: TRAINING -->
+        <div id="module-8" class="card hidden">
+            <h2>Phase 5b: Manual Training</h2>
+            <p>Now YOU act as the Gradient Descent algorithm.</p>
+            <p>Fit the line to the <b>Blue Training Dots</b>.</p>
+
+            <div class="eqn-display">
+                Sales = (<span id="disp-m" style="color:var(--primary)">0</span> × Temp) + <span id="disp-b" style="color:var(--secondary)">0</span>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <div class="train-controls">
+                <div class="slider-row">
+                    <label>Steepness (m)</label>
+                    <input type="range" id="sl-m" min="0" max="10" step="0.1" value="0" oninput="updateModel()">
+                    <div class="val-display" id="val-m">0</div>
+                </div>
+                <div class="slider-row">
+                    <label>Base (b)</label>
+                    <input type="range" id="sl-b" min="-50" max="100" step="5" value="0" oninput="updateModel()">
+                    <div class="val-display" id="val-b">0</div>
+                </div>
+                
+                <div class="error-box">
+                    Training Error: <span id="mse-display" style="color: var(--danger)">High</span>
+                </div>
+            </div>
+
+            <button id="btn-train" class="btn" disabled onclick="nextModule(9)">Model Optimized <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 9: TESTING -->
+        <div id="module-9" class="card hidden">
+            <h2>Phase 6: Validation</h2>
+            <div class="concept-card">
+                <div class="concept-title">The Moment of Truth</div>
+                Let's see how your line fits the <b>Orange Testing Dots</b> (the data we hid).
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="testChart"></canvas>
+            </div>
+            
+            <div id="test-result" class="hidden" style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
+                Test Error: <span id="test-mse">0</span>
+            </div>
+
+            <button id="btn-run-test" class="btn" onclick="runTest()">Run Test Evaluation</button>
+            <button id="btn-test-next" class="btn hidden" onclick="nextModule(10)">Passed <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 10: PROFIT -->
+        <div id="module-10" class="card hidden">
+            <h2>Phase 7: Optimization</h2>
+            <p>Find the price that maximizes <b>PROFIT</b>.</p>
+
+            <div style="background: #f1f3f4; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h1 id="profit-display" style="color: var(--secondary); margin: 5px;">$0.00</h1>
+                <small>Est. Daily Profit</small>
+                
+                <div class="profit-viz">
+                    <div id="bar-cost" class="pv-cost">Cost</div>
+                    <div id="bar-profit" class="pv-profit">Profit</div>
+                </div>
+
+                <div class="math-box">
+                    (<span id="math-price" style="font-weight:bold">$1.00</span> Price - $0.50 Cost) × <span id="math-vol">160</span> Sales
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="font-weight:bold;">Selling Price: $<span id="price-val">1.00</span></label><br>
+                    <input type="range" id="price-slider" min="0.50" max="5.00" step="0.10" value="1.00" style="width: 80%; margin-top: 10px;" oninput="updateProfit()">
+                </div>
+            </div>
+
+            <button id="btn-opt" class="btn" disabled onclick="nextModule(11)">Maximize Profit <i class="fas fa-check"></i></button>
+        </div>
+
+        <!-- MODULE 11: SIMULATION -->
+        <div id="module-11" class="card hidden">
+            <h2>Phase 8: 7-Day Live Simulation</h2>
+            <p>We are running your model against next week's weather!</p>
+            
+            <div style="font-size: 2rem; margin: 20px; font-weight: bold;">
+                Total Profit: <span id="sim-total-profit" style="color:var(--secondary)">$0</span>
+            </div>
+
+            <div class="sim-grid" id="sim-container">
+                <!-- Days injected here -->
+            </div>
+            
+            <button id="btn-start-sim" class="btn" onclick="runSimulation()">Start Simulation <i class="fas fa-play"></i></button>
+            <button id="btn-sim-next" class="btn hidden" onclick="nextModule(12)">View Report <i class="fas fa-file-alt"></i></button>
+        </div>
+
+        <!-- MODULE 12: END -->
+        <div id="module-12" class="card hidden">
+            <div style="font-size: 3rem; color: var(--secondary); margin-bottom: 20px;"><i class="fas fa-trophy"></i></div>
+            <h2>Quest Complete!</h2>
+            <p>You have mastered the Data Science Pipeline.</p>
+            
+            <div style="text-align: left; background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 400px;">
+                <h4 style="margin-top:0;">Final Report:</h4>
+                <div style="margin: 5px 0;"><i class="fas fa-check" style="color:var(--secondary)"></i> <b>Cleaning:</b> Visual & Tabular</div>
+                <div style="margin: 5px 0;"><i class="fas fa-check" style="color:var(--secondary)"></i> <b>Split:</b> 80/20 Rule Applied</div>
+                <div style="margin: 5px 0;"><i class="fas fa-check" style="color:var(--secondary)"></i> <b>Sim Profit:</b> High</div>
+            </div>
+
+            <button class="btn btn-success" onclick="location.reload()">Start New Internship</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- HELPER: EXPLAINER ---
+        function toggleExplainer(id) {
+            document.getElementById(`exp-${id}`).classList.toggle('hidden');
+        }
+
+        // --- DATA GEN ---
+        const allData = [];
+        for(let t=15; t<=40; t+=2) {
+            allData.push({x: t, y: (5*t + 20 + (Math.random()*15 - 7.5)) });
+        }
+        let trainData = [];
+        let testData = [];
+
+        // --- NAVIGATION ---
+        function nextModule(n) {
+            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`module-${n}`).classList.remove('hidden');
+            
+            // Update dots
+            document.querySelectorAll('.p-dot').forEach((d, i) => {
+                if(i < n-1) d.className = 'p-dot done';
+                else if(i === n-1) d.className = 'p-dot active';
+                else d.className = 'p-dot';
+            });
+
+            if(n === 3) initEDA();
+            if(n === 5) initOutlierChart();
+            if(n === 6) initSplit();
+            if(n === 8) initTraining();
+            if(n === 9) initTesting();
+            if(n === 10) initProfit();
+            if(n === 11) initSimulationDisplay();
+        }
+
+        // --- MODULE 2: FEATURES ---
+        let selectedFeatures = [];
+        function toggleFeature(el, name) {
+            if(selectedFeatures.includes(name)) {
+                selectedFeatures = selectedFeatures.filter(f => f !== name);
+                el.classList.remove('selected');
+            } else {
+                if(selectedFeatures.length < 3) {
+                    selectedFeatures.push(name);
+                    el.classList.add('selected');
+                }
+            }
+            const btn = document.getElementById('btn-features');
+            btn.disabled = selectedFeatures.length !== 3;
+            if(selectedFeatures.length === 3) btn.classList.add('pulse');
+        }
+        function checkFeatures() {
+            const correct = ['Temperature', 'Weekend', 'Price'];
+            const isCorrect = correct.every(val => selectedFeatures.includes(val));
+            const feedback = document.getElementById('feature-feedback');
+            if(isCorrect) {
+                feedback.style.color = 'var(--secondary)'; feedback.innerText = "Hypothesis Valid!"; setTimeout(() => nextModule(3), 800);
+            } else {
+                feedback.style.color = 'var(--danger)'; feedback.innerText = "Incorrect. Try again.";
+            }
+        }
+
+        // --- MODULE 3: EDA ---
+        function initEDA() {
+            const ctx1 = document.getElementById('chart-eda-1').getContext('2d');
+            new Chart(ctx1, { type: 'scatter', data: { datasets: [{ data: Array.from({length:10}, () => ({x: Math.random()*10, y: Math.random()*100})), backgroundColor: '#aaa' }] }, options: { plugins:{legend:false}, scales:{x:{display:false}, y:{display:false}} } });
+            const ctx2 = document.getElementById('chart-eda-2').getContext('2d');
+            new Chart(ctx2, { type: 'scatter', data: { datasets: [{ data: allData, backgroundColor: '#4285F4' }] }, options: { plugins:{legend:false}, scales:{x:{display:false}, y:{display:false}} } });
+            const ctx3 = document.getElementById('chart-eda-3').getContext('2d');
+            new Chart(ctx3, { type: 'scatter', data: { datasets: [{ data: Array.from({length:10}, (_,i) => ({x: i, y: 100 + Math.random()*10})), backgroundColor: '#aaa' }] }, options: { plugins:{legend:false}, scales:{x:{display:false}, y:{display:false}} } });
+        }
+        function selectGraph(id, el) {
+            document.querySelectorAll('.eda-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            if(id === 2) {
+                document.getElementById('eda-feedback').innerText = "Correct! Clear line pattern."; document.getElementById('eda-feedback').style.color = "var(--secondary)"; document.getElementById('btn-eda').disabled = false;
+            } else {
+                document.getElementById('eda-feedback').innerText = "No pattern here."; document.getElementById('eda-feedback').style.color = "var(--danger)"; document.getElementById('btn-eda').disabled = true;
+            }
+        }
+
+        // --- MODULE 4: TABLE CLEANING ---
+        function fixNaN() {
+            const cell = document.getElementById('missing-cell');
+            if(cell.classList.contains('fixed-cell')) return;
+            cell.innerHTML = "29 (Avg)"; cell.className = "fixed-cell"; 
+            document.getElementById('btn-clean').disabled = false;
+        }
+
+        // --- MODULE 5: VISUAL OUTLIER (NEW) ---
+        let outlierChart;
+        let outlierRemoved = false;
+        function initOutlierChart() {
+            const ctx = document.getElementById('outlierChart').getContext('2d');
+            // Data with outlier
+            const badData = [...allData];
+            badData.push({x: 100, y: 10}); // The outlier
+
+            outlierChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{ label: 'Data', data: badData, backgroundColor: (ctx) => {
+                        // Color the outlier red
+                        const val = ctx.raw;
+                        return (val && val.x === 100) ? '#EA4335' : '#4285F4';
+                    }, pointRadius: 6 }]
+                },
+                options: {
+                    onClick: (e, activeEls) => {
+                        if(outlierRemoved || activeEls.length === 0) return;
+                        const idx = activeEls[0].index;
+                        const point = outlierChart.data.datasets[0].data[idx];
+                        
+                        if(point.x === 100) {
+                            // Correct removal
+                            outlierChart.data.datasets[0].data.splice(idx, 1);
+                            outlierChart.update();
+                            outlierRemoved = true;
+                            document.getElementById('outlier-feedback').innerText = "Glitch Removed!";
+                            document.getElementById('outlier-feedback').style.color = "var(--secondary)";
+                            document.getElementById('btn-outlier').disabled = false;
+                        } else {
+                             document.getElementById('outlier-feedback').innerText = "That looks like normal data.";
+                        }
+                    },
+                    plugins: { legend: false }
+                }
+            });
+        }
+
+        // --- MODULE 6: SPLIT ---
+        let splitChart;
+        function initSplit() {
+            const ctx = document.getElementById('splitChart').getContext('2d');
+            splitChart = new Chart(ctx, { type: 'scatter', data: { datasets: [ { label: 'Train', data: [], backgroundColor: '#4285F4' }, { label: 'Test', data: [], backgroundColor: '#FBBC05' } ] }, options: { plugins: { legend: { display: true } }, scales: { x:{display:false}, y:{display:false}} } });
+            updateSplit();
+        }
+        function updateSplit() {
+            const pct = parseInt(document.getElementById('split-slider').value);
+            document.getElementById('split-val').innerText = pct + "%";
+            const count = Math.floor((pct / 100) * allData.length);
+            trainData = allData.slice(0, count);
+            testData = allData.slice(count);
+            splitChart.data.datasets[0].data = trainData;
+            splitChart.data.datasets[1].data = testData;
+            splitChart.update();
+            if(pct >= 70 && pct <= 90) { document.getElementById('btn-split').disabled = false; document.getElementById('btn-split').classList.add('pulse'); } else { document.getElementById('btn-split').disabled = true; document.getElementById('btn-split').classList.remove('pulse'); }
+        }
+
+        // --- MODULE 7: GRADIENT DESCENT ---
+        let gdStep = 0;
+        function stepGradient() {
+            gdStep++;
+            const ball = document.getElementById('gd-ball');
+            const err = document.getElementById('gd-error');
+            
+            // Positions approximating a parabola descent
+            const positions = [
+                {l:'20%', b:'80px', c:'High'},
+                {l:'40%', b:'40px', c:'Medium'},
+                {l:'48%', b:'10px', c:'Low (Optimal)'}
+            ];
+            
+            if(gdStep <= positions.length) {
+                const p = positions[gdStep-1];
+                ball.style.left = p.l;
+                ball.style.bottom = p.b;
+                err.innerText = p.c;
+                if(p.c.includes('Low')) {
+                    err.style.color = 'var(--secondary)';
+                    document.getElementById('btn-gd-step').classList.add('hidden');
+                    document.getElementById('btn-gd-next').classList.remove('hidden');
+                }
+            }
+        }
+
+        // --- MODULE 8: TRAINING ---
+        let trainChart;
+        let m = 0; let b = 0;
+        function initTraining() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            trainChart = new Chart(ctx, { type: 'scatter', data: { datasets: [ { label: 'Train Data', data: trainData, backgroundColor: '#4285F4', order: 2 }, { label: 'Model', data: [], type: 'line', borderColor: '#4285F4', borderWidth: 3, pointRadius: 0, order: 1 }, { label: 'Errors', data: [], type: 'line', borderColor: 'rgba(234, 67, 53, 0.4)', borderWidth: 1, pointRadius: 0, showLine: true, order: 3 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', position: 'bottom', title: {display: true, text: 'Temperature'} }, y: { min: 0, max: 250 } }, plugins: { legend: { display: false } }, animation: { duration: 0 } } });
+            updateModel();
+        }
+        function updateModel() {
+            m = parseFloat(document.getElementById('sl-m').value);
+            b = parseFloat(document.getElementById('sl-b').value);
+            document.getElementById('val-m').innerText = m.toFixed(1);
+            document.getElementById('val-b').innerText = b;
+            document.getElementById('disp-m').innerText = m.toFixed(1);
+            document.getElementById('disp-b').innerText = b;
+            const lineData = [{x: 15, y: m*15 + b}, {x: 40, y: m*40 + b}];
+            trainChart.data.datasets[1].data = lineData;
+            const residualData = [];
+            let errorSum = 0;
+            trainData.forEach(p => { const pred = m * p.x + b; errorSum += Math.pow(p.y - pred, 2); residualData.push({x: p.x, y: p.y}, {x: p.x, y: pred}, {x: null, y: null}); });
+            trainChart.data.datasets[2].data = residualData;
+            trainChart.update();
+            const mse = Math.round(errorSum / trainData.length);
+            const mseDisp = document.getElementById('mse-display');
+            mseDisp.innerText = mse;
+            if(mse < 100) { mseDisp.style.color = "var(--secondary)"; document.getElementById('btn-train').disabled = false; } else { mseDisp.style.color = "var(--danger)"; document.getElementById('btn-train').disabled = true; }
+        }
+
+        // --- MODULE 9: TESTING ---
+        let testChart;
+        function initTesting() {
+            const ctx = document.getElementById('testChart').getContext('2d');
+            testChart = new Chart(ctx, { type: 'scatter', data: { datasets: [ { label: 'Test Data (Hidden)', data: testData, backgroundColor: '#FBBC05', order: 2 }, { label: 'Your Model', data: [{x: 15, y: m*15 + b}, {x: 40, y: m*40 + b}], type: 'line', borderColor: '#4285F4', borderWidth: 3, pointRadius: 0, order: 1 }, { label: 'Errors', data: [], type: 'line', borderColor: 'rgba(234, 67, 53, 0.4)', borderWidth: 1, pointRadius: 0, showLine: true, order: 3 } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 250 } } } });
+        }
+        function runTest() {
+            let errorSum = 0; const residualData = [];
+            testData.forEach(p => { const pred = m * p.x + b; errorSum += Math.pow(p.y - pred, 2); residualData.push({x: p.x, y: p.y}, {x: p.x, y: pred}, {x: null, y: null}); });
+            testChart.data.datasets[2].data = residualData; testChart.update();
+            const mse = Math.round(errorSum / testData.length);
+            const resVal = document.getElementById('test-mse');
+            document.getElementById('test-result').classList.remove('hidden');
+            resVal.innerText = mse;
+            if(mse < 150) { resVal.style.color = "var(--secondary)"; document.getElementById('btn-run-test').classList.add('hidden'); document.getElementById('btn-test-next').classList.remove('hidden'); } else { resVal.style.color = "var(--danger)"; resVal.innerText += " (Poor Fit)"; }
+        }
+
+        // --- MODULE 10: PROFIT ---
+        let chosenPrice = 1.0;
+        function initProfit() { updateProfit(); }
+        function updateProfit() {
+            const price = parseFloat(document.getElementById('price-slider').value); chosenPrice = price;
+            document.getElementById('price-val').innerText = price.toFixed(2); document.getElementById('math-price').innerText = "$" + price.toFixed(2);
+            let volume = Math.max(0, 200 - (40 * price)); volume = Math.round(volume);
+            document.getElementById('math-vol').innerText = volume;
+            const cost = 0.50; const revenue = volume * price; const totalCost = volume * cost; const profit = revenue - totalCost;
+            document.getElementById('profit-display').innerText = '$' + profit.toFixed(2);
+            const MAX_SCALE = 300;
+            document.getElementById('bar-cost').style.width = Math.min(100, (totalCost / MAX_SCALE) * 100) + '%';
+            document.getElementById('bar-cost').innerText = '$' + totalCost.toFixed(0);
+            document.getElementById('bar-profit').style.width = Math.max(0, Math.min(100, (profit / MAX_SCALE) * 100)) + '%';
+            document.getElementById('bar-profit').innerText = profit > 0 ? '$' + profit.toFixed(0) : '';
+            if(profit > 190) { document.getElementById('profit-display').style.color = "var(--secondary)"; document.getElementById('btn-opt').disabled = false; } else { document.getElementById('profit-display').style.color = "#555"; document.getElementById('btn-opt').disabled = true; }
+        }
+
+        // --- MODULE 11: SIMULATION ---
+        function initSimulationDisplay() {
+            const container = document.getElementById('sim-container'); container.innerHTML = '';
+            const temps = [20, 22, 35, 30, 28, 18, 25]; const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            days.forEach((d, i) => { container.innerHTML += `<div class="sim-day" id="sim-day-${i}"><div style="font-weight:bold">${d}</div><div class="sim-temp">${temps[i]}°C</div><div class="sim-sales" id="sales-${i}">-</div><div class="sim-profit" id="profit-${i}">-</div></div>`; });
+        }
+        function runSimulation() {
+            document.getElementById('btn-start-sim').disabled = true;
+            const temps = [20, 22, 35, 30, 28, 18, 25]; let totalProfit = 0; let i = 0;
+            const interval = setInterval(() => {
+                if(i >= 7) { clearInterval(interval); document.getElementById('btn-sim-next').classList.remove('hidden'); return; }
+                document.getElementById(`sim-day-${i}`).classList.add('active');
+                const baseDemand = (m * temps[i]) + b;
+                let adjDemand = baseDemand * (1 - 0.2 * (chosenPrice - 1)); adjDemand = Math.max(0, Math.round(adjDemand));
+                const rev = adjDemand * chosenPrice; const cost = adjDemand * 0.50; const dayProfit = rev - cost; totalProfit += dayProfit;
+                document.getElementById(`sales-${i}`).innerText = adjDemand; document.getElementById(`profit-${i}`).innerText = "$" + dayProfit.toFixed(0);
+                document.getElementById(`sim-total-profit`).innerText = "$" + totalProfit.toFixed(0);
+                i++;
+            }, 800);
+        }
+    </script>
+</body>
+</html>
