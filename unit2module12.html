@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. Practice: Looping Dictionaries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .code-block { background-color: #1e293b; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; padding: 1rem; border-radius: 8px; }
+        .nav-link { text-decoration: none; color: inherit; }
+        .input-code { background: transparent; border: none; border-bottom: 2px solid #64748b; color: #facc15; font-family: inherit; text-align: center; width: 100px; }
+        .input-code:focus { outline: none; border-bottom-color: #facc15; }
+        
+        .animate-slide-in {
+            animation: slideIn 0.5s forwards;
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-4">Looping Dictionaries</h1>
+        <p class="text-slate-600 text-lg">
+            Dictionaries are trickier than Lists because they contain <strong>Pairs</strong> (Key + Value).
+            When we loop, we must choose one of three paths based on what data we need.
+        </p>
+    </header>
+
+    <!-- Part 1: The Three Paths -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <!-- Scenario A -->
+        <div class="card p-6 bg-orange-50 border-orange-200">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="bg-orange-200 text-orange-800 text-xs font-bold px-2 py-1 rounded">Path 1: Keys</span>
+            </div>
+            <h3 class="font-bold text-orange-900 mb-2">The Default Loop</h3>
+            <p class="text-sm text-orange-800 mb-4">
+                <code>for k in data:</code><br>
+                Gets only the labels (Titles). Good for checking attendance.
+            </p>
+            <div class="code-block text-xs bg-orange-950 text-orange-100">
+                <span class="text-purple-300">for</span> k <span class="text-purple-300">in</span> data:<br>
+                &nbsp;&nbsp;print(k)
+            </div>
+        </div>
+
+        <!-- Scenario B (New) -->
+        <div class="card p-6 bg-teal-50 border-teal-200">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="bg-teal-200 text-teal-800 text-xs font-bold px-2 py-1 rounded">Path 2: Values</span>
+            </div>
+            <h3 class="font-bold text-teal-900 mb-2">The Math Loop</h3>
+            <p class="text-sm text-teal-800 mb-4">
+                <code>for v in data.values():</code><br>
+                Gets only the numbers. Good for calculating averages.
+            </p>
+            <div class="code-block text-xs bg-teal-950 text-teal-100">
+                <span class="text-purple-300">for</span> v <span class="text-purple-300">in</span> data.values():<br>
+                &nbsp;&nbsp;total += v
+            </div>
+        </div>
+
+        <!-- Scenario C -->
+        <div class="card p-6 bg-blue-50 border-blue-200">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="bg-blue-200 text-blue-800 text-xs font-bold px-2 py-1 rounded">Path 3: Items</span>
+            </div>
+            <h3 class="font-bold text-blue-900 mb-2">The Unpacking Loop</h3>
+            <p class="text-sm text-blue-800 mb-4">
+                <code>for k, v in data.items():</code><br>
+                Gets BOTH. Good for displaying data.
+            </p>
+            <div class="code-block text-xs bg-blue-950 text-blue-100">
+                <span class="text-purple-300">for</span> k, v <span class="text-purple-300">in</span> data.items():<br>
+                &nbsp;&nbsp;print(k, v)
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 2: Interactive Visualizer -->
+    <div class="card p-6 flex flex-col mb-12 border-2 border-slate-200">
+        <div class="mb-4 text-center">
+            <h3 class="font-bold text-slate-800 text-lg">The Robot Visualizer</h3>
+            <p class="text-sm text-slate-500">Select a mode to see what the loop robot picks up from the container.</p>
+        </div>
+        
+        <div class="flex gap-2 mb-6 max-w-2xl mx-auto w-full">
+            <button onclick="animateLoop('keys')" class="flex-1 py-2 bg-orange-100 text-orange-800 font-bold rounded hover:bg-orange-200 transition text-sm border border-orange-300">Loop Keys</button>
+            <button onclick="animateLoop('values')" class="flex-1 py-2 bg-teal-100 text-teal-800 font-bold rounded hover:bg-teal-200 transition text-sm border border-teal-300">Loop Values</button>
+            <button onclick="animateLoop('items')" class="flex-1 py-2 bg-blue-100 text-blue-800 font-bold rounded hover:bg-blue-200 transition text-sm border border-blue-300">Loop Items</button>
+        </div>
+
+        <div class="flex-grow bg-slate-900 rounded-lg p-6 relative overflow-hidden min-h-[200px]" id="stage">
+            <!-- Initial State -->
+            <div class="flex flex-col items-center justify-center h-full text-slate-500 italic text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                Waiting for selection...
+            </div>
+        </div>
+    </div>
+
+    <!-- Part 3: Practice Gym -->
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg text-sm">Part 3</span>
+        Dictionary Coding Gym
+    </h2>
+
+    <div class="space-y-8">
+        
+        <!-- Practice 1: Items -->
+        <div class="card p-8">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Practice 1: The Display Board</h3>
+            <p class="text-slate-600 mb-4 text-sm">
+                <strong>Goal:</strong> Print every movie with its score. Since we need <strong>both</strong>, we use <code>.items()</code>.
+            </p>
+
+            <div class="code-block text-sm leading-loose">
+                data = {'Avatar': 7.8, 'Titanic': 7.9}<br><br>
+                <span class="text-purple-400">for</span> name, score <span class="text-purple-400">in</span> data.<input type="text" id="p1-input" class="input-code" placeholder="method">():<br>
+                &nbsp;&nbsp;print(name + " has a score of " + str(score))
+            </div>
+            
+            <button onclick="checkPractice1()" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition text-sm">Check Code</button>
+            <div id="p1-feedback" class="mt-2 font-bold h-6 text-sm"></div>
+        </div>
+
+        <!-- Practice 2: Values -->
+        <div class="card p-8">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Practice 2: The Accountant</h3>
+            <p class="text-slate-600 mb-4 text-sm">
+                <strong>Goal:</strong> Calculate the total revenue. We don't care about the movie titles, only the money. Use the method that ignores keys.
+            </p>
+
+            <div class="code-block text-sm leading-loose">
+                revenue = {'Avatar': 200, 'Titanic': 150}<br>
+                total = 0<br><br>
+                <span class="text-purple-400">for</span> money <span class="text-purple-400">in</span> revenue.<input type="text" id="p2-input" class="input-code" placeholder="method">():<br>
+                &nbsp;&nbsp;total = total + money
+            </div>
+            
+            <button onclick="checkPractice2()" class="mt-4 px-6 py-2 bg-teal-600 text-white rounded font-bold hover:bg-teal-700 transition text-sm">Check Code</button>
+            <div id="p2-feedback" class="mt-2 font-bold h-6 text-sm"></div>
+        </div>
+
+        <!-- Practice 3: Filtering Items -->
+        <div class="card p-8">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">Practice 3: The Curator</h3>
+            <p class="text-slate-600 mb-4 text-sm">
+                <strong>Goal:</strong> Loop through everything, but only print movies with a rating higher than 8.0.
+            </p>
+
+            <div class="code-block text-sm leading-loose">
+                reviews = {'Avatar': 7.8, 'Pulp Fiction': 8.9}<br><br>
+                <span class="text-purple-400">for</span> title, rating <span class="text-purple-400">in</span> reviews.items():<br>
+                &nbsp;&nbsp;<span class="text-purple-400">if</span> <input type="text" id="p3-input" class="input-code" placeholder="condition">:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;print(title + " is a masterpiece!")
+            </div>
+            
+            <button onclick="checkPractice3()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition text-sm">Check Code</button>
+            <div id="p3-feedback" class="mt-2 font-bold h-6 text-sm"></div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="mt-8 flex justify-between">
+        <a href="unit3module4.html" class="nav-link text-slate-500 hover:text-slate-800 font-bold px-4 py-3 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Previous
+        </a>
+        <a href="unit3module6.html" class="nav-link bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+            Next: Final Challenge
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <script>
+        function animateLoop(mode) {
+            const stage = document.getElementById('stage');
+            stage.innerHTML = '';
+            
+            const data = [
+                {k: 'Avatar', v: 7.8},
+                {k: 'Titanic', v: 7.9}
+            ];
+
+            let html = '<div class="flex flex-col gap-4 w-full items-center">';
+            
+            data.forEach((item, i) => {
+                html += `<div class="flex items-center gap-4 animate-slide-in w-full max-w-md justify-center" style="animation-delay: ${i * 0.3}s">`;
+                html += `<span class="text-slate-500 font-mono text-xs w-8 text-right">Step ${i+1}:</span>`;
+                
+                if(mode === 'keys') {
+                    // Only Key
+                    html += `
+                        <div class="bg-orange-500 text-white px-4 py-2 rounded shadow-md font-mono text-sm w-32 text-center">
+                            k = '${item.k}'
+                        </div>
+                        <div class="text-xs text-slate-500 italic w-32 text-center opacity-50">(Value ignored)</div>
+                    `;
+                } else if (mode === 'values') {
+                    // Only Value
+                    html += `
+                        <div class="text-xs text-slate-500 italic w-32 text-center opacity-50">(Key ignored)</div>
+                        <div class="bg-teal-500 text-white px-4 py-2 rounded shadow-md font-mono text-sm w-32 text-center">
+                            v = ${item.v}
+                        </div>
+                    `;
+                } else {
+                    // Items
+                    html += `
+                        <div class="bg-orange-500 text-white px-4 py-2 rounded shadow-md font-mono text-sm w-32 text-center">
+                            k = '${item.k}'
+                        </div>
+                        <div class="bg-blue-500 text-white px-4 py-2 rounded shadow-md font-mono text-sm w-32 text-center">
+                            v = ${item.v}
+                        </div>
+                    `;
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            stage.innerHTML = html;
+        }
+
+        // --- PRACTICE CHECKS ---
+
+        function checkPractice1() {
+            const val = document.getElementById('p1-input').value.trim();
+            const feedback = document.getElementById('p1-feedback');
+            
+            if(val === 'items') {
+                feedback.innerHTML = '<span class="text-green-600">🎉 Correct! .items() unpacks both variables.</span>';
+            } else if (val === 'keys') {
+                 feedback.innerHTML = '<span class="text-red-600">❌ Incorrect. .keys() only gives the name.</span>';
+            } else {
+                 feedback.innerHTML = '<span class="text-red-600">❌ Incorrect. Hint: It starts with "i".</span>';
+            }
+        }
+
+        function checkPractice2() {
+            const val = document.getElementById('p2-input').value.trim();
+            const feedback = document.getElementById('p2-feedback');
+            
+            if(val === 'values') {
+                feedback.innerHTML = '<span class="text-green-600">🎉 Correct! .values() grabs the numbers (200, 150) so we can sum them.</span>';
+            } else if (val === 'items') {
+                 feedback.innerHTML = '<span class="text-orange-600">⚠️ Close. .items() gives pairs, but we only have one variable (money) in the loop.</span>';
+            } else {
+                 feedback.innerHTML = '<span class="text-red-600">❌ Incorrect. Hint: We want the values.</span>';
+            }
+        }
+
+        function checkPractice3() {
+            const val = document.getElementById('p3-input').value.replace(/\s/g, '');
+            const feedback = document.getElementById('p3-feedback');
+            
+            if(val === 'rating>8' || val === 'rating>8.0') {
+                feedback.innerHTML = '<span class="text-green-600">🎉 Correct! Only Pulp Fiction (8.9) prints.</span>';
+            } else if (val.includes('reviews')) {
+                 feedback.innerHTML = '<span class="text-red-600">❌ Error. Use the variable "rating", not the whole dictionary.</span>';
+            } else {
+                 feedback.innerHTML = '<span class="text-red-600">❌ Incorrect. Try: rating > 8</span>';
+            }
+        }
+    </script>
+</body>
+</html>

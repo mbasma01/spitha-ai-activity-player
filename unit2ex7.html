@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3 Challenge: The Loop Master</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        /* Table Styles */
+        .dataframe-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .dataframe-table th { background-color: #e2e8f0; text-align: left; padding: 8px; border-bottom: 2px solid #cbd5e1; color: #2d3748; }
+        .dataframe-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+        .dataframe-table tr:nth-child(even) { background-color: #f7fafc; }
+        
+        /* Highlight styles */
+        .highlight-col { background-color: #ebf8ff !important; font-weight: bold; color: #2b6cb0; }
+        
+        /* Flashcard Styles */
+        .flashcard {
+            background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 p-4 shadow-sm z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-purple-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800">The Loop Challenge</h1>
+                    <p class="text-xs text-slate-500 font-medium">UNIT 3 • FINAL BOSS: ATTENDANCE ANALYTICS</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm font-medium text-slate-500">
+                    Step <span id="current-step-display">1</span> of 6
+                </div>
+                <div class="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-purple-500 transition-all duration-500 ease-out" style="width: 15%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden max-w-7xl mx-auto w-full">
+        
+        <!-- Left Panel: Instructions -->
+        <div class="w-1/2 p-6 overflow-y-auto border-r border-slate-200 bg-white flex flex-col">
+            <div id="instruction-card" class="fade-in flex-1 flex flex-col">
+                <!-- Dynamic Content Loads Here -->
+            </div>
+            
+            <!-- Navigation -->
+            <div class="mt-6 pt-6 border-t border-slate-100 flex justify-between items-center">
+                <button onclick="prevStep()" id="prev-btn" class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                    &larr; Previous
+                </button>
+                <div class="flex space-x-3">
+                    <button onclick="revealCode()" id="reveal-btn" class="px-5 py-2.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg font-semibold text-sm transition-colors border border-purple-200">
+                        Reveal Code
+                    </button>
+                    <button onclick="nextStep()" id="next-btn" class="hidden px-5 py-2.5 bg-purple-600 text-white hover:bg-purple-700 rounded-lg font-semibold text-sm transition-transform active:scale-95 shadow-md shadow-purple-200">
+                        Run & Next &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Visualization -->
+        <div class="w-1/2 bg-slate-50 flex flex-col">
+            <div class="p-3 border-b border-slate-200 bg-white flex justify-between items-center">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Data Monitor</h3>
+                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded font-mono">df.head(5)</span>
+            </div>
+            <div class="flex-1 p-6 overflow-auto" id="data-display-area">
+                
+                <!-- DataFrame Table -->
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-6" id="dataframe-container">
+                    <table class="dataframe-table">
+                        <thead id="table-head"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Loop Visualization Area -->
+                <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 shadow-inner h-48 overflow-y-auto">
+                    <div class="flex items-center mb-2 border-b border-slate-700 pb-2 sticky top-0 bg-slate-900">
+                        <span class="text-green-400 mr-2">➜</span> Loop Output Log:
+                    </div>
+                    <div id="console-output" class="space-y-1">
+                        <!-- Dynamic Info -->
+                        <div class="text-gray-500 italic">Waiting for loop execution...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- DATA ---
+        // Mimicking the dataset provided in the user URL
+        function getInitialData() {
+            return [
+                { Student_ID: 1001, Age: 20, Gender: 'Male', Study_Hours: 5.5, Sleep_Hours: 7.0, Attendance: 1 },
+                { Student_ID: 1002, Age: 22, Gender: 'Female', Study_Hours: 2.0, Sleep_Hours: 6.0, Attendance: 0 },
+                { Student_ID: 1003, Age: 21, Gender: 'Male', Study_Hours: 6.0, Sleep_Hours: 8.0, Attendance: 1 },
+                { Student_ID: 1004, Age: 23, Gender: 'Female', Study_Hours: 1.5, Sleep_Hours: 5.0, Attendance: 0 },
+                { Student_ID: 1005, Age: 20, Gender: 'Male', Study_Hours: 7.0, Sleep_Hours: 7.5, Attendance: 1 }
+            ];
+        }
+
+        let currentData = getInitialData();
+        let currentColumns = ['Student_ID', 'Age', 'Gender', 'Study_Hours', 'Sleep_Hours', 'Attendance'];
+        
+        // --- LOGIC FUNCTIONS ---
+        // Simulating Python Loop Logic in JS
+        
+        const LoopActions = {
+            reset: () => {
+                document.getElementById('console-output').innerHTML = '<div class="text-gray-500 italic">Data Loaded Successfully.</div>';
+            },
+            
+            extractToList: () => {
+                let output = "<span class='text-blue-300'># Extracted Lists:</span><br>";
+                output += "study_list = [5.5, 2.0, 6.0, 1.5, 7.0]<br>";
+                output += "sleep_list = [7.0, 6.0, 8.0, 5.0, 7.5]";
+                renderConsole(output);
+            },
+
+            calculateAverage: () => {
+                let total = 0;
+                let count = 0;
+                let log = "";
+                const studies = [5.5, 2.0, 6.0, 1.5, 7.0];
+                
+                studies.forEach((hours, i) => {
+                    total += hours;
+                    count++;
+                    log += `<div>Iter ${i}: hours=${hours}, <span class="text-yellow-400">total=${total}</span></div>`;
+                });
+                
+                let avg = total / count;
+                log += `<br><div class="text-green-400 font-bold">Final Average: ${avg} hours</div>`;
+                renderConsole(log);
+            },
+
+            countLowSleep: () => {
+                let count = 0;
+                let log = "";
+                const sleep = [7.0, 6.0, 8.0, 5.0, 7.5];
+                
+                sleep.forEach((s, i) => {
+                    if(s < 7) {
+                        count++;
+                        log += `<div>Iter ${i}: ${s} < 7? <span class="text-red-400">TRUE</span> (Count: ${count})</div>`;
+                    } else {
+                        log += `<div>Iter ${i}: ${s} < 7? <span class="text-gray-500">False</span></div>`;
+                    }
+                });
+                
+                log += `<br><div class="text-green-400 font-bold">Students with < 7h sleep: ${count}</div>`;
+                renderConsole(log);
+            },
+
+            cleanGender: () => {
+                let log = "";
+                const raw = ['Male', 'Female', 'Male', 'Female', 'Male'];
+                const cleaned = [];
+                
+                raw.forEach((g, i) => {
+                    let upper = g.toUpperCase();
+                    cleaned.push(upper);
+                    log += `<div>Iter ${i}: "${g}" &rarr; <span class="text-purple-400">"${upper}"</span></div>`;
+                });
+                
+                // Update Table Data visually
+                currentData.forEach((row, i) => row.Gender = cleaned[i]);
+                renderTable('Gender');
+                renderConsole(log);
+            },
+
+            findFirstAtRisk: () => {
+                let log = "";
+                const attendance = [1, 0, 1, 0, 1]; // 1=Pass, 0=Fail
+                const ids = [1001, 1002, 1003, 1004, 1005];
+                
+                for(let i=0; i<attendance.length; i++) {
+                    if(attendance[i] === 0) {
+                        log += `<div>Iter ${i}: ID ${ids[i]} has Attendance 0. <span class="text-red-500 font-bold">FOUND!</span></div>`;
+                        log += `<div class="text-yellow-300">>> BREAK triggered. Loop stopped.</div>`;
+                        break;
+                    } else {
+                        log += `<div>Iter ${i}: ID ${ids[i]} is safe.</div>`;
+                    }
+                }
+                renderConsole(log);
+            }
+        };
+
+        // --- STEPS CONFIGURATION ---
+        const steps = [
+            {
+                title: "1. Load Data",
+                flashcard: {
+                    title: "The Dataset",
+                    content: "We have loaded the <code>Attendance_Prediction.csv</code>. <br>It contains Student IDs, Age, Study Hours, and Attendance records."
+                },
+                instruction: "First, let's load the data. In a real script, we would define the URL and read it.",
+                task: "Execute the code to load the dataframe.",
+                code: "import pandas as pd\n\nurl = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/Attendance_Prediction.csv'\ndf = pd.read_csv(url)\n\ndf.head()",
+                explanation: "The data is loaded into a DataFrame variable named <code>df</code>.",
+                action: () => { 
+                    renderTable();
+                    LoopActions.reset();
+                }
+            },
+            {
+                title: "2. The Extraction",
+                flashcard: {
+                    title: "Preparation",
+                    content: "To practice loops, we will extract specific columns into Python <strong>Lists</strong>.<br><code>study_list = df['Study_Hours'].tolist()</code>"
+                },
+                instruction: "We want to analyze 'Study_Hours' and 'Sleep_Hours' manually. Let's pull them out of the DataFrame into lists.",
+                task: "Create two lists: <code>study_list</code> and <code>sleep_list</code>.",
+                code: "# Extract columns to lists\nstudy_list = df['Study_Hours'].tolist()\nsleep_list = df['Sleep_Hours'].tolist()\n\nprint(study_list)",
+                explanation: "Now we have raw lists: <code>[5.5, 2.0, ...]</code> ready for iteration.",
+                action: () => {
+                    renderTable();
+                    LoopActions.extractToList();
+                }
+            },
+            {
+                title: "3. The Accumulator (Sum/Avg)",
+                flashcard: {
+                    title: "Pattern: Accumulator",
+                    content: "1. Initialize a variable (<code>total = 0</code>)<br>2. Loop through the list.<br>3. Add current item to total."
+                },
+                instruction: "Calculate the <strong>Average Study Hours</strong> using a `for` loop.",
+                task: "Write a loop to sum the hours, then divide by the length.",
+                code: "total_hours = 0\n\nfor hours in study_list:\n    total_hours = total_hours + hours\n\naverage = total_hours / len(study_list)\nprint(average)",
+                explanation: "The loop visits every student. The variable <code>total_hours</code> accumulates the sum.",
+                action: () => {
+                    renderTable('Study_Hours');
+                    LoopActions.calculateAverage();
+                }
+            },
+            {
+                title: "4. The Counter (Conditionals)",
+                flashcard: {
+                    title: "Pattern: Counter",
+                    content: "Combine a Loop with an <code>if</code> statement. <br>Only increment the counter variable when the condition is True."
+                },
+                instruction: "We are worried about students getting too little sleep. Count how many get <strong>less than 7 hours</strong>.",
+                task: "Loop through <code>sleep_list</code> and count values < 7.",
+                code: "low_sleep_count = 0\n\nfor s in sleep_list:\n    if s < 7:\n        low_sleep_count += 1\n\nprint(low_sleep_count)",
+                explanation: "The loop checks every item. The `if` acts as a gatekeeper for the counter.",
+                action: () => {
+                    renderTable('Sleep_Hours');
+                    LoopActions.countLowSleep();
+                }
+            },
+            {
+                title: "5. String Cleaning Loop",
+                flashcard: {
+                    title: "Data Cleaning",
+                    content: "Loops are often used to clean text data item by item before analysis."
+                },
+                instruction: "The 'Gender' column might have mixed casing. Let's use a loop to convert everything to <strong>UPPERCASE</strong>.",
+                task: "Loop through the gender list, capitalize each item, and store it.",
+                code: "clean_gender = []\n\nfor g in df['Gender']:\n    clean_gender.append(g.upper())\n\n# Assign back to DataFrame\ndf['Gender'] = clean_gender\ndf.head()",
+                explanation: "We build a new list `clean_gender` item by item, applying `.upper()` to each string.",
+                action: () => {
+                    LoopActions.cleanGender();
+                }
+            },
+            {
+                title: "6. The Search (Break)",
+                flashcard: {
+                    title: "Keyword: Break",
+                    content: "<code>break</code> stops the loop immediately. Useful when searching for a single item."
+                },
+                instruction: "Find the <strong>First Student ID</strong> who has an Attendance of 0 (Absent/Fail). Stop searching once you find them.",
+                task: "Loop through rows (using zip or index) and break on first 0.",
+                code: "ids = df['Student_ID'].tolist()\natt = df['Attendance'].tolist()\n\nfor i in range(len(ids)):\n    if att[i] == 0:\n        print(\"At Risk: \" + str(ids[i]))\n        break",
+                explanation: "We used `break` to stop efficiently. Once we found ID 1002, we didn't need to check the rest.",
+                action: () => {
+                    renderTable('Attendance');
+                    LoopActions.findFirstAtRisk();
+                }
+            }
+        ];
+
+        // --- APP LOGIC ---
+        let currentStep = 0;
+        let isCodeRevealed = false;
+
+        const instructionCard = document.getElementById('instruction-card');
+        const progressBar = document.getElementById('progress-bar');
+        const currentStepDisplay = document.getElementById('current-step-display');
+        const revealBtn = document.getElementById('reveal-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const tableHead = document.getElementById('table-head');
+        const tableBody = document.getElementById('table-body');
+        const consoleOutput = document.getElementById('console-output');
+
+        function init() {
+            renderContent();
+            steps[0].action(); 
+        }
+
+        function renderContent() {
+            const step = steps[currentStep];
+            
+            // Update Header
+            currentStepDisplay.innerText = currentStep + 1;
+            const progress = ((currentStep + 1) / steps.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Render Flashcard
+            const flashcardHtml = step.flashcard ? `
+                <div class="flashcard rounded-lg p-4 mb-6 shadow-sm relative overflow-hidden group">
+                    <h3 class="text-amber-800 font-bold text-xs uppercase tracking-wide mb-2">Concept: ${step.flashcard.title}</h3>
+                    <p class="text-amber-900 text-sm relative z-10 leading-relaxed">${step.flashcard.content}</p>
+                </div>
+            ` : '';
+            
+            // Render Instructions
+            instructionCard.innerHTML = `
+                <div class="mb-4">
+                    <span class="inline-block px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded uppercase tracking-wide">Step ${currentStep + 1}</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">${step.title}</h2>
+                </div>
+                ${flashcardHtml}
+                <div class="prose prose-slate text-sm text-slate-600 mb-6 flex-grow">
+                    <p class="mb-4 text-base">${step.instruction}</p>
+                    <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-4">
+                        <p class="font-bold text-purple-800 text-xs uppercase mb-1">Your Task</p>
+                        <p class="font-medium text-purple-900">${step.task}</p>
+                    </div>
+                </div>
+                
+                <!-- Code Section -->
+                <div id="code-section" class="relative rounded-lg overflow-hidden bg-slate-900 shadow-lg transition-all duration-300 ${isCodeRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 hidden'}">
+                    <div class="flex justify-between items-center px-4 py-2 bg-slate-800 border-b border-slate-700">
+                        <span class="text-xs font-mono text-slate-400">solution.py</span>
+                        <button onclick="copyToClipboard()" class="text-xs text-slate-400 hover:text-white transition-colors">Copy</button>
+                    </div>
+                    <pre class="m-0 p-4 text-sm font-mono text-slate-300 overflow-x-auto"><code class="language-python">${step.code}</code></pre>
+                    <div class="px-4 py-3 bg-purple-900/30 border-t border-slate-700">
+                        <p class="text-xs text-purple-200"><strong>Analysis:</strong> ${step.explanation}</p>
+                    </div>
+                </div>
+            `;
+
+            if (isCodeRevealed) hljs.highlightAll();
+
+            // Button States
+            prevBtn.disabled = currentStep === 0;
+            if (isCodeRevealed) {
+                revealBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+            } else {
+                revealBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function renderTable(highlightColName = null) {
+            let headersHtml = '<tr>';
+            currentColumns.forEach(col => {
+                const isHighlighted = col === highlightColName ? 'highlight-col' : '';
+                headersHtml += `<th class="${isHighlighted}">${col}</th>`;
+            });
+            headersHtml += '</tr>';
+            tableHead.innerHTML = headersHtml;
+
+            let rowsHtml = '';
+            currentData.forEach(row => {
+                rowsHtml += '<tr>';
+                currentColumns.forEach(col => {
+                    let val = row[col];
+                    const isHighlighted = col === highlightColName ? 'highlight-col' : '';
+                    rowsHtml += `<td class="${isHighlighted}">${val}</td>`;
+                });
+                rowsHtml += '</tr>';
+            });
+            tableBody.innerHTML = rowsHtml;
+        }
+
+        function renderConsole(htmlText) {
+            consoleOutput.innerHTML = htmlText;
+        }
+
+        // --- ACTIONS ---
+        function revealCode() {
+            isCodeRevealed = true;
+            renderContent();
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                isCodeRevealed = false;
+                steps[currentStep].action(); 
+                renderContent();
+            } else {
+                alert("Challenge Complete! You have mastered loops.");
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                isCodeRevealed = false;
+                steps[currentStep].action();
+                renderContent();
+            }
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(steps[currentStep].code);
+            alert("Code copied!");
+        }
+
+        init();
+    </script>
+</body>
+</html>

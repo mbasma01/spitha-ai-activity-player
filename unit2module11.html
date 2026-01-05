@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. The Concept: The Loop Robot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .code-block { background-color: #1e293b; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; padding: 1rem; border-radius: 8px; }
+        .nav-link { text-decoration: none; color: inherit; }
+
+        /* Animation specific styles */
+        .conveyor-belt {
+            display: flex;
+            gap: 15px;
+            padding: 30px;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 4px solid #94a3b8;
+        }
+        .data-item {
+            width: 70px;
+            height: 70px;
+            background-color: #fff;
+            border: 3px solid #cbd5e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #475569;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 10;
+        }
+        .data-item.active {
+            border-color: #f59e0b;
+            background-color: #fef3c7;
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            color: #b45309;
+        }
+        .data-item.processed {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            color: #047857;
+            opacity: 0.6;
+        }
+        
+        .variable-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f59e0b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .data-item.active .variable-label { opacity: 1; }
+
+        /* Bug Hunt Styles */
+        .bug-btn { transition: all 0.2s; }
+        .bug-btn:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-8">
+
+        <h1 class="text-3xl font-bold text-slate-900 mb-4">The Concept: The Assembly Line</h1>
+        <p class="text-slate-600 text-lg">
+            A <code>for</code> loop is simply a machine that visits every item in a container, one by one.
+            It gives each item a <strong>Variable Nickname</strong> (like "score" or "movie") while it holds it.
+        </p>
+    </header>
+
+    <!-- Syntax Breakdown -->
+    <div class="card p-6 mb-8 bg-slate-900 text-white flex flex-col items-center">
+        <div class="font-mono text-xl md:text-2xl tracking-wide text-left">
+            <div>
+                <span class="text-purple-400">for</span> 
+                <span class="text-yellow-400 font-bold relative group cursor-help border-b border-dashed border-slate-600">
+                    score
+                    <span class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-xs bg-slate-700 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">The Variable (Nickname)</span>
+                </span> 
+                <span class="text-purple-400">in</span> 
+                <span class="text-blue-400 font-bold relative group cursor-help border-b border-dashed border-slate-600">
+                    ratings
+                    <span class="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-xs bg-slate-700 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">The Container (List)</span>
+                </span>:
+            </div>
+            <div class="pl-8 md:pl-12 mt-2">
+                <span class="text-blue-300">print</span>(score * <span class="text-green-400">10</span>)
+            </div>
+        </div>
+    </div>
+
+    <!-- The Visualizer -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+        
+        <!-- Controls & Explanation -->
+        <div class="card p-6 lg:col-span-1 flex flex-col justify-between">
+            <div>
+                <h3 class="font-bold text-slate-800 mb-4 text-xl">Robot Controls</h3>
+                <p class="text-slate-600 mb-6 text-sm">
+                    Click <strong>Step</strong> to move the robot arm. Watch how the variable <code>score</code> changes value perfectly every time.
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm border-b pb-2">
+                        <span class="text-slate-500">Step 1: Pick up item</span>
+                        <span id="indicator-1" class="w-3 h-3 rounded-full bg-slate-200"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm border-b pb-2">
+                        <span class="text-slate-500">Step 2: Assign nickname</span>
+                        <span id="indicator-2" class="w-3 h-3 rounded-full bg-slate-200"></span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-500">Step 3: Execute Code</span>
+                        <span id="indicator-3" class="w-3 h-3 rounded-full bg-slate-200"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-8">
+                <button onclick="resetRobot()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded font-bold transition">Reset</button>
+                <button id="step-btn" onclick="stepRobot()" class="flex-grow px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold shadow-md transition flex justify-center items-center gap-2">
+                    Step Loop
+                </button>
+            </div>
+        </div>
+
+        <!-- Animation Stage -->
+        <div class="card p-6 lg:col-span-2 bg-slate-50 relative overflow-hidden">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Visualization Stage</h4>
+            
+            <div class="conveyor-belt mb-8">
+                <!-- Items generated by JS -->
+                <div id="items-wrapper" class="flex gap-4">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Variable Box -->
+                <div class="bg-white border-2 border-yellow-400 rounded-lg p-4 shadow-sm text-center">
+                    <h5 class="text-xs text-yellow-600 font-bold uppercase mb-1">Current Variable Value</h5>
+                    <div class="text-3xl font-mono text-slate-800">
+                        score = <span id="var-display" class="font-bold text-yellow-600">-</span>
+                    </div>
+                </div>
+                
+                <!-- Output Box -->
+                <div class="bg-black rounded-lg p-4 font-mono text-sm text-green-400 shadow-inner h-24 overflow-y-auto" id="console-output">
+                    > Waiting for start...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW SECTION: THE SYNTAX ZOO -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-sm">Part 2</span>
+            The Syntax Zoo
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Card 1: Range -->
+            <div class="card p-6 border-t-4 border-indigo-500">
+                <h3 class="font-bold text-lg mb-2 text-indigo-900">1. The Counter</h3>
+                <p class="text-sm text-slate-600 mb-4">Often we just need to count numbers, not items. We use <code>range()</code>.</p>
+                <div class="code-block text-xs mb-3">
+                    <span class="text-purple-400">for</span> i <span class="text-purple-400">in</span> range(3):<br>
+                    &nbsp;&nbsp;print(i)
+                </div>
+                <div class="bg-slate-100 p-2 rounded text-xs font-mono text-slate-600">
+                    > 0<br>> 1<br>> 2
+                </div>
+            </div>
+
+            <!-- Card 2: Strings -->
+            <div class="card p-6 border-t-4 border-pink-500">
+                <h3 class="font-bold text-lg mb-2 text-pink-900">2. The Speller</h3>
+                <p class="text-sm text-slate-600 mb-4">A String is just a list of characters. You can loop over it!</p>
+                <div class="code-block text-xs mb-3">
+                    <span class="text-purple-400">for</span> char <span class="text-purple-400">in</span> "Data":<br>
+                    &nbsp;&nbsp;print(char)
+                </div>
+                <div class="bg-slate-100 p-2 rounded text-xs font-mono text-slate-600">
+                    > D<br>> a<br>> t<br>> a
+                </div>
+            </div>
+
+            <!-- Card 3: Naming -->
+            <div class="card p-6 border-t-4 border-teal-500">
+                <h3 class="font-bold text-lg mb-2 text-teal-900">3. Naming Rules</h3>
+                <p class="text-sm text-slate-600 mb-4">The nickname (variable) can be anything, but make it meaningful.</p>
+                <div class="space-y-2 text-xs">
+                    <div class="bg-red-50 text-red-700 p-2 rounded border border-red-200">
+                        ❌ <code>for x in y:</code><br>Too vague. Confusing.
+                    </div>
+                    <div class="bg-green-50 text-green-700 p-2 rounded border border-green-200">
+                        ✅ <code>for student in students:</code><br>Clear. Singular vs Plural.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW SECTION: BUG HUNTER -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span class="bg-red-100 text-red-600 p-2 rounded-lg text-sm">Part 3</span>
+            The Bug Hunter
+        </h2>
+        <p class="text-slate-600 mb-6">These are the 3 most common mistakes beginners make. Click on the code snippet that contains the bug described.</p>
+
+        <div class="space-y-6">
+            
+            <!-- Bug 1: Indentation -->
+            <div class="card p-6">
+                <h3 class="font-bold text-slate-800 mb-2">Bug 1: The "Falling Out" (Indentation)</h3>
+                <p class="text-sm text-slate-600 mb-4">We want to print "Hello" 3 times. Which code fails because the print statement is <strong>outside</strong> the loop?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="checkBug(this, false, 'Correct! The print is indented, so it is INSIDE the loop.')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-green-500 border-2 border-transparent">
+                        for i in range(3):<br>
+                        &nbsp;&nbsp;print("Hello")
+                    </button>
+                    <button onclick="checkBug(this, true, 'Correct! The print is NOT indented. It waits for the loop to finish, then prints Hello once.')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-red-500 border-2 border-transparent">
+                        for i in range(3):<br>
+                        &nbsp;&nbsp;# Do nothing<br>
+                        print("Hello")
+                    </button>
+                </div>
+                <div class="bug-feedback mt-2 text-sm font-bold h-6"></div>
+            </div>
+
+            <!-- Bug 2: Missing Colon -->
+            <div class="card p-6">
+                <h3 class="font-bold text-slate-800 mb-2">Bug 2: The Gatekeeper (Syntax)</h3>
+                <p class="text-sm text-slate-600 mb-4">Python requires a <code>:</code> to start a code block. Which one crashes?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="checkBug(this, true, 'Correct! SyntaxError: invalid syntax. You forgot the colon!')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-red-500 border-2 border-transparent">
+                        for x in [1, 2, 3]<br>
+                        &nbsp;&nbsp;print(x)
+                    </button>
+                    <button onclick="checkBug(this, false, 'This code is correct. It has the colon.')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-green-500 border-2 border-transparent">
+                        for x in [1, 2, 3]:<br>
+                        &nbsp;&nbsp;print(x)
+                    </button>
+                </div>
+                <div class="bug-feedback mt-2 text-sm font-bold h-6"></div>
+            </div>
+
+            <!-- Bug 3: Logic Error -->
+            <div class="card p-6">
+                <h3 class="font-bold text-slate-800 mb-2">Bug 3: The Identity Crisis (Naming)</h3>
+                <p class="text-sm text-slate-600 mb-4">We want to print each individual movie. Which code accidentally prints the <strong>entire list</strong> over and over?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="checkBug(this, false, 'This is correct. We print the variable `movie` (singular).')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-green-500 border-2 border-transparent">
+                        movies = ['A', 'B', 'C']<br>
+                        for movie in movies:<br>
+                        &nbsp;&nbsp;print(movie)
+                    </button>
+                    <button onclick="checkBug(this, true, 'Correct! You looped through `movies`, but you printed `movies` (the whole list). You ignored the individual variable `movie`!')" class="bug-btn text-left code-block text-xs cursor-pointer hover:border-red-500 border-2 border-transparent">
+                        movies = ['A', 'B', 'C']<br>
+                        for movie in movies:<br>
+                        &nbsp;&nbsp;print(movies)
+                    </button>
+                </div>
+                <div class="bug-feedback mt-2 text-sm font-bold h-6"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="mt-8 flex justify-between">
+        <a href="unit3module2.html" class="nav-link text-slate-500 hover:text-slate-800 font-bold px-4 py-3 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Previous
+        </a>
+        <a href="unit3module4.html" class="nav-link bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+            Next: Looping Lists
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <script>
+        // --- ROBOT VISUALIZER LOGIC ---
+        const data = [7.8, 8.3, 7.9, 8.9];
+        let currentIndex = -1;
+        const wrapper = document.getElementById('items-wrapper');
+        const varDisplay = document.getElementById('var-display');
+        const consoleOut = document.getElementById('console-output');
+
+        // Init
+        data.forEach((val, i) => {
+            const el = document.createElement('div');
+            el.className = 'data-item';
+            el.innerHTML = `${val} <span class="variable-label">score</span>`;
+            el.id = `item-${i}`;
+            wrapper.appendChild(el);
+        });
+
+        function stepRobot() {
+            if(currentIndex >= data.length - 1) return;
+
+            currentIndex++;
+            const val = data[currentIndex];
+            
+            // 1. Highlight Item
+            document.querySelectorAll('.data-item').forEach(el => el.classList.remove('active'));
+            const currentEl = document.getElementById(`item-${currentIndex}`);
+            currentEl.classList.add('active');
+            
+            // Mark previous as processed
+            if(currentIndex > 0) {
+                document.getElementById(`item-${currentIndex-1}`).classList.add('processed');
+            }
+
+            // 2. Update Variable Display
+            varDisplay.innerText = val;
+
+            // 3. Update Console
+            const result = (val * 10).toFixed(1);
+            consoleOut.innerHTML += `<br>> print(${val} * 10) -> <strong>${result}</strong>`;
+            consoleOut.scrollTop = consoleOut.scrollHeight;
+
+            // Update Indicators (Simulated visual feedback)
+            flashIndicator('indicator-1');
+            setTimeout(() => flashIndicator('indicator-2'), 200);
+            setTimeout(() => flashIndicator('indicator-3'), 400);
+
+            if(currentIndex === data.length - 1) {
+                document.getElementById('step-btn').innerText = "Done";
+                document.getElementById('step-btn').disabled = true;
+                document.getElementById('step-btn').classList.add('opacity-50');
+            }
+        }
+
+        function flashIndicator(id) {
+            const el = document.getElementById(id);
+            el.classList.add('bg-green-500');
+            setTimeout(() => el.classList.remove('bg-green-500'), 300);
+        }
+
+        function resetRobot() {
+            currentIndex = -1;
+            document.querySelectorAll('.data-item').forEach(el => el.classList.remove('active', 'processed'));
+            varDisplay.innerText = "-";
+            consoleOut.innerHTML = "> Resetting...";
+            const btn = document.getElementById('step-btn');
+            btn.innerText = "Step Loop";
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+        }
+
+        // --- BUG HUNT LOGIC ---
+        function checkBug(btn, isCorrect, msg) {
+            const feedbackEl = btn.parentElement.nextElementSibling;
+            
+            // Reset siblings
+            btn.parentElement.querySelectorAll('.bug-btn').forEach(b => {
+                b.classList.remove('border-green-500', 'border-red-500', 'bg-green-50', 'bg-red-50', 'text-green-900', 'text-red-900');
+                b.classList.add('border-transparent');
+            });
+
+            if (isCorrect) {
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-green-500', 'bg-green-50', 'text-green-900');
+                feedbackEl.innerHTML = `<span class="text-green-600">${msg}</span>`;
+            } else {
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-red-500', 'bg-red-50', 'text-red-900');
+                feedbackEl.innerHTML = `<span class="text-red-600">Incorrect. ${msg}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

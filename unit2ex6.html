@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. Practice: Looping Lists & While Loops</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .code-block { background-color: #1e293b; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; padding: 1rem; border-radius: 8px; }
+        .nav-link { text-decoration: none; color: inherit; }
+        .input-code { background: transparent; border: none; border-bottom: 2px solid #64748b; color: #facc15; font-family: inherit; text-align: center; width: 80px; }
+        .input-code:focus { outline: none; border-bottom-color: #facc15; }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-4">Practice: The Coding Gym</h1>
+        <p class="text-slate-600 text-lg">
+            This module is your practice arena. We will start with <strong>For Loops</strong> (Looping Lists) and finish with <strong>While Loops</strong>.
+        </p>
+    </header>
+
+    <!-- Part 1: Basic Loop -->
+    <div class="card p-6 md:p-8 mb-8">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span>
+            The Ticket Printer (For Loop)
+        </h2>
+        <p class="mb-6 text-slate-600">
+            <strong>Goal:</strong> Write a loop that prints "Admit One: [Movie Name]" for every movie in the list.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Code Editor -->
+            <div class="code-block text-sm md:text-base leading-loose">
+                <span class="text-gray-400"># Our List</span><br>
+                movies = ['Avatar', 'Titanic', 'Dune']<br><br>
+                
+                <span class="text-gray-400"># The Loop</span><br>
+                <span class="text-purple-400">for</span> <input type="text" id="var-input" class="input-code" placeholder="variable"> <span class="text-purple-400">in</span> movies:<br>
+                &nbsp;&nbsp;print(<span class="text-green-300">"Admit One: "</span> + <input type="text" id="print-input" class="input-code" placeholder="variable">)
+            </div>
+
+            <!-- Output Console -->
+            <div class="bg-black rounded-lg p-4 font-mono text-sm text-green-400 shadow-inner flex flex-col">
+                <div class="flex-grow" id="ticket-output">
+                    > Click run to start...
+                </div>
+                <button onclick="runTicketPrinter()" class="mt-4 w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold transition">Run Code</button>
+            </div>
+        </div>
+        <div id="ticket-feedback" class="mt-4 font-bold h-6"></div>
+    </div>
+
+    <!-- Part 2: Filtering -->
+    <div class="card p-6 md:p-8 mb-8">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span>
+            The Critic (Filtering)
+        </h2>
+        <p class="mb-6 text-slate-600">
+            <strong>Goal:</strong> Loops become powerful when we add logic. Only print ratings that are <strong>greater than 8.0</strong>.
+        </p>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <p class="text-sm text-blue-900">
+                <strong>Tip:</strong> We put an <code>if</code> statement <em>inside</em> the loop. 
+                The loop picks up every item, but the <code>if</code> statement acts like a bouncer—it only lets some items through to the <code>print()</code> function.
+            </p>
+        </div>
+
+        <div class="code-block text-sm md:text-base leading-loose">
+            ratings = [7.8, 8.3, 7.9, 8.9]<br><br>
+            <span class="text-purple-400">for</span> r <span class="text-purple-400">in</span> ratings:<br>
+            &nbsp;&nbsp;<span class="text-purple-400">if</span> <input type="text" id="filter-input" class="input-code w-32" placeholder="condition">: <span class="text-gray-500"># e.g. r > 5</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print(r)
+        </div>
+        
+        <button onclick="runFilter()" class="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold transition">Check Filter Logic</button>
+        <div id="filter-feedback" class="mt-4 font-bold h-6"></div>
+    </div>
+
+    <!-- Part 3: String Methods -->
+    <div class="card p-6 md:p-8 mb-8">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="bg-pink-100 text-pink-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span>
+            The Loudspeaker
+        </h2>
+        <p class="mb-6 text-slate-600">
+            <strong>Goal:</strong> Often data comes in messy formats. Use the <code>.upper()</code> method to shout every name in the guest list.
+        </p>
+
+        <div class="code-block text-sm md:text-base leading-loose">
+            guests = ['Alice', 'Bob', 'Charlie']<br><br>
+            <span class="text-purple-400">for</span> g <span class="text-purple-400">in</span> guests:<br>
+            &nbsp;&nbsp;<span class="text-gray-400"># Convert variable 'g' to uppercase</span><br>
+            &nbsp;&nbsp;shout = g.<input type="text" id="upper-input" class="input-code w-32" placeholder="method">()<br>
+            &nbsp;&nbsp;print(shout)
+        </div>
+        
+        <button onclick="runLoudspeaker()" class="mt-4 px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded font-bold transition">Run Loudspeaker</button>
+        <div id="upper-feedback" class="mt-4 font-bold h-6"></div>
+    </div>
+
+    <!-- Part 4: Math Operations -->
+    <div class="card p-6 md:p-8 mb-8">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="bg-teal-100 text-teal-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span>
+            The Discount Bot
+        </h2>
+        <p class="mb-6 text-slate-600">
+            <strong>Goal:</strong> Everything is 50% off! Loop through the prices and multiply each one by 0.5.
+        </p>
+
+        <div class="code-block text-sm md:text-base leading-loose">
+            prices = [10, 20, 30]<br><br>
+            <span class="text-purple-400">for</span> p <span class="text-purple-400">in</span> prices:<br>
+            &nbsp;&nbsp;new_price = p <input type="text" id="math-input" class="input-code w-12" placeholder="op"> 0.5<br>
+            &nbsp;&nbsp;print(new_price)
+        </div>
+        
+        <button onclick="runDiscount()" class="mt-4 px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold transition">Calculate Discounts</button>
+        <div id="math-feedback" class="mt-4 font-bold h-6"></div>
+    </div>
+
+    <!-- Part 5: Break Statement -->
+    <div class="card p-6 md:p-8 mb-8">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span class="bg-red-100 text-red-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span>
+            The Emergency Stop
+        </h2>
+        <p class="mb-6 text-slate-600">
+            <strong>Goal:</strong> Sometimes you need to stop the loop early. Use the <code>break</code> keyword to stop when you encounter "Stop".
+        </p>
+
+        <div class="code-block text-sm md:text-base leading-loose">
+            commands = ['Go', 'Go', 'Stop', 'Go']<br><br>
+            <span class="text-purple-400">for</span> c <span class="text-purple-400">in</span> commands:<br>
+            &nbsp;&nbsp;<span class="text-purple-400">if</span> c == <span class="text-green-300">'Stop'</span>:<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="break-input" class="input-code w-32" placeholder="keyword"><br>
+            &nbsp;&nbsp;print(c)
+        </div>
+        
+        <button onclick="runBreak()" class="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold transition">Run Emergency System</button>
+        <div id="break-feedback" class="mt-4 font-bold h-6"></div>
+    </div>
+
+    <!-- Part 6: While Loop Practice -->
+    <div class="border-t-2 border-slate-200 pt-10 mt-10">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span class="bg-slate-100 text-slate-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">6</span>
+            While Loop Practice Gym
+        </h2>
+        <p class="text-slate-600 mb-6">Test your reflexes on <strong>While Loops</strong> (loops that run based on a condition, not a list).</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Gym 1: The Charger -->
+            <div class="card p-6 border-blue-200 bg-white">
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">Gym 1: The Charger</span>
+                <h3 class="text-lg font-bold text-slate-800 mt-2 mb-2">Charge to 100%</h3>
+                <div class="code-block bg-slate-800 text-slate-100 text-xs mb-4">
+                    charge = 10<br><br>
+                    <input type="text" id="gym1-kw" class="input-code w-12" placeholder="???"> charge <input type="text" id="gym1-op" class="input-code w-8" placeholder="?"> 100:<br>
+                    &nbsp;&nbsp;charge = charge + 10<br>
+                    &nbsp;&nbsp;print("Charging...")
+                </div>
+                <button onclick="checkGym1()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded text-xs transition">Check Code</button>
+                <div id="gym1-feedback" class="mt-2 text-xs font-bold h-4 text-center"></div>
+            </div>
+
+            <!-- Gym 2: The Gatekeeper -->
+            <div class="card p-6 border-purple-200 bg-white">
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded uppercase">Gym 2: The Gatekeeper</span>
+                <h3 class="text-lg font-bold text-slate-800 mt-2 mb-2">Wrong Password?</h3>
+                <div class="code-block bg-slate-800 text-slate-100 text-xs mb-4">
+                    guess = "wrong"<br><br>
+                    while guess <input type="text" id="gym2-op" class="input-code w-10" placeholder="??"> "password":<br>
+                    &nbsp;&nbsp;guess = input("Try again")<br>
+                    print("Access Granted")
+                </div>
+                <button onclick="checkGym2()" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded text-xs transition">Check Code</button>
+                <div id="gym2-feedback" class="mt-2 text-xs font-bold h-4 text-center"></div>
+            </div>
+
+            <!-- Gym 3: The Countdown -->
+            <div class="card p-6 border-red-200 bg-white">
+                <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Gym 3: The Countdown</span>
+                <h3 class="text-lg font-bold text-slate-800 mt-2 mb-2">Avoid Infinite Loops</h3>
+                <div class="code-block bg-slate-800 text-slate-100 text-xs mb-4">
+                    timer = 10<br>
+                    while timer > 0:<br>
+                    &nbsp;&nbsp;print(timer)<br>
+                    &nbsp;&nbsp;timer = timer <input type="text" id="gym3-op" class="input-code w-10" placeholder="???">
+                </div>
+                <button onclick="checkGym3()" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs transition">Check Code</button>
+                <div id="gym3-feedback" class="mt-2 text-xs font-bold h-4 text-center"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="mt-8 flex justify-between">
+        <a href="unit3module3.html" class="nav-link text-slate-500 hover:text-slate-800 font-bold px-4 py-3 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Previous
+        </a>
+        <a href="unit3module5.html" class="nav-link bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+            Next: Looping Dictionaries
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <script>
+        function runTicketPrinter() {
+            const varName = document.getElementById('var-input').value.trim();
+            const printVar = document.getElementById('print-input').value.trim();
+            const consoleEl = document.getElementById('ticket-output');
+            const feedback = document.getElementById('ticket-feedback');
+
+            consoleEl.innerHTML = '';
+            feedback.innerText = '';
+            feedback.className = 'mt-4 font-bold h-6';
+
+            if(!varName || !printVar) {
+                feedback.innerText = "❌ Please fill in the variable names.";
+                feedback.classList.add('text-red-500');
+                return;
+            }
+
+            if(varName !== printVar) {
+                feedback.innerHTML = `❌ NameError: You named the variable <code>${varName}</code> but tried to print <code>${printVar}</code>.`;
+                feedback.classList.add('text-red-500');
+                return;
+            }
+
+            // Success
+            const movies = ['Avatar', 'Titanic', 'Dune'];
+            movies.forEach(m => {
+                consoleEl.innerHTML += `Admit One: ${m}<br>`;
+            });
+            feedback.innerText = "🎉 Success! The loop ran 3 times.";
+            feedback.classList.add('text-green-600');
+        }
+
+        function runFilter() {
+            const input = document.getElementById('filter-input').value.replace(/\s+/g, '');
+            const feedback = document.getElementById('filter-feedback');
+            
+            if(input === 'r>8' || input === 'r>8.0') {
+                feedback.innerText = "🎉 Correct! This prints 8.3 and 8.9.";
+                feedback.className = "mt-4 font-bold h-6 text-green-600";
+            } else if (input.includes('ratings')) {
+                feedback.innerText = "❌ Logic Error: Use the variable 'r', not the whole list 'ratings'.";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            } else {
+                feedback.innerText = "❌ Incorrect. Try: r > 8";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            }
+        }
+
+        function runLoudspeaker() {
+            const input = document.getElementById('upper-input').value.trim().toLowerCase();
+            const feedback = document.getElementById('upper-feedback');
+
+            if(input === 'upper') {
+                feedback.innerText = "🎉 Correct! Output: ALICE, BOB, CHARLIE";
+                feedback.className = "mt-4 font-bold h-6 text-green-600";
+            } else {
+                feedback.innerText = "❌ Incorrect. Try the method that makes text UPPERCASE.";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            }
+        }
+
+        function runDiscount() {
+            const input = document.getElementById('math-input').value.trim();
+            const feedback = document.getElementById('math-feedback');
+
+            if(input === '*') {
+                feedback.innerText = "🎉 Correct! Output: 5.0, 10.0, 15.0";
+                feedback.className = "mt-4 font-bold h-6 text-green-600";
+            } else if (input === '/') {
+                feedback.innerText = "❌ Dividing by 0.5 doubles the price! We want to multiply.";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            } else {
+                feedback.innerText = "❌ Incorrect. Use the asterisk (*) for multiplication.";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            }
+        }
+
+        function runBreak() {
+            const input = document.getElementById('break-input').value.trim().toLowerCase();
+            const feedback = document.getElementById('break-feedback');
+
+            if(input === 'break') {
+                feedback.innerText = "🎉 Correct! The loop stops before the last 'Go'.";
+                feedback.className = "mt-4 font-bold h-6 text-green-600";
+            } else {
+                feedback.innerText = "❌ Incorrect. The keyword to stop a loop immediately is 'break'.";
+                feedback.className = "mt-4 font-bold h-6 text-red-600";
+            }
+        }
+
+        // --- WHILE LOOP GYM LOGIC ---
+        function checkGym1() {
+            const kw = document.getElementById('gym1-kw').value.trim().toLowerCase();
+            const op = document.getElementById('gym1-op').value.trim();
+            const feedback = document.getElementById('gym1-feedback');
+
+            if (kw === 'while' && op === '<') {
+                feedback.innerText = "Correct! Loop runs while charge < 100.";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-green-600";
+            } else {
+                feedback.innerText = "Incorrect. Use 'while' and '<'.";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-red-600";
+            }
+        }
+
+        function checkGym2() {
+            const op = document.getElementById('gym2-op').value.trim();
+            const feedback = document.getElementById('gym2-feedback');
+
+            if (op === '!=' || op === 'is not') {
+                feedback.innerText = "Correct! Loop while guess is NOT equal.";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-green-600";
+            } else {
+                feedback.innerText = "Incorrect. Use '!=' (not equal).";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-red-600";
+            }
+        }
+
+        function checkGym3() {
+            const op = document.getElementById('gym3-op').value.replace(/\s/g, '');
+            const feedback = document.getElementById('gym3-feedback');
+
+            if (op === '-1' || op === '-=1') {
+                feedback.innerText = "Correct! We must decrement the timer.";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-green-600";
+            } else {
+                feedback.innerText = "Incorrect. We need to subtract 1.";
+                feedback.className = "mt-2 text-xs font-bold h-4 text-center text-red-600";
+            }
+        }
+    </script>
+</body>
+</html>

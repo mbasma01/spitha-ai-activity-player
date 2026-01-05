@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. The Problem: Manual vs Auto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .code-block { background-color: #1e293b; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; padding: 1rem; border-radius: 8px; }
+        .nav-link { text-decoration: none; color: inherit; }
+        
+        .typewriter {
+            overflow: hidden; 
+            white-space: nowrap; 
+            margin: 0 auto; 
+            animation: typing 0.5s steps(40, end);
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        /* While Loop Animation */
+        .seat-grid { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+        .seat { width: 20px; height: 20px; background-color: #10b981; border-radius: 4px; transition: all 0.3s; }
+        .seat.sold { background-color: #e2e8f0; transform: scale(0.8); }
+
+        /* Savings Animation */
+        .progress-bar { transition: width 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-4">The "Manual Labor" Trap</h1>
+        <p class="text-slate-600 text-lg">
+            We know how to store data. But Data Science is about <strong>processing</strong> data. 
+            Doing this manually is slow, error-prone, and boring. We need machines.
+        </p>
+    </header>
+
+    <!-- PART 1: FOR LOOPS -->
+    <div class="mb-12">
+        <div class="flex items-center gap-4 mb-6">
+            <span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded-full uppercase">Problem 1: Fixed Lists</span>
+            <h2 class="text-2xl font-bold text-slate-800">Processing Items One-by-One</h2>
+        </div>
+        
+        <!-- Example 1A: Math -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- The Manual Way -->
+            <div class="card p-6 border-red-200 bg-red-50 flex flex-col">
+                <div class="mb-4">
+                    <span class="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Scenario 1A: Manual Indexing</span>
+                    <h3 class="text-xl font-bold text-red-900 mt-2">The Math Problem</h3>
+                    <p class="text-red-700 mt-2 text-sm">
+                        Ratings: <code>[7.8, 8.3, 7.9, 8.9]</code>.<br>
+                        Goal: Multiply every rating by 10.
+                    </p>
+                </div>
+                
+                <div class="code-block bg-red-950 text-red-100 text-sm flex-grow mb-4">
+                    ratings = [7.8, 8.3, 7.9, 8.9]<br><br>
+                    <div id="manual-code-lines" class="space-y-1">
+                        <span class="text-gray-500 italic"># Click button to type code...</span>
+                    </div>
+                </div>
+
+                <button id="manual-btn" onclick="addManualLine()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md transition flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Write Line of Code
+                </button>
+                <div id="manual-status" class="mt-3 text-center text-red-700 font-bold text-sm min-h-[20px]"></div>
+            </div>
+
+            <!-- The Automated Way (For Loop) -->
+            <div class="card p-6 border-green-200 bg-green-50 flex flex-col opacity-50 transition-all duration-500" id="auto-card">
+                <div class="mb-4">
+                    <span class="bg-green-200 text-green-800 text-xs font-bold px-2 py-1 rounded uppercase">The Solution</span>
+                    <h3 class="text-xl font-bold text-green-900 mt-2">The For Loop</h3>
+                    <p class="text-green-700 mt-2 text-sm">
+                        One machine handles infinite items.
+                    </p>
+                </div>
+                
+                <div class="code-block bg-green-950 text-green-100 text-sm flex-grow mb-4 relative overflow-hidden">
+                    ratings = [7.8, 8.3, 7.9, 8.9]<br><br>
+                    <span class="text-purple-300">for</span> score <span class="text-purple-300">in</span> ratings:<br>
+                    &nbsp;&nbsp;print(score * 10)
+                    
+                    <!-- Success Overlay -->
+                    <div id="success-overlay" class="absolute inset-0 bg-green-800 bg-opacity-90 flex items-center justify-center text-white font-bold text-lg opacity-0 transition-opacity duration-300">
+                        Processed 10,000 items!
+                    </div>
+                </div>
+
+                <button id="auto-btn" onclick="runAutoLoop()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-md transition flex items-center justify-center gap-2 cursor-not-allowed" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    Run Automation
+                </button>
+                <div id="auto-status" class="mt-3 text-center text-green-700 font-bold text-sm min-h-[20px]">Waiting for you to finish manual work...</div>
+            </div>
+        </div>
+
+        <!-- NEW EXAMPLE 1B: Data Cleaning -->
+        <div class="card p-6 border-cyan-200 bg-cyan-50">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="bg-cyan-200 text-cyan-800 text-xs font-bold px-2 py-1 rounded uppercase">Scenario 1B: Data Cleaning</span>
+            </div>
+            <h3 class="text-lg font-bold text-cyan-900 mb-2">The Name Cleaner</h3>
+            <p class="text-cyan-800 text-sm mb-4">
+                <strong>Problem:</strong> You scraped a list of names, but they are all lowercase: <code>['alice', 'bob', 'charlie']</code>.<br>
+                <strong>Solution:</strong> Use a loop to apply <code>.capitalize()</code> to every single string.
+            </p>
+            <div class="code-block bg-cyan-950 text-cyan-100 text-sm">
+                names = ['alice', 'bob', 'charlie']<br><br>
+                <span class="text-purple-300">for</span> name <span class="text-purple-300">in</span> names:<br>
+                &nbsp;&nbsp;clean_name = name.capitalize()<br>
+                &nbsp;&nbsp;print(clean_name)
+            </div>
+            <div class="mt-2 text-xs font-mono text-cyan-700">
+                > Alice<br>
+                > Bob<br>
+                > Charlie
+            </div>
+        </div>
+    </div>
+
+    <!-- PART 2: WHILE LOOPS -->
+    <div class="border-t-2 border-slate-200 pt-10">
+        <div class="flex items-center gap-4 mb-6">
+            <span class="bg-purple-100 text-purple-800 text-sm font-bold px-3 py-1 rounded-full uppercase">Problem 2: Uncertainty</span>
+            <h2 class="text-2xl font-bold text-slate-800">The "Until" Problem (While Loops)</h2>
+        </div>
+        <p class="text-slate-600 mb-6 max-w-3xl">
+            Sometimes we don't have a list of items. We just have a <strong>Goal</strong> or a <strong>Condition</strong>. 
+            We need to keep working <em>while</em> the condition is true.
+        </p>
+
+        <!-- Example 2A: The Countdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Manual Check -->
+            <div class="card p-6 border-orange-200 bg-orange-50">
+                <span class="bg-orange-200 text-orange-800 text-xs font-bold px-2 py-1 rounded uppercase">Scenario 2A: Manual Check</span>
+                <h3 class="text-xl font-bold text-orange-900 mt-2 mb-2">Repeated If Statements</h3>
+                <p class="text-orange-800 text-sm mb-4">
+                    Scenario: Sell tickets until seats run out. You have to check availability before every single sale.
+                </p>
+                <div class="code-block bg-orange-950 text-orange-100 text-xs md:text-sm">
+                    seats = 20<br><br>
+                    <span class="text-purple-300">if</span> seats > 0:<br>
+                    &nbsp;&nbsp;sell_ticket()<br>
+                    <span class="text-purple-300">if</span> seats > 0:<br>
+                    &nbsp;&nbsp;sell_ticket()<br>
+                    <span class="text-gray-400"># ... copy paste 18 more times ...</span>
+                </div>
+            </div>
+
+            <!-- While Loop -->
+            <div class="card p-6 border-indigo-200 bg-indigo-50">
+                <span class="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-1 rounded uppercase">The Solution</span>
+                <h3 class="text-xl font-bold text-indigo-900 mt-2 mb-2">The While Loop</h3>
+                <p class="text-indigo-800 text-sm mb-4">
+                    "Keep selling <strong>WHILE</strong> seats are greater than 0."
+                </p>
+                
+                <div class="code-block bg-indigo-950 text-indigo-100 text-sm mb-4">
+                    seats = 20<br><br>
+                    <span class="text-purple-300">while</span> seats > 0:<br>
+                    &nbsp;&nbsp;print("Ticket Sold!")<br>
+                    &nbsp;&nbsp;seats = seats - 1
+                </div>
+
+                <!-- Simulation -->
+                <div class="bg-white p-4 rounded-lg border border-indigo-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-indigo-900">Seats Available: <span id="seat-count" class="text-2xl text-purple-600">20</span></span>
+                        <button onclick="runWhileLoop()" id="while-btn" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded hover:bg-indigo-700 transition">Run Shift</button>
+                    </div>
+                    <div class="seat-grid" id="seat-visuals">
+                        <!-- Seats generated by JS -->
+                    </div>
+                    <div id="while-status" class="mt-2 text-xs font-mono text-indigo-600 h-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW EXAMPLE 2B: The Target -->
+        <div class="card p-6 border-teal-200 bg-teal-50">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <span class="bg-teal-200 text-teal-800 text-xs font-bold px-2 py-1 rounded uppercase">Scenario 2B: Reaching a Target</span>
+                    <h3 class="text-lg font-bold text-teal-900 mt-2">The Savings Goal</h3>
+                </div>
+                <button onclick="runSavingsLoop()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded transition">Run Simulation</button>
+            </div>
+            
+            <p class="text-teal-800 text-sm mb-4">
+                <strong>Problem:</strong> You want to save $100 for a concert ticket. You save $10 a week. You need to keep saving <strong>while</strong> your money is less than 100.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="code-block bg-teal-950 text-teal-100 text-sm">
+                    savings = 0<br>
+                    <span class="text-gray-400"># Loop until goal is reached</span><br>
+                    <span class="text-purple-300">while</span> savings < 100:<br>
+                    &nbsp;&nbsp;savings = savings + 10<br>
+                    &nbsp;&nbsp;print("Current: " + str(savings))<br><br>
+                    print("Goal Reached!")
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg border border-teal-100 flex flex-col justify-center">
+                    <div class="flex justify-between text-xs font-bold text-teal-800 mb-1">
+                        <span>$0</span>
+                        <span>$100 Goal</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-6 mb-2">
+                        <div id="savings-bar" class="bg-teal-500 h-6 rounded-full progress-bar text-xs text-white flex items-center justify-center font-bold" style="width: 0%">$0</div>
+                    </div>
+                    <div id="savings-status" class="text-center text-xs text-teal-600 font-mono h-4">Ready...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PART 3: MORE EXAMPLES (Patterns) -->
+    <div class="border-t-2 border-slate-200 pt-10 mt-10">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">Part 3: Common Loop Patterns</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Example 3: The Security Gate -->
+            <div class="card p-6 border-pink-200 bg-pink-50">
+                <span class="bg-pink-200 text-pink-800 text-xs font-bold px-2 py-1 rounded uppercase">Pattern: Input Validation</span>
+                <h3 class="text-lg font-bold text-pink-900 mt-2">The Security Gate</h3>
+                <p class="text-pink-800 text-sm mb-4">
+                    <strong>Problem:</strong> You need to keep asking for a password <em>until</em> it is correct.
+                </p>
+                <div class="code-block bg-pink-950 text-pink-100 text-xs mb-2">
+                    user_input = ""<br>
+                    <span class="text-purple-300">while</span> user_input != "secret":<br>
+                    &nbsp;&nbsp;user_input = input("Password?")
+                </div>
+                <p class="text-xs text-pink-700 italic">Manual IF statements would give up after 2 or 3 tries. The While loop never gives up.</p>
+            </div>
+
+            <!-- Example 4: The Total -->
+            <div class="card p-6 border-cyan-200 bg-cyan-50">
+                <span class="bg-cyan-200 text-cyan-800 text-xs font-bold px-2 py-1 rounded uppercase">Pattern: Accumulator</span>
+                <h3 class="text-lg font-bold text-cyan-900 mt-2">The Receipt</h3>
+                <p class="text-cyan-800 text-sm mb-4">
+                    <strong>Problem:</strong> Calculate the total price of a cart with unknown size.
+                </p>
+                <div class="code-block bg-cyan-950 text-cyan-100 text-xs mb-2">
+                    total = 0<br>
+                    <span class="text-purple-300">for</span> price <span class="text-purple-300">in</span> cart:<br>
+                    &nbsp;&nbsp;total = total + price
+                </div>
+                <p class="text-xs text-cyan-700 italic">Manual addition (p1+p2+p3) fails if the user removes an item. The loop adapts instantly.</p>
+            </div>
+
+            <!-- Example 5: The Search -->
+            <div class="card p-6 border-yellow-200 bg-yellow-50">
+                <span class="bg-yellow-200 text-yellow-800 text-xs font-bold px-2 py-1 rounded uppercase">Pattern: Search</span>
+                <h3 class="text-lg font-bold text-yellow-900 mt-2">The Needle in Haystack</h3>
+                <p class="text-yellow-800 text-sm mb-4">
+                    <strong>Problem:</strong> Find if "Nemo" is in the list and stop looking.
+                </p>
+                <div class="code-block bg-yellow-950 text-yellow-100 text-xs mb-2">
+                    <span class="text-purple-300">for</span> fish <span class="text-purple-300">in</span> ocean:<br>
+                    &nbsp;&nbsp;<span class="text-purple-300">if</span> fish == "Nemo":<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;print("Found him!")<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-300">break</span>
+                </div>
+                <p class="text-xs text-yellow-700 italic">Manual checking requires reading every name yourself. The loop scans millions instantly.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Summary Box -->
+    <div class="mt-12 bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+        <h3 class="font-bold text-blue-900 text-lg mb-2">The Golden Rule of Loops</h3>
+        <ul class="list-disc list-inside text-blue-800 space-y-2">
+            <li><strong>Use a For Loop:</strong> When you have a container (List, Dictionary, DataFrame) and want to visit every item. ("For every movie...")</li>
+            <li><strong>Use a While Loop:</strong> When you have a condition and don't know when it will end. ("While the user is typing...", "While seats are available...")</li>
+        </ul>
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="mt-8 flex justify-between">
+        <a href="unit3module1.html" class="nav-link text-slate-500 hover:text-slate-800 font-bold px-4 py-3 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Previous
+        </a>
+        <a href="unit3module3.html" class="nav-link bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+            Next: The Concept
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <script>
+        // --- PART 1: FOR LOOP LOGIC ---
+        let manualCount = 0;
+        const manualCodeDiv = document.getElementById('manual-code-lines');
+        const manualStatus = document.getElementById('manual-status');
+        const ratings = [7.8, 8.3, 7.9, 8.9];
+
+        function addManualLine() {
+            if(manualCount >= 4) return;
+            
+            if(manualCount === 0) manualCodeDiv.innerHTML = ''; 
+            
+            const newLine = document.createElement('div');
+            newLine.className = "text-green-300 typewriter";
+            newLine.innerText = `print(ratings[${manualCount}] * 10)`;
+            manualCodeDiv.appendChild(newLine);
+            
+            manualCount++;
+            
+            if(manualCount === 4) {
+                manualStatus.innerHTML = "😓 Exhausting, right?";
+                const btn = document.getElementById('manual-btn');
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-red-700');
+                
+                // Unlock Auto
+                const autoCard = document.getElementById('auto-card');
+                autoCard.classList.remove('opacity-50');
+                const autoBtn = document.getElementById('auto-btn');
+                autoBtn.disabled = false;
+                autoBtn.classList.remove('cursor-not-allowed');
+                document.getElementById('auto-status').innerText = "Ready to run!";
+            } else {
+                manualStatus.innerText = `Line ${manualCount}/4 written...`;
+            }
+        }
+
+        function runAutoLoop() {
+            const overlay = document.getElementById('success-overlay');
+            overlay.classList.remove('opacity-0');
+            document.getElementById('auto-status').innerText = "Process Complete.";
+        }
+
+        // --- PART 2A: WHILE LOOP (SEATS) ---
+        const seatGrid = document.getElementById('seat-visuals');
+        const seatCountDisplay = document.getElementById('seat-count');
+        const whileStatus = document.getElementById('while-status');
+        let seats = 20;
+
+        // Init Seats
+        for(let i=0; i<20; i++) {
+            let s = document.createElement('div');
+            s.className = 'seat';
+            s.id = `seat-${i}`;
+            seatGrid.appendChild(s);
+        }
+
+        function runWhileLoop() {
+            document.getElementById('while-btn').disabled = true;
+            document.getElementById('while-btn').classList.add('opacity-50');
+            processSale();
+        }
+
+        function processSale() {
+            if(seats > 0) {
+                seats--;
+                seatCountDisplay.innerText = seats;
+                whileStatus.innerText = `while ${seats+1} > 0: Selling Ticket...`;
+                const seatEl = document.getElementById(`seat-${seats}`);
+                seatEl.classList.add('sold');
+                setTimeout(processSale, 100); 
+            } else {
+                whileStatus.innerText = "Loop Finished: Condition (seats > 0) is False.";
+                whileStatus.classList.add('text-red-600', 'font-bold');
+            }
+        }
+
+        // --- PART 2B: WHILE LOOP (SAVINGS) ---
+        let savings = 0;
+        function runSavingsLoop() {
+            savings = 0;
+            const bar = document.getElementById('savings-bar');
+            const status = document.getElementById('savings-status');
+            
+            function step() {
+                if(savings < 100) {
+                    savings += 10;
+                    bar.style.width = `${savings}%`;
+                    bar.innerText = `$${savings}`;
+                    status.innerText = `while ${savings-10} < 100: Adding $10...`;
+                    setTimeout(step, 200);
+                } else {
+                    status.innerText = "Loop Finished: Savings >= 100";
+                    status.classList.add('font-bold');
+                }
+            }
+            step();
+        }
+    </script>
+</body>
+</html>
