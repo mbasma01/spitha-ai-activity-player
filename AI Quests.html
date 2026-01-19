@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quests: Choose Your Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Google Sans', sans-serif;
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .step-btn {
+            transition: all 0.3s ease;
+        }
+        .step-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        /* Fade in animation for tab content */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6 text-gray-800">
+
+    <!-- Header Section -->
+    <header class="text-center mb-12 max-w-3xl mt-12">
+        <div class="inline-flex items-center justify-center bg-white p-3 rounded-full shadow-sm mb-6 border border-gray-100">
+            <svg class="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+            </svg>
+            <span class="ml-2 font-bold text-gray-600 text-sm uppercase tracking-wider">Google Research</span>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">Select Your Mission</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Two environments. Two challenges. Use the power of AI to solve real-world problems in these interactive quests.
+        </p>
+    </header>
+
+    <!-- Links Container -->
+    <main class="grid md:grid-cols-2 gap-8 w-full max-w-6xl px-4 mb-20">
+
+        <!-- Quest 1: Dusky Dunes -->
+        <a href="https://research.google/ai-quests/intl/en_gb/quest/dusky-dunes" target="_blank" class="card-hover group relative flex flex-col bg-white rounded-[2rem] overflow-hidden cursor-pointer no-underline shadow-xl border-b-8 border-orange-500 h-full">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-orange-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+            <div class="relative p-8 md:p-10 flex flex-col h-full">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="bg-orange-100 p-4 rounded-2xl text-orange-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-orange-50 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-100 uppercase tracking-wide">Quest 01</span>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">Dusky Dunes</h2>
+                <p class="text-lg text-gray-600 mb-8 flex-grow">
+                    Navigate the shifting sands. Learn how AI can help identify patterns and solve navigation challenges in a desert environment.
+                </p>
+                <div class="mt-auto">
+                    <div class="flex items-center text-orange-600 font-bold text-lg group-hover:translate-x-2 transition-transform">
+                        Enter the Dunes
+                        <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- Quest 2: Market Marshes -->
+        <a href="https://research.google/ai-quests/intl/en_gb/quest/market-marshes" target="_blank" class="card-hover group relative flex flex-col bg-white rounded-[2rem] overflow-hidden cursor-pointer no-underline shadow-xl border-b-8 border-blue-500 h-full">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+            <div class="relative p-8 md:p-10 flex flex-col h-full">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="bg-blue-100 p-4 rounded-2xl text-blue-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wide">Quest 02</span>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">Market Marshes</h2>
+                <p class="text-lg text-gray-600 mb-8 flex-grow">
+                    Forecast the future. Step into a bustling river market and use AI predictive models to anticipate floods and protect the village.
+                </p>
+                <div class="mt-auto">
+                    <div class="flex items-center text-blue-600 font-bold text-lg group-hover:translate-x-2 transition-transform">
+                        Explore the Marshes
+                        <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </main>
+
+    <!-- Interactive AI Lifecycle Section -->
+    <section class="w-full max-w-6xl px-4 mb-20">
+        <div class="text-center mb-10">
+            <span class="bg-purple-100 text-purple-700 text-sm font-bold px-4 py-2 rounded-full uppercase tracking-wider">How it Works</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">The AI Model Lifecycle</h2>
+            <p class="text-gray-600 mt-2">Click each step to explore how AI models are built and improved.</p>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-6 md:p-12">
+            <!-- Navigation Steps -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <button onclick="setStep('cleaning')" id="btn-cleaning" class="step-btn active flex flex-col items-center justify-center p-4 rounded-2xl bg-white border-2 border-transparent hover:bg-gray-50 focus:outline-none ring-offset-2 focus:ring-2 ring-indigo-500">
+                    <div class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">1. Cleaning</span>
+                </button>
+
+                <button onclick="setStep('training')" id="btn-training" class="step-btn flex flex-col items-center justify-center p-4 rounded-2xl bg-white border-2 border-transparent hover:bg-gray-50 focus:outline-none ring-offset-2 focus:ring-2 ring-indigo-500">
+                    <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">2. Training</span>
+                </button>
+
+                <button onclick="setStep('testing')" id="btn-testing" class="step-btn flex flex-col items-center justify-center p-4 rounded-2xl bg-white border-2 border-transparent hover:bg-gray-50 focus:outline-none ring-offset-2 focus:ring-2 ring-indigo-500">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">3. Testing</span>
+                </button>
+
+                <button onclick="setStep('deploying')" id="btn-deploying" class="step-btn flex flex-col items-center justify-center p-4 rounded-2xl bg-white border-2 border-transparent hover:bg-gray-50 focus:outline-none ring-offset-2 focus:ring-2 ring-indigo-500">
+                    <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">4. Deploying</span>
+                </button>
+
+                 <button onclick="setStep('retraining')" id="btn-retraining" class="step-btn flex flex-col items-center justify-center p-4 rounded-2xl bg-white border-2 border-transparent hover:bg-gray-50 focus:outline-none ring-offset-2 focus:ring-2 ring-indigo-500">
+                    <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-700 text-sm">5. Retraining</span>
+                </button>
+            </div>
+
+            <!-- Content Display Area -->
+            <div class="relative bg-gray-50 rounded-3xl p-8 md:p-12 min-h-[300px] flex items-center overflow-hidden">
+                
+                <!-- Background Circles Decor -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full opacity-40 -mr-20 -mt-20 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full opacity-40 -ml-16 -mb-16 pointer-events-none"></div>
+
+                <div id="content-display" class="relative z-10 w-full grid md:grid-cols-2 gap-10 items-center fade-in">
+                    <!-- Image/Visual Side -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm text-center transform rotate-1 border border-gray-100 h-64 flex flex-col items-center justify-center" id="visual-container">
+                        <!-- Icon injected by JS -->
+                    </div>
+
+                    <!-- Text Side -->
+                    <div class="text-left">
+                        <h3 class="text-3xl font-bold text-gray-900 mb-4" id="step-title">1. Data Cleaning</h3>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-6" id="step-desc">
+                            Raw data is often messy. Before an AI can learn, we must remove errors, handle missing values, and ensure the dataset is high quality. Think of it as filtering water before drinking it.
+                        </p>
+                        <div class="inline-flex items-center px-4 py-2 bg-teal-50 text-teal-700 rounded-lg text-sm font-semibold" id="step-tag">
+                            <span class="w-2 h-2 rounded-full bg-teal-500 mr-2"></span>
+                            Quality Assurance
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-8 text-center text-gray-500 text-sm mb-8">
+        <p>Featured on <a href="https://research.google/ai-quests/" target="_blank" class="text-gray-700 font-semibold hover:underline">Google Research</a></p>
+    </footer>
+
+    <script>
+        const steps = {
+            cleaning: {
+                title: "1. Data Cleaning",
+                desc: "Raw data is often messy. Before an AI can learn, we must remove errors, handle missing values, and ensure the dataset is high quality. Think of it as filtering water before drinking it.",
+                color: "teal",
+                tag: "Quality Assurance",
+                icon: `<svg class="w-24 h-24 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>`
+            },
+            training: {
+                title: "2. Model Training",
+                desc: "The AI studies the cleaned data to find patterns. It adjusts its internal parameters millions of times to minimize errors, effectively 'learning' from examples.",
+                color: "indigo",
+                tag: "Pattern Recognition",
+                icon: `<svg class="w-24 h-24 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`
+            },
+            testing: {
+                title: "3. Model Testing",
+                desc: "We give the model a 'final exam' using data it has never seen before. This ensures the model isn't just memorizing answers but can actually solve new problems.",
+                color: "blue",
+                tag: "Evaluation",
+                icon: `<svg class="w-24 h-24 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+            },
+            deploying: {
+                title: "4. Deployment",
+                desc: "The trained model is integrated into real-world applications (like the Quest games!). It starts making live predictions to help users solve challenges.",
+                color: "green",
+                tag: "Production",
+                icon: `<svg class="w-24 h-24 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>`
+            },
+            retraining: {
+                title: "5. Retraining",
+                desc: "The world changes, and so does data. We monitor the model's performance and feed it new data over time to keep it smart and accurate.",
+                color: "orange",
+                tag: "Continuous Improvement",
+                icon: `<svg class="w-24 h-24 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`
+            }
+        };
+
+        function setStep(stepKey) {
+            const data = steps[stepKey];
+            
+            // 1. Update Buttons Styling
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-gray-200', 'bg-white', 'shadow-md');
+                btn.classList.add('bg-white', 'hover:bg-gray-50');
+                
+                // Reset specific border colors if any
+                btn.style.borderColor = 'transparent';
+            });
+
+            const activeBtn = document.getElementById(`btn-${stepKey}`);
+            activeBtn.classList.add('active');
+            // Give the active button a border matching its theme color
+            const colorMap = { teal: '#14b8a6', indigo: '#6366f1', blue: '#3b82f6', green: '#22c55e', orange: '#f97316' };
+            activeBtn.style.borderColor = colorMap[data.color];
+
+
+            // 2. Animate Content Out
+            const contentContainer = document.getElementById('content-display');
+            
+            // Simple replace with animation reset
+            contentContainer.classList.remove('fade-in');
+            void contentContainer.offsetWidth; // trigger reflow
+            contentContainer.classList.add('fade-in');
+
+            // 3. Update Content
+            document.getElementById('step-title').innerText = data.title;
+            document.getElementById('step-desc').innerText = data.desc;
+            document.getElementById('visual-container').innerHTML = data.icon;
+            
+            // Update Tag
+            const tagEl = document.getElementById('step-tag');
+            tagEl.className = `inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold bg-${data.color}-50 text-${data.color}-700`;
+            tagEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-${data.color}-500 mr-2"></span>${data.tag}`;
+        }
+
+        // Initialize
+        setStep('cleaning');
+    </script>
+
+</body>
+</html>
