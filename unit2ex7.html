@@ -228,11 +228,11 @@
                 title: "1. Load Data",
                 flashcard: {
                     title: "The Dataset",
-                    content: "We have loaded the <code>Attendance_Prediction.csv</code>. <br>It contains Student IDs, Age, Study Hours, and Attendance records."
+                    content: "We have loaded the <code>student_habits_performance.csv</code>. <br>It contains Student IDs, Age, Study Hours, and Attendance records."
                 },
                 instruction: "First, let's load the data. In a real script, we would define the URL and read it.",
                 task: "Execute the code to load the dataframe.",
-                code: "import pandas as pd\n\nurl = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/Attendance_Prediction.csv'\ndf = pd.read_csv(url)\n\ndf.head()",
+                code: "import pandas as pd\n\nurl = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/student_habits_performance.csv'\ndf = pd.read_csv(url)\n\ndf.head()",
                 explanation: "The data is loaded into a DataFrame variable named <code>df</code>.",
                 action: () => { 
                     renderTable();
@@ -451,4 +451,5 @@
         init();
     </script>
 </body>
+
 </html>
