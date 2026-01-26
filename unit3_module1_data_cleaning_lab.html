@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Science Lab: Cleaning Dirty Data</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+        .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { bg-slate-100; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col">
+
+    <!-- OVERLAY: Concept / Education Modal -->
+    <div id="overlay" class="fixed inset-0 z-50 bg-slate-900 bg-opacity-95 flex items-center justify-center p-4 hidden">
+        <div class="max-w-3xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all animate-slide-up">
+            <div class="bg-blue-600 p-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
+                    <i data-lucide="database" class="w-64 h-64"></i>
+                </div>
+                <h1 id="overlay-title" class="text-3xl font-bold mb-2 relative z-10">Concept Title</h1>
+                <div class="h-1 w-20 bg-blue-300 rounded relative z-10"></div>
+            </div>
+            <div class="p-8">
+                <div id="overlay-content" class="text-lg text-slate-600 leading-relaxed mb-8">
+                    <!-- Dynamic Content -->
+                </div>
+                <button onclick="app.dismissOverlay()" class="group bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold text-lg transition-all flex items-center gap-2 shadow-lg hover:shadow-xl translate-y-0 hover:-translate-y-1">
+                    <span>Start Challenge</span>
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CODE REVEAL MODAL -->
+    <div id="code-modal" class="fixed inset-0 z-[60] bg-black bg-opacity-80 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+        <div class="max-w-2xl w-full bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden animate-pop-in">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="bg-green-500/20 text-green-400 p-2 rounded-lg">
+                        <i data-lucide="check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg">Solution Applied</h3>
+                        <p class="text-slate-400 text-sm">Here is the Python code for this step.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="bg-black rounded-xl p-4 border border-slate-700 mb-6 relative group">
+                    <pre class="font-mono text-sm text-green-300 overflow-x-auto leading-relaxed"><code id="modal-code-content"># Code goes here</code></pre>
+                    <button onclick="app.copyModalCode(this)" class="absolute top-3 right-3 bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded transition-colors border border-slate-600">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <button onclick="app.closeCodeModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    <span>Continue to Next Step</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT PANEL: Interactive Guide & Notebook -->
+        <aside class="w-full md:w-[450px] bg-white border-r border-slate-200 flex flex-col z-20 shadow-xl">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-100 bg-white">
+                <div class="flex items-center gap-2 text-blue-600 font-bold text-xl mb-1">
+                    <i data-lucide="flask-conical"></i>
+                    <span>Data Cleaning Lab</span>
+                </div>
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-2">
+                    <span id="step-indicator">Introduction</span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 h-1.5 mt-4 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-500 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div id="guide-container" class="flex-1 overflow-y-auto p-5 space-y-6 bg-slate-50">
+                
+                <!-- QUIZ AREA (Dynamic) -->
+                <div id="quiz-area" class="hidden animate-slide-up">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="bg-amber-100 text-amber-600 p-2 rounded-lg shrink-0">
+                                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg">Decision Time</h3>
+                                <p id="quiz-question" class="text-slate-600 text-sm mt-1">Question goes here...</p>
+                            </div>
+                        </div>
+                        <div id="quiz-options" class="space-y-2">
+                            <!-- Options injected by JS -->
+                        </div>
+                        <div id="quiz-feedback" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
+                    </div>
+                </div>
+
+                <!-- NOTEBOOK AREA (Accumulates Code Snippets) -->
+                <div id="notebook-area">
+                    <div class="flex items-center gap-2 mb-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                        <i data-lucide="book-open" class="w-3 h-3"></i>
+                        <span>Your Python Notebook</span>
+                    </div>
+                    <!-- Snippets injected by JS -->
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- RIGHT PANEL: Data Preview -->
+        <main class="flex-1 flex flex-col bg-slate-100 min-w-0">
+            <!-- Toolbar -->
+            <div class="bg-white border-b border-slate-200 p-3 flex justify-between items-center px-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-100 p-2 rounded text-slate-500">
+                        <i data-lucide="table" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-700">Dataset Preview</h2>
+                        <div class="text-xs text-slate-500 font-mono" id="data-stats">Loading...</div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="app.downloadCSV()" class="px-4 py-2 text-sm font-medium bg-white border border-slate-300 rounded-lg hover:bg-slate-50 text-slate-700 flex items-center gap-2 shadow-sm transition-all">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download CSV
+                    </button>
+                    <button onclick="app.resetLab()" class="text-xs font-medium text-slate-500 hover:text-blue-600 flex items-center gap-1 ml-2">
+                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="flex-1 overflow-auto p-6 relative">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-w-[800px]">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                                <tr id="table-header">
+                                    <!-- Headers injected by JS -->
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-100">
+                                <!-- Rows injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-xs text-slate-400">
+                    Showing a sample of the dataset.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA GENERATION UTILS ---
+        const NAMES = ["James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda", "William", "Elizabeth", "David", "Barbara", "Richard", "Susan", "Joseph", "Jessica"];
+        const SURNAMES = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"];
+        const DIAGNOSES = ["Hypertension", "Diabetes Type 2", "Asthma", "Migraine", "Fracture", "Flu", "Covid-19", "Gastritis"];
+        const INSURANCE = ["Basic", "Premium", "Platinum", "None", "State-Sponsored"];
+        const CITIES = ["New York, NY", "Boston, MA", "Chicago, IL", "Houston, TX", "Miami, FL", "Seattle, WA"];
+
+        const generateData = (count = 150) => {
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                // Determine Dirtiness
+                const isDirty = Math.random() < 0.4;
+
+                let age = Math.floor(Math.random() * 80) + 18;
+                if (Math.random() < 0.03) age = Math.random() < 0.5 ? 250 : -5; // Outlier
+
+                let weight = Math.floor(Math.random() * 60) + 50; 
+                if (Math.random() < 0.05) weight = null; // Missing
+                if (Math.random() < 0.01) weight = 5000; // Outlier
+
+                let gender = Math.random() > 0.5 ? "Male" : "Female";
+                if (Math.random() < 0.05) gender = Math.random() > 0.5 ? "mle" : "femal"; // Typo
+                
+                let name = `${NAMES[Math.floor(Math.random() * NAMES.length)]} ${SURNAMES[Math.floor(Math.random() * SURNAMES.length)]}`;
+                if (Math.random() < 0.05) name = name.toLowerCase(); // Case issue
+
+                let dept = " Cardiology ";
+                if(Math.random() > 0.5) dept = "Neurology"; // Whitespace in Cardiology
+
+                let height = Math.floor(Math.random() * 30) + 150; // cm
+                if(Math.random() < 0.1) height = (height / 100).toFixed(2); // mixed units (m instead of cm)
+
+                let smoker = Math.random() > 0.7 ? "Yes" : "No";
+                if(Math.random() < 0.1) smoker = smoker === "Yes" ? "Y" : "n"; // Inconsistent boolean
+
+                let visitDate = "2023-10-15";
+                if(Math.random() < 0.05) visitDate = "2050-01-01"; // Future date
+
+                let bp = `${Math.floor(Math.random() * 40) + 100}/${Math.floor(Math.random() * 20) + 60}`;
+                
+                data.push({
+                    patient_id: Math.random() < 0.5 ? i + 1000 : (i+1000).toString(), // Mixed types
+                    full_name: name,
+                    age: age,
+                    weight_kg: weight,
+                    height_raw: height,
+                    gender: gender,
+                    dept: dept,
+                    diagnosis: DIAGNOSES[Math.floor(Math.random() * DIAGNOSES.length)],
+                    insurance: Math.random() < 0.1 ? null : INSURANCE[Math.floor(Math.random() * INSURANCE.length)],
+                    visit_date: visitDate,
+                    smoker_status: smoker,
+                    bp_level: bp,
+                    address_full: CITIES[Math.floor(Math.random() * CITIES.length)],
+                    admin_routing_code: `RT-${Math.floor(Math.random() * 9999)}`
+                });
+            }
+            
+            // Add Duplicates
+            data.push(data[0]); 
+            data.push(data[5]);
+
+            return data;
+        };
+
+        // --- APP LOGIC ---
+
+        const STEPS = [
+            {
+                id: 'intro',
+                title: 'Data Science 101',
+                concept: `
+                    <p class="mb-4"><strong>Welcome to the Data Cleaning Gauntlet.</strong></p>
+                    <p class="mb-4">Real-world data is never clean. It has typos, missing values, impossible numbers, and formatting nightmares.</p>
+                    <p>In this lab, you will perform <strong>18 cleaning operations</strong> to prepare a raw hospital dataset for analysis.</p>
+                `,
+                action: (app) => app.addSnippet("Import Libraries", `import pandas as pd\nimport numpy as np\n\n# Load dataset\nurl = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/healthcare_data.csv' \ndf = pd.read_csv(url)\ndf.head()`)
+            },
+            {
+                id: 'inspect',
+                title: 'Step 1: Inspection',
+                concept: `
+                    <p class="mb-4">Before cleaning, we must inspect.</p>
+                    <p>The function <code>df.info()</code> tells us the data types and non-null counts. <code>df.describe()</code> shows statistics.</p>
+                    <p>Notice that our <strong>patient_id</strong> looks like a mix of numbers and strings? That's bad.</p>
+                `,
+                quiz: {
+                    question: "We need to see a summary of columns and data types. Which command is best?",
+                    options: [
+                        { label: "df.info()", value: "info", correct: true, reason: "Correct! It shows us types and missing values." },
+                        { label: "print(df)", value: "print", correct: false, reason: "Printing just dumps text. info() is analytical." }
+                    ]
+                },
+                execute: (app) => app.addSnippet("Inspect Data", `# Check types and missing values\ndf.info()`)
+            },
+            {
+                id: 'duplicates',
+                title: 'Step 2: Duplicates',
+                concept: `
+                    <p class="mb-4"><strong>Double Trouble.</strong></p>
+                    <p>Sometimes systems glitch and record the same patient visit twice. Duplicate rows bias our statistics.</p>
+                `,
+                quiz: {
+                    question: "We found identical rows. What should we do?",
+                    options: [
+                        { label: "Keep them", value: "keep", correct: false, reason: "Duplicates will count the same patient twice." },
+                        { label: "Drop duplicates", value: "drop", correct: true, reason: "Correct! df.drop_duplicates() removes exact copies." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.filter((v,i,a) => a.findIndex(t=>(t.patient_id === v.patient_id))===i);
+                    app.addSnippet("Drop Duplicates", `# Remove duplicate rows\ndf.drop_duplicates(inplace=True)`)
+                }
+            },
+            {
+                id: 'columns',
+                title: 'Step 3: Column Renaming',
+                concept: `
+                    <p class="mb-4"><strong>Cryptic Names.</strong></p>
+                    <p>Column names like 'bp_level' are okay, but 'admin_routing_code' is verbose. Sometimes we have 'col1', 'col2'.</p>
+                    <p>Let's make sure our columns are readable and standardized (snake_case).</p>
+                `,
+                quiz: {
+                    question: "Let's rename 'weight_kg' to just 'weight' for simplicity, assuming we know it's kg.",
+                    options: [
+                        { label: "Rename column", value: "rename", correct: true, reason: "Correct. Clearer names make coding easier." },
+                        { label: "Leave as is", value: "skip", correct: false, reason: "It's fine, but let's practice renaming." }
+                    ]
+                },
+                execute: (app) => {
+                    // Visual only update for columns, logic remains mapped
+                    app.columns = app.columns.map(c => c === 'weight_kg' ? 'weight' : c);
+                    app.addSnippet("Rename Columns", `# Rename weight_kg to weight\ndf.rename(columns={'weight_kg': 'weight'}, inplace=True)`)
+                }
+            },
+            {
+                id: 'selection',
+                title: 'Step 4: Drop Irrelevant',
+                concept: `
+                    <p class="mb-4"><strong>Noise Reduction.</strong></p>
+                    <p>The <strong>admin_routing_code</strong> is an internal IT tag. It has no bearing on patient health.</p>
+                `,
+                quiz: {
+                    question: "Should we keep 'admin_routing_code' for our machine learning model?",
+                    options: [
+                        { label: "Yes", value: "yes", correct: false, reason: "It adds noise and dimensionality without value." },
+                        { label: "No, Drop it", value: "drop", correct: true, reason: "Correct. Drop features that don't help prediction." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(({admin_routing_code, ...rest}) => rest);
+                    app.columns = app.columns.filter(c => c !== 'admin_routing_code');
+                    app.addSnippet("Drop Columns", `df.drop(columns=['admin_routing_code'], inplace=True)`)
+                }
+            },
+            {
+                id: 'whitespace',
+                title: 'Step 5: Whitespace',
+                concept: `
+                    <p class="mb-4"><strong>" Cardiology " != "Cardiology"</strong></p>
+                    <p>Strings often come with invisible spaces at the start or end. This breaks grouping and filtering.</p>
+                `,
+                quiz: {
+                    question: "The 'dept' column has leading spaces. How do we fix this globally?",
+                    options: [
+                        { label: "Manually edit", value: "manual", correct: false, reason: "Impossible for 1 million rows." },
+                        { label: "Strip whitespace", value: "strip", correct: true, reason: "Correct! .str.strip() removes extra spaces." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({...d, dept: d.dept.trim()}));
+                    app.addSnippet("Strip Whitespace", `# Remove leading/trailing spaces\ndf['dept'] = df['dept'].str.strip()`)
+                }
+            },
+             {
+                id: 'casing',
+                title: 'Step 6: Inconsistent Case',
+                concept: `
+                    <p class="mb-4"><strong>john smith vs John Smith.</strong></p>
+                    <p>Inconsistent capitalization makes "john" and "John" look like two different people.</p>
+                `,
+                quiz: {
+                    question: "How should we standardize the 'full_name' column?",
+                    options: [
+                        { label: "Title Case", value: "title", correct: true, reason: "Correct! Converts to 'John Smith'." },
+                        { label: "Lower Case", value: "lower", correct: false, reason: "Acceptable, but Title case is better for names." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({...d, full_name: d.full_name.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())))}));
+                    app.addSnippet("Fix Capitalization", `df['full_name'] = df['full_name'].str.title()`)
+                }
+            },
+            {
+                id: 'missing_num',
+                title: 'Step 7: Missing Numbers',
+                concept: `
+                    <p class="mb-4"><strong>The Null Problem.</strong></p>
+                    <p>The <strong>weight</strong> column has NaNs. We can't do math on empty cells.</p>
+                `,
+                quiz: {
+                    question: "How to fill missing weights?",
+                    options: [
+                        { label: "Fill with 0", value: "zero", correct: false, reason: "0kg is impossible." },
+                        { label: "Fill with Mean", value: "mean", correct: true, reason: "Correct! Impute with average." }
+                    ]
+                },
+                execute: (app) => {
+                    const validWeights = app.data.filter(d => typeof d.weight_kg === 'number').map(d => d.weight_kg);
+                    const mean = Math.floor(validWeights.reduce((a,b) => a+b, 0) / validWeights.length);
+                    app.data = app.data.map(d => ({ ...d, weight_kg: d.weight_kg === null ? mean : d.weight_kg }));
+                    app.addSnippet("Impute Missing Values", `mean_val = df['weight'].mean()\ndf['weight'].fillna(mean_val, inplace=True)`)
+                }
+            },
+            {
+                id: 'missing_cat',
+                title: 'Step 8: Missing Categories',
+                concept: `
+                    <p class="mb-4"><strong>Ghost Data.</strong></p>
+                    <p>Insurance info is missing for some. We shouldn't guess it.</p>
+                `,
+                quiz: {
+                    question: "Action for missing Insurance?",
+                    options: [
+                        { label: "Fill 'Unknown'", value: "unknown", correct: true, reason: "Correct. Label it explicitly." },
+                        { label: "Drop Row", value: "drop", correct: false, reason: "Too much data loss." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({ ...d, insurance: d.insurance === null ? "Unknown" : d.insurance }));
+                    app.addSnippet("Fill Categorical Nulls", `df['insurance'].fillna('Unknown', inplace=True)`)
+                }
+            },
+            {
+                id: 'dtypes',
+                title: 'Step 9: Data Types',
+                concept: `
+                    <p class="mb-4"><strong>Strings acting like Numbers.</strong></p>
+                    <p>The <code>patient_id</code> column is messy. Some are '1001' (string), some are 1001.0 (float).</p>
+                    <p>IDs should be integers.</p>
+                `,
+                quiz: {
+                    question: "Convert patient_id to...",
+                    options: [
+                        { label: "Integer", value: "int", correct: true, reason: "Correct. IDs are whole numbers." },
+                        { label: "Float", value: "float", correct: false, reason: "IDs don't have decimals." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({ ...d, patient_id: parseInt(d.patient_id) }));
+                    app.addSnippet("Convert Types", `df['patient_id'] = df['patient_id'].astype(int)`)
+                }
+            },
+            {
+                id: 'units',
+                title: 'Step 10: Unit Standardization',
+                concept: `
+                    <p class="mb-4"><strong>Apples and Oranges.</strong></p>
+                    <p>Most heights are in cm (e.g., 175), but some are in meters (1.75). This destroys averages.</p>
+                `,
+                quiz: {
+                    question: "How do we fix values < 3.0 in height?",
+                    options: [
+                        { label: "Multiply by 100", value: "mult", correct: true, reason: "Correct! 1.75m becomes 175cm." },
+                        { label: "Delete them", value: "del", correct: false, reason: "Data is valid, just wrong unit." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({ ...d, height_raw: d.height_raw < 3 ? Math.round(d.height_raw * 100) : d.height_raw }));
+                    app.addSnippet("Fix Units", `# Convert meters to cm\ndf.loc[df['height_raw'] < 3, 'height_raw'] = df['height_raw'] * 100`)
+                }
+            },
+            {
+                id: 'date_parse',
+                title: 'Step 11: Date Parsing',
+                concept: `
+                    <p class="mb-4"><strong>Strings aren't Time.</strong></p>
+                    <p>Python sees "2023-10-15" as just text. To do time math, we need datetime objects.</p>
+                `,
+                quiz: {
+                    question: "Convert 'visit_date' to...",
+                    options: [
+                        { label: "Datetime Object", value: "dt", correct: true, reason: "Correct! pd.to_datetime() does this." },
+                        { label: "Integer", value: "int", correct: false, reason: "Dates are not simple integers." }
+                    ]
+                },
+                execute: (app) => {
+                    app.addSnippet("Parse Dates", `df['visit_date'] = pd.to_datetime(df['visit_date'])`)
+                }
+            },
+            {
+                id: 'future_dates',
+                title: 'Step 12: Time Travel',
+                concept: `
+                    <p class="mb-4"><strong>Future Dates.</strong></p>
+                    <p>We see visits in the year 2050. Unless we have a time machine, this is an error.</p>
+                `,
+                quiz: {
+                    question: "What to do with dates > today?",
+                    options: [
+                        { label: "Filter them out", value: "filter", correct: true, reason: "Correct. Remove impossible future records." },
+                        { label: "Keep them", value: "keep", correct: false, reason: "It will break time-series analysis." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.filter(d => d.visit_date.startsWith('202'));
+                    app.addSnippet("Remove Future Dates", `import datetime\ntoday = datetime.datetime.now()\ndf = df[df['visit_date'] <= today]`)
+                }
+            },
+            {
+                id: 'outliers',
+                title: 'Step 13: Outliers',
+                concept: `
+                    <p class="mb-4"><strong>The 250 Year Old.</strong></p>
+                    <p>Age column has values like 250 or -5.</p>
+                `,
+                quiz: {
+                    question: "Filter Age to:",
+                    options: [
+                        { label: "0 to 120", value: "range", correct: true, reason: "Correct. Reasonable biological limit." },
+                        { label: "All positive numbers", value: "pos", correct: false, reason: "250 is positive but impossible." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.filter(d => d.age <= 120 && d.age >= 0);
+                    app.addSnippet("Remove Outliers", `df = df[(df['age'] >= 0) & (df['age'] <= 120)]`)
+                }
+            },
+            {
+                id: 'typos',
+                title: 'Step 14: Categorical Typos',
+                concept: `
+                    <p class="mb-4"><strong>'mle' is not Male.</strong></p>
+                    <p>Standardize categories in the Gender column.</p>
+                `,
+                quiz: {
+                    question: "Fix 'mle' and 'femal'.",
+                    options: [
+                        { label: "Replace Map", value: "map", correct: true, reason: "Correct. Map typos to clean labels." },
+                        { label: "Drop rows", value: "drop", correct: false, reason: "Unnecessary data loss." }
+                    ]
+                },
+                execute: (app) => {
+                    const map = { "mle": "Male", "femal": "Female", "Unknown": "Unknown", "Male": "Male", "Female": "Female" };
+                    app.data = app.data.map(d => ({ ...d, gender: map[d.gender] || d.gender }));
+                    app.addSnippet("Fix Typos", `gender_map = {'mle': 'Male', 'femal': 'Female'}\ndf['gender'] = df['gender'].replace(gender_map)`)
+                }
+            },
+            {
+                id: 'boolean',
+                title: 'Step 15: Boolean Logic',
+                concept: `
+                    <p class="mb-4"><strong>Yes, No, Y, n...</strong></p>
+                    <p>The 'smoker_status' column is a mess of formats.</p>
+                `,
+                quiz: {
+                    question: "Standardize smoker status to:",
+                    options: [
+                        { label: "True/False", value: "bool", correct: true, reason: "Correct. Booleans are efficient." },
+                        { label: "Keep as Strings", value: "str", correct: false, reason: "Harder to use in logic." }
+                    ]
+                },
+                execute: (app) => {
+                    app.data = app.data.map(d => ({ ...d, smoker_status: (d.smoker_status.toLowerCase().startsWith('y')) }));
+                    app.addSnippet("Fix Booleans", `df['smoker_status'] = df['smoker_status'].map({'Yes': True, 'Y': True, 'No': False, 'n': False})`)
+                }
+            },
+            {
+                id: 'split',
+                title: 'Step 16: String Splitting',
+                concept: `
+                    <p class="mb-4"><strong>Combined Data.</strong></p>
+                    <p>The address column is "City, State". We might want to analyze by State.</p>
+                `,
+                quiz: {
+                    question: "How to get State column?",
+                    options: [
+                        { label: "Split String", value: "split", correct: true, reason: "Correct. Split on comma." },
+                        { label: "Regex", value: "regex", correct: false, reason: "Overkill for simple CSV." }
+                    ]
+                },
+                execute: (app) => {
+                    app.columns.push('state');
+                    app.data = app.data.map(d => ({ ...d, state: d.address_full.split(', ')[1] }));
+                    app.addSnippet("Split Columns", `df[['city', 'state']] = df['address_full'].str.split(', ', expand=True)`)
+                }
+            },
+            {
+                id: 'encoding',
+                title: 'Step 17: Encoding',
+                concept: `
+                    <p class="mb-4"><strong>Text to Numbers.</strong></p>
+                    <p>Models can't read 'Hypertension'. They read numbers. We can use One-Hot Encoding.</p>
+                `,
+                quiz: {
+                    question: "Convert Diagnosis to One-Hot?",
+                    options: [
+                        { label: "pd.get_dummies()", value: "dummy", correct: true, reason: "Correct! Creates binary columns for each diagnosis." },
+                        { label: "LabelEncoder", value: "label", correct: false, reason: "Implies order (Asthma < Flu) which is wrong." }
+                    ]
+                },
+                execute: (app) => {
+                    // We won't actually explode the table in UI to keep it readable, but we add code
+                    app.addSnippet("One-Hot Encoding", `df_encoded = pd.get_dummies(df, columns=['diagnosis'])`)
+                }
+            },
+            {
+                id: 'done',
+                title: 'Lesson Complete!',
+                concept: `
+                    <p class="text-xl font-bold text-green-600 mb-4">Master Cleanse Complete.</p>
+                    <p class="mb-4">You started with 18 steps of chaos and now have a pristine dataset.</p>
+                    <p>You can download your clean CSV or copy the full script.</p>
+                `,
+                action: (app) => {
+                     // Final state
+                }
+            }
+        ];
+
+        class DataLab {
+            constructor() {
+                this.data = [];
+                this.columns = [];
+                this.stepIndex = 0;
+                this.snippets = [];
+                this.init();
+            }
+
+            init() {
+                this.data = generateData(150);
+                this.columns = Object.keys(this.data[0]);
+                this.stepIndex = 0;
+                this.snippets = [];
+                this.render();
+                this.showOverlay();
+                lucide.createIcons();
+            }
+
+            resetLab() {
+                this.init();
+            }
+
+            get currentStep() {
+                return STEPS[this.stepIndex];
+            }
+
+            // --- UI RENDERERS ---
+
+            render() {
+                this.renderTable();
+                this.renderProgress();
+                this.renderNotebook();
+            }
+
+            renderTable() {
+                const thead = document.getElementById('table-header');
+                const tbody = document.getElementById('table-body');
+                const stats = document.getElementById('data-stats');
+
+                // Headers
+                thead.innerHTML = this.columns.map(col => `
+                    <th class="px-6 py-3 font-medium whitespace-nowrap ${col === 'admin_routing_code' ? 'text-red-400' : 'text-slate-600'}">
+                        ${col}
+                    </th>
+                `).join('');
+
+                // Body (first 10 rows)
+                tbody.innerHTML = this.data.slice(0, 10).map(row => `
+                    <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                        ${this.columns.map(col => {
+                            let val = row[col];
+                            let display = val;
+                            let style = "text-slate-600";
+                            
+                            // Highlight issues
+                            if (val === null) {
+                                display = "NaN";
+                                style = "text-red-500 font-bold font-mono";
+                            } 
+                            // Only highlight specific issues if column exists
+                            else if (col === 'age' && (val > 120 || val < 0)) style = "text-amber-600 font-bold";
+                            else if (col.includes('weight') && val > 400) style = "text-amber-600 font-bold";
+                            else if (col === 'gender' && (val === 'mle' || val === 'femal')) style = "text-purple-600 font-bold underline decoration-wavy";
+                            else if (col === 'dept' && val.startsWith(' ')) style = "bg-yellow-100";
+
+                            return `<td class="px-6 py-3 whitespace-nowrap ${style}">${display}</td>`;
+                        }).join('')}
+                    </tr>
+                `).join('');
+
+                stats.innerText = `${this.data.length} rows • ${this.columns.length} columns`;
+            }
+
+            renderProgress() {
+                const progress = ((this.stepIndex) / (STEPS.length - 1)) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+                document.getElementById('step-indicator').innerText = this.currentStep.title;
+            }
+
+            renderNotebook() {
+                const container = document.getElementById('notebook-area');
+                container.innerHTML = `
+                    <div class="flex items-center gap-2 mb-4 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                        <i data-lucide="book-open" class="w-3 h-3"></i>
+                        <span>Your Python Notebook</span>
+                    </div>
+                ` + this.snippets.map((snip, idx) => `
+                    <div class="bg-slate-900 rounded-lg overflow-hidden mb-4 shadow-lg border border-slate-700 animate-fade-in group">
+                        <div class="bg-slate-800 px-3 py-2 flex justify-between items-center border-b border-slate-700">
+                            <span class="text-xs font-mono text-blue-300 font-bold">In [${idx+1}]: ${snip.title}</span>
+                            <button onclick="app.copyCode(this)" class="text-slate-500 hover:text-white transition-colors">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <div class="p-3 relative">
+                            <pre class="text-xs font-mono text-slate-300 leading-relaxed overflow-x-auto"><code>${snip.code}</code></pre>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+                
+                const guide = document.getElementById('guide-container');
+                guide.scrollTop = guide.scrollHeight;
+            }
+
+            renderQuiz() {
+                const area = document.getElementById('quiz-area');
+                const qTitle = document.getElementById('quiz-question');
+                const qOptions = document.getElementById('quiz-options');
+                const qFeedback = document.getElementById('quiz-feedback');
+
+                qFeedback.className = "hidden mt-4 p-3 rounded-lg text-sm font-medium";
+                qFeedback.innerHTML = "";
+
+                if (!this.currentStep.quiz) {
+                    area.classList.add('hidden');
+                    return;
+                }
+
+                area.classList.remove('hidden');
+                qTitle.innerText = this.currentStep.quiz.question;
+                
+                qOptions.innerHTML = this.currentStep.quiz.options.map((opt, idx) => `
+                    <button onclick="app.handleQuiz('${opt.value}')" 
+                        class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-sm font-medium text-slate-700 flex items-center justify-between group"
+                        data-val="${opt.value}"
+                    >
+                        <span>${opt.label}</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-blue-500"></i>
+                    </button>
+                `).join('');
+                lucide.createIcons();
+            }
+
+            // --- INTERACTIONS ---
+
+            handleQuiz(selectedValue) {
+                const step = this.currentStep;
+                const option = step.quiz.options.find(o => o.value === selectedValue);
+                const feedbackEl = document.getElementById('quiz-feedback');
+                
+                feedbackEl.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-800');
+
+                if (option.correct) {
+                    // Success Feedback
+                    feedbackEl.classList.add('bg-green-50', 'text-green-800', 'border', 'border-green-200');
+                    feedbackEl.innerHTML = `<div class="flex gap-2"><i data-lucide="check-circle" class="w-5 h-5"></i> <div><strong>Correct!</strong> ${option.reason}</div></div>`;
+                    
+                    // Disable buttons
+                    const buttons = document.querySelectorAll('#quiz-options button');
+                    buttons.forEach(b => {
+                        b.disabled = true;
+                        b.classList.add('opacity-50', 'cursor-not-allowed');
+                        if (b.dataset.val === selectedValue) {
+                            b.classList.remove('opacity-50', 'border-slate-200');
+                            b.classList.add('bg-green-100', 'border-green-500', 'text-green-900');
+                        }
+                    });
+
+                    // EXECUTE Logic
+                    step.execute(this);
+                    
+                    // Get last added snippet
+                    const lastSnippet = this.snippets[this.snippets.length - 1];
+
+                    // Delay slightly then show Modal
+                    setTimeout(() => {
+                        this.showCodeModal(lastSnippet.code);
+                    }, 800);
+
+                } else {
+                    // Failure
+                    feedbackEl.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+                    feedbackEl.innerHTML = `<div class="flex gap-2"><i data-lucide="x-circle" class="w-5 h-5"></i> <div><strong>Try Again.</strong> ${option.reason}</div></div>`;
+                }
+                lucide.createIcons();
+            }
+
+            showCodeModal(code) {
+                const modal = document.getElementById('code-modal');
+                document.getElementById('modal-code-content').innerText = code;
+                modal.classList.remove('hidden');
+                lucide.createIcons();
+            }
+
+            closeCodeModal() {
+                document.getElementById('code-modal').classList.add('hidden');
+                this.render(); // Re-render table with changes
+                this.nextStep();
+            }
+
+            copyModalCode(btn) {
+                const code = document.getElementById('modal-code-content').innerText;
+                navigator.clipboard.writeText(code);
+                
+                // Visual feedback
+                const icon = btn.querySelector('svg');
+                btn.classList.add('bg-green-600', 'text-white', 'border-green-500');
+                btn.classList.remove('bg-slate-800', 'text-slate-300');
+                
+                setTimeout(() => {
+                    btn.classList.remove('bg-green-600', 'text-white', 'border-green-500');
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                }, 1000);
+            }
+
+            addSnippet(title, code) {
+                this.snippets.push({ title, code });
+                // Don't render notebook immediately here, wait for next step or render call
+            }
+
+            nextStep() {
+                if (this.stepIndex < STEPS.length - 1) {
+                    this.stepIndex++;
+                    this.renderProgress();
+                    this.showOverlay(); // Show concept for next step
+                }
+            }
+
+            showOverlay() {
+                const ov = document.getElementById('overlay');
+                const title = document.getElementById('overlay-title');
+                const content = document.getElementById('overlay-content');
+
+                title.innerText = this.currentStep.title;
+                content.innerHTML = this.currentStep.concept;
+
+                // Run immediate action if no quiz (like step 0)
+                if (!this.currentStep.quiz && this.currentStep.action) {
+                    this.currentStep.action(this);
+                }
+
+                ov.classList.remove('hidden');
+            }
+
+            dismissOverlay() {
+                document.getElementById('overlay').classList.add('hidden');
+                
+                if (this.currentStep.id === 'intro') {
+                    // Intro has no quiz, just action, so allow move to next
+                    this.stepIndex++;
+                    this.renderProgress();
+                    this.showOverlay();
+                } else {
+                    this.renderQuiz();
+                }
+            }
+
+            copyCode(btn) {
+                const code = btn.parentElement.nextElementSibling.innerText;
+                navigator.clipboard.writeText(code);
+                
+                const original = btn.innerHTML;
+                btn.innerHTML = `<span class="text-green-400 text-xs font-bold">Copied!</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    lucide.createIcons();
+                }, 1500);
+            }
+
+            downloadCSV() {
+                // Convert current app.data to CSV
+                if (!this.data || !this.data.length) return;
+                
+                const headers = this.columns.join(",");
+                const rows = this.data.map(obj => {
+                    return this.columns.map(col => {
+                        const val = obj[col] === null ? "" : obj[col];
+                        return `"${String(val).replace(/"/g, '""')}"`; // Escape quotes
+                    }).join(",");
+                });
+                
+                const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "healthcare_data_cleaned.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Initialize App
+        const app = new DataLab();
+
+    </script>
+</body>
+</html>

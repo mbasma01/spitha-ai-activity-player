@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Science Concepts: The Art of Cleaning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .slide-enter { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        
+        .code-reveal { animation: popIn 0.5s ease forwards; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+
+        .hidden-space::after {
+            content: '␣';
+            color: #ef4444;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col">
+
+    <!-- Progress Bar (Fixed Top) -->
+    <div class="fixed top-0 left-0 w-full h-2 bg-slate-800 z-50">
+        <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-500" style="width: 0%"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col items-center justify-center p-6 max-w-6xl mx-auto w-full">
+        
+        <!-- INTRO SCREEN -->
+        <div id="slide-intro" class="text-center slide-enter max-w-2xl">
+            <div class="inline-block p-6 bg-blue-600/20 rounded-full mb-8 animate-pulse">
+                <i data-lucide="sparkles" class="w-16 h-16 text-blue-400"></i>
+            </div>
+            <h1 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Data Hygiene 101</h1>
+            <p class="text-xl text-slate-400 mb-6 leading-relaxed">
+                Clean data is the fuel for AI. Dirty data is the engine killer.<br>
+                Master the <strong>10 Enemies</strong> of data science and learn the Python code to defeat them.
+            </p>
+            <div class="flex flex-wrap justify-center gap-2 mb-10 text-xs text-slate-500 font-mono max-w-lg mx-auto">
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Missing</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Outliers</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Duplicates</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Inconsistency</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Types</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Whitespace</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Units</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Dates</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Noise</span>
+                <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700">Case</span>
+            </div>
+            <button onclick="nextSlide('intro', 'missing')" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-blue-900/50 flex items-center gap-3 mx-auto">
+                Start Training <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- 1. MISSING DATA -->
+        <div id="slide-missing" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-red-400">
+                        <i data-lucide="ghost" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #1</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Void (Missing Data)</h2>
+                    <p class="text-slate-400 text-lg mb-6">You have two main choices: <strong>Delete the row</strong> or <strong>Impute</strong> (fill with average).</p>
+                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                        <p class="text-slate-400 text-sm mb-4">You have a small dataset (50 patients). 3 are missing "Weight". Removing them deletes 6% of your data! Action?</p>
+                        <div class="grid gap-3">
+                            <button onclick="checkMissing(this, false)" class="text-left p-4 rounded-lg bg-slate-900 hover:bg-slate-700 border border-slate-600 transition-colors">A) Delete rows</button>
+                            <button onclick="checkMissing(this, true)" class="text-left p-4 rounded-lg bg-slate-900 hover:bg-slate-700 border border-slate-600 transition-colors">B) Fill with Average</button>
+                        </div>
+                        <div id="feedback-missing" class="mt-4 hidden font-bold text-green-400 flex items-center gap-2"><i data-lucide="check-circle"></i> Correct! Preserving data is key.</div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 relative overflow-hidden h-64 flex items-center justify-center">
+                        <div class="grid grid-cols-3 gap-4 w-full text-center font-mono text-sm">
+                            <div class="p-3 bg-slate-700 rounded">75kg</div><div class="p-3 bg-slate-700 rounded">82kg</div>
+                            <div id="missing-cell" class="p-3 bg-red-900/30 border border-red-500/50 text-red-400 rounded animate-pulse">NaN</div>
+                            <div class="p-3 bg-slate-700 rounded">60kg</div><div class="p-3 bg-slate-700 rounded">90kg</div><div class="p-3 bg-slate-700 rounded">88kg</div>
+                        </div>
+                    </div>
+                    <div id="code-missing" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <code class="font-mono text-sm text-slate-300 block">df['weight'].<span class="text-blue-400">fillna</span>(df['weight'].mean(), inplace=True)</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('missing', 'outliers')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. OUTLIERS -->
+        <div id="slide-outliers" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-amber-400">
+                        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #2</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Impossible (Outliers)</h2>
+                    <p class="text-slate-400 text-lg mb-6">Errors (like age=250) wreck statistics. Click the suspicious bar to remove it.</p>
+                    <div id="feedback-outliers" class="hidden font-bold text-green-400 flex items-center gap-2"><i data-lucide="check-circle"></i> Outlier Removed!</div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 h-64 flex items-end justify-center gap-4">
+                        <div class="w-12 bg-blue-500 rounded-t-lg h-32 relative"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-slate-400">32</span></div>
+                        <div onclick="removeOutlier(this)" class="w-12 bg-amber-500 hover:bg-red-500 cursor-pointer rounded-t-lg h-[90%] relative transition-all hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.5)] animate-pulse"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-amber-400 font-bold">250</span></div>
+                        <div class="w-12 bg-blue-500 rounded-t-lg h-28 relative"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-slate-400">28</span></div>
+                    </div>
+                    <div id="code-outliers" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <code class="font-mono text-sm text-slate-300 block">df = df[df['age'] < <span class="text-orange-400">120</span>]</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('outliers', 'duplicates')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. DUPLICATES -->
+        <div id="slide-duplicates" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-blue-400">
+                        <i data-lucide="copy" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #3</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Clones (Duplicates)</h2>
+                    <p class="text-slate-400 text-lg mb-6">Identify and click the row that is an exact copy of another row.</p>
+                    <div id="feedback-duplicates" class="hidden font-bold text-green-400 flex items-center gap-2"><i data-lucide="check-circle"></i> Duplicate Deleted!</div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex flex-col justify-center h-64">
+                        <div class="w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700 text-sm font-mono">
+                            <div class="grid grid-cols-3 bg-slate-950 p-3 text-slate-500"><div>ID</div><div>Name</div><div>Date</div></div>
+                            <div class="grid grid-cols-3 p-3 bg-slate-900 text-slate-300"><div>101</div><div>John</div><div>2023-10-01</div></div>
+                            <div class="grid grid-cols-3 p-3 bg-slate-900 text-slate-300"><div>102</div><div>Jane</div><div>2023-10-05</div></div>
+                            <div onclick="removeDuplicate(this)" class="grid grid-cols-3 p-3 bg-slate-900 text-slate-300 hover:bg-red-900/20 cursor-pointer transition-colors group"><div>101</div><div>John</div><div>2023-10-01</div></div>
+                        </div>
+                    </div>
+                    <div id="code-duplicates" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <code class="font-mono text-sm text-slate-300 block">df.<span class="text-blue-400">drop_duplicates</span>(inplace=True)</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('duplicates', 'inconsistency')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. INCONSISTENCY -->
+        <div id="slide-inconsistency" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-purple-400">
+                        <i data-lucide="type" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #4</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Mess (Inconsistency)</h2>
+                    <p class="text-slate-400 text-lg mb-6">Standard label is "New York". Click the bad labels to map them correctly.</p>
+                    <div id="feedback-inconsistency" class="hidden font-bold text-green-400 flex items-center gap-2"><i data-lucide="check-circle"></i> Cleaned!</div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex flex-col items-center gap-4 h-64 justify-center">
+                        <button onclick="fixLabel(this)" class="w-40 py-2 rounded bg-slate-700 hover:bg-purple-600 text-slate-300 font-mono">ny</button>
+                        <button onclick="fixLabel(this)" class="w-40 py-2 rounded bg-slate-700 hover:bg-purple-600 text-slate-300 font-mono">N.Y.</button>
+                        <div class="w-40 py-2 rounded bg-green-900/30 text-green-400 border border-green-500/30 font-mono text-center">New York</div>
+                    </div>
+                    <div id="code-inconsistency" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <code class="font-mono text-sm text-slate-300 block">df['city'] = df['city'].<span class="text-blue-400">replace</span>({'ny': 'New York'})</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('inconsistency', 'types')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. WRONG DATA TYPES (NEW) -->
+        <div id="slide-types" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-orange-400">
+                        <i data-lucide="hash" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #5</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Imposter (Data Types)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        Sometimes numbers are stored as text (Strings). <br>
+                        <code>"100" + "100" = "100100"</code> (String Math) <br>
+                        <code>100 + 100 = 200</code> (Integer Math)
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> Click the cell that is secretly a String.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex items-center justify-center h-64 gap-4 font-mono text-xl">
+                        <div class="p-4 bg-slate-700 rounded border border-slate-600">45</div>
+                        <div onclick="checkType(this)" class="p-4 bg-slate-700 rounded border border-slate-600 hover:bg-orange-900/40 cursor-pointer relative group">
+                            "88"
+                            <span class="absolute -top-3 -right-3 bg-orange-500 text-xs text-white px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">String</span>
+                        </div>
+                        <div class="p-4 bg-slate-700 rounded border border-slate-600">12</div>
+                    </div>
+                    <div id="code-types" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">df['age'] = df['age'].<span class="text-blue-400">astype</span>(int)</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('types', 'whitespace')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. WHITESPACE (NEW) -->
+        <div id="slide-whitespace" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-cyan-400">
+                        <i data-lucide="align-left" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #6</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Phantom (Whitespace)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        "Sales" and "Sales " are not the same. Invisible spaces prevent grouping and filtering.
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> One of these departments has invisible spaces. Click to clean it.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex flex-col items-center justify-center h-64 gap-4 font-mono">
+                        <div class="w-48 p-3 bg-slate-700 rounded text-center border border-slate-600">"HR"</div>
+                        <div onclick="checkWhitespace(this)" class="w-48 p-3 bg-slate-700 rounded text-center border border-slate-600 hover:bg-cyan-900/30 cursor-pointer relative group">
+                            " IT "
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                                <span class="text-red-500 text-xs absolute left-2">_</span>
+                                <span class="text-red-500 text-xs absolute right-2">_</span>
+                            </div>
+                        </div>
+                        <div class="w-48 p-3 bg-slate-700 rounded text-center border border-slate-600">"Sales"</div>
+                    </div>
+                    <div id="code-whitespace" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">df['dept'] = df['dept'].str.<span class="text-blue-400">strip</span>()</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('whitespace', 'units')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. MIXED UNITS (NEW) -->
+        <div id="slide-units" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-pink-400">
+                        <i data-lucide="ruler" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #7</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Chameleon (Mixed Units)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        Some entries are in meters (1.75), others in cm (175). This destroys your averages.
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> Click the value that is in the wrong unit to standardize it.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex items-center justify-center h-64 gap-4 font-mono text-lg">
+                        <div class="p-4 bg-slate-700 rounded">180</div>
+                        <div onclick="checkUnits(this)" class="p-4 bg-slate-700 rounded border border-slate-600 hover:bg-pink-900/30 cursor-pointer text-pink-300">1.75</div>
+                        <div class="p-4 bg-slate-700 rounded">172</div>
+                    </div>
+                    <div id="code-units" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">
+                            # Convert small numbers (m) to cm<br>
+                            df.loc[df['height'] < 3, 'height'] *= 100
+                        </code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('units', 'dates')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. DATES (NEW) -->
+        <div id="slide-dates" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-emerald-400">
+                        <i data-lucide="calendar" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #8</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Time Traveler (Dates)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        "2023-01-01" looks like a date, but Python sees it as a String. You can't sort or filter by month until you convert it.
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> The dates below are raw text. Click to parse them into datetime objects.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex items-center justify-center h-64">
+                        <button onclick="checkDates(this)" class="bg-slate-700 hover:bg-emerald-900/30 text-slate-300 border border-slate-600 px-6 py-4 rounded font-mono text-lg transition-all">
+                            ["2023-01-01", "2023-01-05"]
+                        </button>
+                    </div>
+                    <div id="code-dates" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">df['date'] = pd.<span class="text-blue-400">to_datetime</span>(df['date'])</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('dates', 'noise')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. NOISE (NEW) -->
+        <div id="slide-noise" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-gray-400">
+                        <i data-lucide="scissors" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #9</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Noise (Irrelevant Data)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        Internal IDs, routing codes, and PII (Personally Identifiable Information) clutter your dataset and confuse models.
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> Click the column header that is useless for health analysis to drop it.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex items-center justify-center h-64">
+                        <div class="w-full max-w-md bg-slate-900 rounded border border-slate-700 overflow-hidden">
+                            <div class="flex border-b border-slate-700">
+                                <div class="flex-1 p-2 bg-slate-800 text-center text-xs font-bold text-slate-400">Age</div>
+                                <div onclick="checkNoise(this)" class="flex-1 p-2 bg-slate-800 text-center text-xs font-bold text-red-400 cursor-pointer hover:bg-red-900/30 transition-colors">Internal_ID</div>
+                                <div class="flex-1 p-2 bg-slate-800 text-center text-xs font-bold text-slate-400">Weight</div>
+                            </div>
+                            <div class="flex text-slate-500 font-mono text-sm border-b border-slate-800"><div class="flex-1 p-2 text-center">25</div><div class="flex-1 p-2 text-center">XJ-9</div><div class="flex-1 p-2 text-center">70</div></div>
+                            <div class="flex text-slate-500 font-mono text-sm"><div class="flex-1 p-2 text-center">30</div><div class="flex-1 p-2 text-center">RT-2</div><div class="flex-1 p-2 text-center">80</div></div>
+                        </div>
+                    </div>
+                    <div id="code-noise" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">df.<span class="text-blue-400">drop</span>(columns=['Internal_ID'], inplace=True)</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('noise', 'case')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Next</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. CAPITALIZATION (NEW) -->
+        <div id="slide-case" class="hidden w-full max-w-5xl slide-enter">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <div>
+                    <div class="flex items-center gap-3 mb-4 text-indigo-400">
+                        <i data-lucide="arrow-up-circle" class="w-8 h-8"></i>
+                        <span class="font-bold text-xl uppercase tracking-wider">Enemy #10</span>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">The Case (Capitalization)</h2>
+                    <p class="text-slate-400 text-lg mb-6">
+                        "john" and "John" are treated as different people. Inconsistent casing creates duplicate categories.
+                    </p>
+                    <p class="text-slate-400 text-sm"><strong>Challenge:</strong> Click the lowercase name to fix it.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 flex flex-col items-center justify-center h-64 gap-3 font-mono">
+                        <div class="w-48 p-3 bg-slate-700 rounded border border-slate-600">"John"</div>
+                        <div onclick="checkCase(this)" class="w-48 p-3 bg-slate-700 rounded border border-slate-600 hover:bg-indigo-900/30 cursor-pointer">"jane"</div>
+                        <div class="w-48 p-3 bg-slate-700 rounded border border-slate-600">"Robert"</div>
+                    </div>
+                    <div id="code-case" class="hidden bg-slate-950 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-green-400 text-xs font-bold mb-2 uppercase">Python Solution</div>
+                        <code class="font-mono text-sm text-slate-300 block">df['name'] = df['name'].str.<span class="text-blue-400">title</span>()</code>
+                        <div class="mt-4 flex justify-end"><button onclick="nextSlide('case', 'summary')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold text-sm">Finish</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY -->
+        <div id="slide-summary" class="hidden w-full max-w-6xl slide-enter">
+            <div class="text-center mb-12">
+                <div class="inline-block p-4 bg-green-500/20 rounded-full mb-6 text-green-400">
+                    <i data-lucide="award" class="w-16 h-16"></i>
+                </div>
+                <h1 class="text-4xl font-bold mb-4 text-white">Concept Mastery Complete</h1>
+                <p class="text-slate-400 text-lg">You have identified 10 data enemies and learned their Python counter-spells.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12 text-xs">
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-red-400 font-bold mb-1">Missing</div>df.fillna()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-amber-400 font-bold mb-1">Outliers</div>df[df &lt; x]</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-blue-400 font-bold mb-1">Duplicates</div>drop_duplicates()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-purple-400 font-bold mb-1">Inconsistent</div>replace()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-orange-400 font-bold mb-1">Types</div>astype()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-cyan-400 font-bold mb-1">Whitespace</div>str.strip()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-pink-400 font-bold mb-1">Units</div>math op</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-emerald-400 font-bold mb-1">Dates</div>to_datetime()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-gray-400 font-bold mb-1">Noise</div>drop()</div>
+                <div class="bg-slate-800 p-4 rounded border border-slate-700"><div class="text-indigo-400 font-bold mb-1">Case</div>str.title()</div>
+            </div>
+
+            <div class="text-center">
+                <a href="pandas_guide.html" class="inline-flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/50">
+                    Next: Get the Pandas Toolkit <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const updateProgress = (pct) => { document.getElementById('progress-bar').style.width = `${pct}%`; };
+
+        const nextSlide = (current, next) => {
+            document.getElementById(`slide-${current}`).classList.add('hidden');
+            document.getElementById(`slide-${next}`).classList.remove('hidden');
+            
+            const steps = ['intro', 'missing', 'outliers', 'duplicates', 'inconsistency', 'types', 'whitespace', 'units', 'dates', 'noise', 'case', 'summary'];
+            const idx = steps.indexOf(next);
+            updateProgress((idx / (steps.length - 1)) * 100);
+        };
+
+        // 1. Missing
+        function checkMissing(btn, isCorrect) {
+            const feedback = document.getElementById('feedback-missing');
+            const cell = document.getElementById('missing-cell');
+            const codeReveal = document.getElementById('code-missing');
+            
+            if (isCorrect) {
+                if(feedback) feedback.classList.remove('hidden');
+                btn.classList.add('border-green-500', 'bg-green-900/20', 'text-green-300');
+                cell.innerText = "83kg";
+                cell.classList.remove('bg-red-900/30', 'text-red-400', 'animate-pulse', 'border-red-500/50');
+                cell.classList.add('bg-green-900/30', 'text-green-400', 'border-green-500/50');
+                codeReveal.classList.remove('hidden');
+                codeReveal.classList.add('code-reveal');
+                btn.parentElement.querySelectorAll('button').forEach(b => b.disabled = true);
+                btn.disabled = false;
+            } else {
+                btn.classList.add('border-red-500', 'bg-red-900/20');
+                btn.innerText += " (Bad idea!)";
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 500);
+            }
+        }
+
+        // 2. Outliers
+        function removeOutlier(el) {
+            el.style.height = "0"; el.style.opacity = "0"; el.style.padding = "0"; el.style.width = "0"; el.style.margin = "0";
+            document.getElementById('feedback-outliers').classList.remove('hidden');
+            const code = document.getElementById('code-outliers');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 3. Duplicates
+        function removeDuplicate(el) {
+            el.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => el.style.display = 'none', 300);
+            document.getElementById('feedback-duplicates').classList.remove('hidden');
+            const code = document.getElementById('code-duplicates');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 4. Inconsistency
+        let fixedCount = 0;
+        function fixLabel(el) {
+            if (el.classList.contains('bg-green-900/30')) return;
+            el.innerHTML = "New York";
+            el.className = "w-40 py-2 rounded bg-green-900/30 text-green-400 border border-green-500/30 font-mono text-center";
+            fixedCount++;
+            if (fixedCount === 2) {
+                document.getElementById('feedback-inconsistency').classList.remove('hidden');
+                const code = document.getElementById('code-inconsistency');
+                code.classList.remove('hidden'); code.classList.add('code-reveal');
+            }
+        }
+
+        // 5. Types
+        function checkType(el) {
+            el.innerText = "88";
+            el.classList.remove('bg-slate-700', 'hover:bg-orange-900/40');
+            el.classList.add('bg-green-900/30', 'text-green-400', 'border-green-500/30');
+            // The span is automatically removed when setting innerText
+            const code = document.getElementById('code-types');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 6. Whitespace
+        function checkWhitespace(el) {
+            el.innerText = '"IT"';
+            el.classList.remove('bg-slate-700', 'hover:bg-cyan-900/30');
+            el.classList.add('bg-green-900/30', 'text-green-400', 'border-green-500/30');
+            const code = document.getElementById('code-whitespace');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 7. Units
+        function checkUnits(el) {
+            el.innerText = "175";
+            el.classList.remove('bg-slate-700', 'hover:bg-pink-900/30', 'text-pink-300');
+            el.classList.add('bg-green-900/30', 'text-green-400', 'border-green-500/30');
+            const code = document.getElementById('code-units');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 8. Dates
+        function checkDates(el) {
+            el.innerHTML = '<code>[datetime(2023,1,1), datetime(2023,1,5)]</code>';
+            el.className = "bg-green-900/30 text-green-400 border border-green-500/30 px-6 py-4 rounded font-mono text-sm";
+            const code = document.getElementById('code-dates');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 9. Noise
+        function checkNoise(el) {
+            el.style.opacity = '0.3';
+            el.style.textDecoration = 'line-through';
+            const code = document.getElementById('code-noise');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        // 10. Case
+        function checkCase(el) {
+            el.innerText = '"Jane"';
+            el.classList.remove('bg-slate-700', 'hover:bg-indigo-900/30');
+            el.classList.add('bg-green-900/30', 'text-green-400', 'border-green-500/30');
+            const code = document.getElementById('code-case');
+            code.classList.remove('hidden'); code.classList.add('code-reveal');
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

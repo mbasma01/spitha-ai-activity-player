@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Challenge: The Capstone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-4xl w-full bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col md:flex-row">
+        
+        <!-- Left: Briefing -->
+        <div class="p-10 md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-700">
+            <div class="mb-6 inline-block bg-yellow-500/20 text-yellow-400 p-3 rounded-2xl">
+                <i data-lucide="trophy" class="w-10 h-10"></i>
+            </div>
+            <p class="text-slate-400 text-lg mb-8">
+                No guides. No hints. Just you, Python, and a very messy dataset.
+            </p>
+            
+            <button onclick="downloadCapstone()" class="bg-blue-600 hover:bg-blue-500 text-white py-4 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-lg shadow-blue-900/50">
+                <i data-lucide="download-cloud"></i> Download "messy_real_estate.csv"
+            </button>
+            <p class="text-xs text-slate-500 mt-4 text-center">Contains 500 rows of dirty property data.</p>
+        </div>
+
+        <!-- Right: Requirements -->
+        <div class="p-10 md:w-1/2 bg-slate-800/50">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <i data-lucide="list-checks" class="text-green-400"></i> Requirements
+            </h2>
+            
+            <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">1</div>
+                    <span class="text-slate-300">Load the dataset and inspect <code class="bg-slate-900 px-1 rounded text-xs">df.info()</code>.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">2</div>
+                    <span class="text-slate-300">Clean the <strong>Price</strong> column (remove '$' sign, convert to integer).</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">3</div>
+                    <span class="text-slate-300">Filter out houses with <strong>0 bedrooms</strong> or negative square footage.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">4</div>
+                    <span class="text-slate-300">Fill missing <strong>Year Built</strong> values with the median year.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">5</div>
+                    <span class="text-slate-300">Standardize <strong>City</strong> names (fix "ny", "N.Y.").</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full border border-slate-500 flex items-center justify-center text-xs text-slate-500 mt-0.5">6</div>
+                    <span class="text-slate-300">Save the result as <code class="bg-slate-900 px-1 rounded text-xs">clean_estate.csv</code>.</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function downloadCapstone() {
+            // Generate Real Estate Data on the fly
+            const headers = "property_id,price_raw,bedrooms,sq_ft,year_built,city_name,listing_status";
+            let rows = [];
+            const cities = ["New York", "ny", "N.Y.", "NY", "Brooklyn", "Queens"];
+            
+            for(let i=0; i<500; i++) {
+                let pid = 5000 + i;
+                let price = `$${Math.floor(Math.random() * 900) + 100},000`;
+                if(Math.random() < 0.1) price = null; // Missing
+
+                let beds = Math.floor(Math.random() * 6); // 0 is possible (error)
+                let sqft = Math.floor(Math.random() * 3000) + 500;
+                if(Math.random() < 0.05) sqft = -2000; // Negative sqft
+
+                let year = Math.floor(Math.random() * 120) + 1900;
+                if(Math.random() < 0.1) year = ""; // Missing year
+
+                let city = cities[Math.floor(Math.random() * cities.length)];
+                let status = Math.random() > 0.5 ? "Active" : "Sold";
+
+                // Escape CSV
+                rows.push(`${pid},"${price}",${beds},${sqft},${year},"${city}",${status}`);
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "messy_real_estate.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+    </script>
+</body>
+</html>

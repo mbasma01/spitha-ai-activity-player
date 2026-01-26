@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Lab: Retail Sales Cleaning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .highlight-diff { animation: flash 1s ease; }
+        @keyframes flash { 0% { background-color: #dcfce7; } 100% { background-color: transparent; } }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 p-4 flex justify-between items-center shadow-sm z-10">
+        <div class="flex items-center gap-2 text-indigo-600 font-bold text-lg">
+            <i data-lucide="shopping-bag"></i>
+            <span>Retail Data Lab</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-sm font-medium text-slate-500 hidden md:block">Target: Clean Sales Ledger</div>
+            <button onclick="downloadCSV()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <i data-lucide="download" class="w-4 h-4"></i> Download CSV
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Controls -->
+        <aside class="w-1/3 min-w-[300px] bg-white border-r border-slate-200 p-6 overflow-y-auto flex flex-col">
+            <h2 class="font-bold text-xl mb-4 text-slate-800">Cleaning Checklist</h2>
+            <div id="steps-container" class="space-y-4 flex-1"></div>
+            
+            <div class="mt-8 pt-6 border-t border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i data-lucide="terminal" class="w-3 h-3"></i> Generated Code
+                </h3>
+                <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs text-green-400 overflow-x-auto border border-slate-700 shadow-inner h-48" id="code-block">
+                    # Code will appear here...
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Data View -->
+        <main class="flex-1 bg-slate-100 p-6 overflow-auto">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-fit min-w-full">
+                <table class="w-full text-sm text-left whitespace-nowrap">
+                    <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-200">
+                        <tr id="table-head"></tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+            <p class="text-center text-xs text-slate-400 mt-4">Displaying live data preview (50 records)</p>
+        </main>
+    </div>
+
+    <script>
+        // --- Data Generation ---
+        const PRODUCTS = ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam"];
+        const CITIES = ["New York", "London", "Paris", "Berlin", "Tokyo"];
+
+        const generateSales = () => {
+            const data = [];
+            for(let i=0; i<50; i++) {
+                let qty = Math.floor(Math.random() * 5) + 1;
+                if(Math.random() < 0.05) qty = -10; // Error: Negative
+                
+                let price = Math.floor(Math.random() * 200) + 20;
+                if(Math.random() < 0.1) price = null; // Error: Missing
+
+                let date = "2023-10-01";
+                if(Math.random() < 0.1) date = "01/10/2023"; // Error: Bad format
+
+                // Error: Whitespace
+                let prod = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
+                if (Math.random() < 0.3) prod = " " + prod + " "; 
+
+                // Error: Casing
+                let city = CITIES[Math.floor(Math.random() * CITIES.length)];
+                if (Math.random() < 0.3) city = city.toLowerCase();
+
+                data.push({
+                    order_id: 1000 + i,
+                    product: prod,
+                    quantity: qty,
+                    price_usd: price,
+                    store_loc: city,
+                    date: date,
+                    sys_ref: "REF-" + Math.floor(Math.random() * 9999) // Error: Useless column
+                });
+            }
+            // Add duplicate
+            data.push(data[0]);
+            return data;
+        };
+
+        // --- State ---
+        let dataset = generateSales();
+        let codeHistory = ["import pandas as pd\nimport numpy as np\n\n# Load dataset\nurl = 'https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/sales_data.csv' \ndf = pd.read_csv(url)"];
+        
+        // --- Logic ---
+        const steps = [
+            {
+                title: "1. Missing Prices",
+                desc: "Fill missing prices (NaN) with the average.",
+                code: "mean_p = df['price_usd'].mean()\ndf['price_usd'].fillna(mean_p, inplace=True)",
+                action: () => {
+                    const valid = dataset.filter(d => d.price_usd).map(d => d.price_usd);
+                    const mean = Math.floor(valid.reduce((a,b)=>a+b,0)/valid.length);
+                    dataset = dataset.map(d => ({...d, price_usd: d.price_usd || mean}));
+                }
+            },
+            {
+                title: "2. Clean Whitespace",
+                desc: "Product names have hidden spaces (e.g., ' Mouse '). Strip them.",
+                code: "df['product'] = df['product'].str.strip()",
+                action: () => {
+                    dataset = dataset.map(d => ({...d, product: d.product.trim()}));
+                }
+            },
+            {
+                title: "3. Fix Capitalization",
+                desc: "Standardize cities to Title Case (e.g., 'paris' -> 'Paris').",
+                code: "df['store_loc'] = df['store_loc'].str.title()",
+                action: () => {
+                    dataset = dataset.map(d => ({...d, store_loc: d.store_loc.charAt(0).toUpperCase() + d.store_loc.slice(1).toLowerCase()}));
+                }
+            },
+            {
+                title: "4. Negative Quantity",
+                desc: "Remove transactions with impossible negative quantities.",
+                code: "df = df[df['quantity'] > 0]",
+                action: () => {
+                    dataset = dataset.filter(d => d.quantity > 0);
+                }
+            },
+            {
+                title: "5. Drop Duplicates",
+                desc: "Remove duplicate rows sharing the same Order ID.",
+                code: "df.drop_duplicates(inplace=True)",
+                action: () => {
+                    dataset = dataset.filter((v,i,a) => a.findIndex(t=>(t.order_id === v.order_id))===i);
+                }
+            },
+            {
+                title: "6. Drop Useless Columns",
+                desc: "Remove 'sys_ref' as it provides no analytical value.",
+                code: "df.drop(columns=['sys_ref'], inplace=True)",
+                action: () => {
+                    dataset = dataset.map(({sys_ref, ...rest}) => rest);
+                }
+            },
+            {
+                title: "7. Feature Engineering",
+                desc: "Create 'Total' column (Price * Qty).",
+                code: "df['total'] = df['price_usd'] * df['quantity']",
+                action: () => {
+                    dataset = dataset.map(d => ({...d, total: parseFloat((d.price_usd * d.quantity).toFixed(2))}));
+                }
+            }
+        ];
+
+        // --- Rendering ---
+        const renderTable = () => {
+            if (dataset.length === 0) return;
+            const cols = Object.keys(dataset[0]);
+            
+            document.getElementById('table-head').innerHTML = cols.map(c => `
+                <th class="px-6 py-3 uppercase text-xs font-bold tracking-wider ${c === 'sys_ref' ? 'text-red-400' : ''}">${c}</th>
+            `).join('');
+            
+            document.getElementById('table-body').innerHTML = dataset.map(row => `
+                <tr class="hover:bg-slate-50 transition-colors highlight-diff">
+                    ${cols.map(c => {
+                        let val = row[c];
+                        let style = "text-slate-600";
+                        
+                        // Error Highlighting
+                        if(val === null) { val="NaN"; style="text-red-500 font-bold bg-red-50"; }
+                        else if(c === 'quantity' && val < 0) style="text-red-600 font-bold";
+                        else if(c === 'product' && (val.startsWith(' ') || val.endsWith(' '))) style="bg-yellow-100 text-yellow-700 border-b-2 border-yellow-300";
+                        else if(c === 'store_loc' && val[0] !== val[0].toUpperCase()) style="text-purple-600 underline decoration-wavy";
+                        
+                        return `<td class="px-6 py-3 ${style} border-b border-slate-50">${val}</td>`
+                    }).join('')}
+                </tr>
+            `).join('');
+        };
+
+        const renderSteps = () => {
+            const container = document.getElementById('steps-container');
+            container.innerHTML = steps.map((s, idx) => `
+                <div id="step-${idx}" class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm hover:shadow-md transition-all group">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-slate-800 text-sm">${s.title}</h4>
+                        <span class="text-xs font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">Step ${idx + 1}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3 leading-relaxed">${s.desc}</p>
+                    <button onclick="runStep(${idx})" class="w-full bg-indigo-50 text-indigo-600 py-2 rounded text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-3 h-3"></i> Apply Fix
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+        const runStep = (idx) => {
+            steps[idx].action();
+            codeHistory.push(steps[idx].code);
+            dataset = [...dataset]; // Trigger refresh
+            renderTable();
+            document.getElementById('code-block').innerText = codeHistory.join('\n\n');
+            
+            // Visual feedback on button
+            const btn = document.querySelector(`#step-${idx} button`);
+            btn.classList.add('bg-green-100', 'text-green-700', 'cursor-not-allowed', 'opacity-50');
+            btn.classList.remove('bg-indigo-50', 'text-indigo-600', 'hover:bg-indigo-600', 'hover:text-white');
+            btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Done`;
+            btn.disabled = true;
+            lucide.createIcons();
+            
+            // Scroll code into view
+            const codeBlock = document.getElementById('code-block');
+            codeBlock.scrollTop = codeBlock.scrollHeight;
+        };
+
+        const downloadCSV = () => {
+            if (!dataset || !dataset.length) return;
+            const headers = Object.keys(dataset[0]).join(",");
+            const rows = dataset.map(obj => Object.values(obj).map(v => `"${v}"`).join(","));
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "cleaned_sales_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // Init
+        renderTable();
+        renderSteps();
+        document.getElementById('code-block').innerText = codeHistory[0];
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
