@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: Data Cleaning Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .slide-up { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Drag & Drop Styles */
+        .draggable { cursor: grab; transition: all 0.2s; }
+        .draggable:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable.dragging { opacity: 0.5; }
+        
+        .drop-zone { transition: all 0.3s; }
+        .drop-zone.drag-over { background-color: rgba(59, 130, 246, 0.1); border-color: #60a5fa; transform: scale(1.02); }
+        
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-6">
+
+    <div class="max-w-5xl w-full my-12">
+        
+        <!-- Header -->
+        <header class="text-center mb-12 slide-up">
+            <div class="inline-block p-3 bg-blue-600 rounded-2xl mb-4">
+                <i data-lucide="check-circle" class="w-8 h-8 text-white"></i>
+            </div>
+            <h1 class="text-4xl font-bold mb-2">Checkpoint: Data Cleaning</h1>
+            <p class="text-slate-400 max-w-2xl mx-auto">
+                Clean data is the foundation of visualization. If your data is dirty, your charts will lie.
+                Review the core concepts below before proving your mastery.
+            </p>
+        </header>
+
+        <!-- REVISION SECTION -->
+        <section id="revision" class="mb-16 slide-up" style="animation-delay: 0.1s;">
+            <div class="flex items-center gap-2 mb-8 justify-center text-blue-300">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+                <h2 class="text-lg font-bold uppercase tracking-wider">Concept Study Guide</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Concept 1: Missing Data -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-red-500/50 transition-colors group">
+                    <h3 class="font-bold text-red-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-red-500/20 p-2 rounded-lg"><i data-lucide="ghost" class="w-5 h-5"></i></div>
+                        The Void (Missing Data)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Empty cells, <code class="bg-slate-900 px-1 rounded text-red-300">NaN</code>, or <code class="bg-slate-900 px-1 rounded text-red-300">null</code> values.</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Machine Learning models (like Scikit-Learn) often crash instantly. Visualizations will show gaps or drop entire categories.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # If &lt;5% missing: Drop<br>
+                            df.dropna(inplace=True)<br>
+                            # If >5% missing: Impute<br>
+                            df.fillna(df.mean(), inplace=True)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 2: Outliers -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-amber-500/50 transition-colors group">
+                    <h3 class="font-bold text-amber-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-amber-500/20 p-2 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                        The Impossible (Outliers)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Values that defy logic (Age: 250) or statistics (Income: $1B in a local survey).</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Drastically skews the <strong>Mean</strong>. A single billionaire makes a poor village look rich on average.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # Filter logical range<br>
+                            df = df[(df['age'] &lt; 120) & (df['age'] > 0)]
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 3: Duplicates -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-blue-500/50 transition-colors group">
+                    <h3 class="font-bold text-blue-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-blue-500/20 p-2 rounded-lg"><i data-lucide="copy" class="w-5 h-5"></i></div>
+                        The Clones (Duplicates)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Identical rows repeated due to system glitches or double-entry.</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Inflates metrics (double revenue) and introduces bias (over-weighting specific events).</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # Remove exact matches<br>
+                            df.drop_duplicates(inplace=True)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 4: Inconsistency -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-colors group">
+                    <h3 class="font-bold text-purple-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-purple-500/20 p-2 rounded-lg"><i data-lucide="type" class="w-5 h-5"></i></div>
+                        The Mess (Inconsistency)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Variations like "NY", "New York", "ny", "N.Y.".</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Grouping fails. You get 4 small bars instead of 1 big bar for New York sales.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # Map to standard<br>
+                            df.replace({'ny': 'New York'}, inplace=True)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 5: Data Types -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-orange-500/50 transition-colors group">
+                    <h3 class="font-bold text-orange-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-orange-500/20 p-2 rounded-lg"><i data-lucide="hash" class="w-5 h-5"></i></div>
+                        The Imposter (Data Types)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Numbers stored as text (e.g., "$100" or "1,000").</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Math acts like text concatenation. <code class="text-xs bg-slate-900 px-1">"1"+"1"="11"</code> instead of 2.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # Clean & Convert<br>
+                            df['price'] = df['price'].str.replace('$','').astype(float)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 6: Whitespace -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-cyan-500/50 transition-colors group">
+                    <h3 class="font-bold text-cyan-400 mb-3 flex items-center gap-2 text-lg">
+                        <div class="bg-cyan-500/20 p-2 rounded-lg"><i data-lucide="align-left" class="w-5 h-5"></i></div>
+                        The Phantom (Whitespace)
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <p class="text-slate-300"><strong class="text-white">Scenario:</strong> Invisible spaces: "Apple" vs "Apple ".</p>
+                        <p class="text-slate-400"><strong class="text-white">The Risk:</strong> Filtering for <code>df['fruit'] == 'Apple'</code> misses half your data.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400">
+                            # Strip leading/trailing space<br>
+                            df['col'] = df['col'].str.strip()
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="scrollToQuiz()" class="bg-white text-slate-900 px-10 py-4 rounded-full font-bold shadow-xl shadow-blue-900/20 hover:bg-blue-50 transition-all hover:scale-105 flex items-center gap-2 mx-auto text-lg">
+                    I've Reviewed. Start Challenge <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz-area" class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl opacity-50 pointer-events-none transition-all duration-500">
+            <div class="space-y-8">
+                
+                <!-- SECTION A: Quick Fire (Buttons) -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+                        <h2 class="text-2xl font-bold text-blue-400">Part A: Concepts</h2>
+                        <span class="text-sm font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded">Score: <span id="score-a" class="text-white">0</span>/5</span>
+                    </div>
+                    
+                    <!-- Q1 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700">
+                        <p class="font-semibold mb-3 text-lg">1. You see a 'Height' value of 300cm for a human. What is this?</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="checkRev(this, true)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Outlier</button>
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Duplicate</button>
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Null</button>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700">
+                        <p class="font-semibold mb-3 text-lg">2. How should you handle Missing Values (NaN) in a very small dataset?</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Delete Rows</button>
+                            <button onclick="checkRev(this, true)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Impute (Fill)</button>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700">
+                        <p class="font-semibold mb-3 text-lg">3. The 'Price' column contains "$50". To perform math, you must:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkRev(this, true)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Strip '$' & Convert to Number</button>
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Leave as String</button>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700">
+                        <p class="font-semibold mb-3 text-lg">4. Two rows have identical Transaction IDs and timestamps. Action?</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Keep Both</button>
+                            <button onclick="checkRev(this, true)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Drop Duplicate</button>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700">
+                        <p class="font-semibold mb-3 text-lg">5. Why are "Apple" and "Apple " (space at end) treated as different categories?</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkRev(this, true)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Whitespace Issue</button>
+                            <button onclick="checkRev(this, false)" class="py-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors border border-slate-600">Capitalization Error</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION B: Drag and Drop -->
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
+                        <h2 class="text-2xl font-bold text-blue-400">Part B: Action Sorting</h2>
+                        <span class="text-sm font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded">Sorted: <span id="score-b" class="text-white">0</span>/12</span>
+                    </div>
+                    <p class="text-slate-400 mb-6 text-sm bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                        <i data-lucide="hand" class="inline w-4 h-4 mr-1"></i> Drag the dirty data items into the correct action bucket.
+                    </p>
+                    
+                    <!-- Buckets -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <!-- Bucket 1: Drop -->
+                        <div class="drop-zone bg-slate-900/50 border-2 border-dashed border-red-500/30 rounded-xl p-4 min-h-[180px] flex flex-col items-center transition-all" data-type="drop">
+                            <div class="bg-red-500/20 p-3 rounded-full mb-3"><i data-lucide="trash-2" class="w-6 h-6 text-red-400"></i></div>
+                            <h3 class="font-bold text-red-400 mb-1">Drop / Filter</h3>
+                            <div class="text-xs text-slate-500 text-center mb-4">Remove rows completely</div>
+                            <div class="bucket-content w-full space-y-2"></div>
+                        </div>
+
+                        <!-- Bucket 2: Standardize -->
+                        <div class="drop-zone bg-slate-900/50 border-2 border-dashed border-blue-500/30 rounded-xl p-4 min-h-[180px] flex flex-col items-center transition-all" data-type="clean">
+                            <div class="bg-blue-500/20 p-3 rounded-full mb-3"><i data-lucide="wrench" class="w-6 h-6 text-blue-400"></i></div>
+                            <h3 class="font-bold text-blue-400 mb-1">Standardize</h3>
+                            <div class="text-xs text-slate-500 text-center mb-4">Fix format / content</div>
+                            <div class="bucket-content w-full space-y-2"></div>
+                        </div>
+
+                        <!-- Bucket 3: Impute -->
+                        <div class="drop-zone bg-slate-900/50 border-2 border-dashed border-green-500/30 rounded-xl p-4 min-h-[180px] flex flex-col items-center transition-all" data-type="impute">
+                            <div class="bg-green-500/20 p-3 rounded-full mb-3"><i data-lucide="calculator" class="w-6 h-6 text-green-400"></i></div>
+                            <h3 class="font-bold text-green-400 mb-1">Impute</h3>
+                            <div class="text-xs text-slate-500 text-center mb-4">Fill with math</div>
+                            <div class="bucket-content w-full space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Draggables Pool -->
+                    <div id="drag-pool" class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex flex-wrap gap-3 justify-center min-h-[120px] items-center shadow-inner">
+                        <!-- Existing Items -->
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="drop">
+                            Age: 250
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            " $50 "
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="drop">
+                            Duplicate Row
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            "ny" vs "NY"
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="impute">
+                            Missing (Small Data)
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            " Apple "
+                        </div>
+                        
+                        <!-- New Items -->
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="drop">
+                            Temp: 500°C
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            "true" vs "True"
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            "1,000"
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="clean">
+                            "  Space  "
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="impute">
+                            Null (Save Row)
+                        </div>
+                        <div draggable="true" class="draggable bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg border border-slate-500 shadow-lg text-sm font-mono cursor-grab active:cursor-grabbing" data-target="drop">
+                            Identical Record
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Success Message -->
+            <div id="unlock-msg" class="hidden mt-12 text-center pt-8 border-t border-slate-700 animate-pulse">
+                <p class="text-green-400 font-bold mb-4 flex items-center justify-center gap-2 text-2xl">
+                    <i data-lucide="unlock" class="w-8 h-8"></i> Mastery Confirmed
+                </p>
+                <p class="text-slate-400 mb-6">You have proven your ability to identify and fix dirty data.</p>
+                <a href="viz_concepts.html" class="inline-flex items-center gap-3 bg-purple-600 hover:bg-purple-500 text-white px-10 py-4 rounded-full font-bold text-xl shadow-lg shadow-purple-900/50 transition-all hover:scale-105">
+                    Enter Visualization Toolkit <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function scrollToQuiz() {
+            const quiz = document.getElementById('quiz-area');
+            quiz.classList.remove('opacity-50', 'pointer-events-none');
+            quiz.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- BUTTON QUIZ LOGIC ---
+        let buttonScore = 0;
+        const totalButtons = 5; 
+
+        function checkRev(btn, isCorrect) {
+            if(btn.disabled) return;
+            const group = btn.parentElement;
+            Array.from(group.children).forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+            
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            if(isCorrect) {
+                btn.classList.replace('bg-slate-800', 'bg-green-600');
+                btn.classList.replace('border-slate-600', 'border-green-400');
+                btn.innerHTML += ' <i data-lucide="check" class="inline w-4 h-4 ml-1"></i>';
+                buttonScore++;
+                document.getElementById('score-a').innerText = buttonScore;
+            } else {
+                btn.classList.replace('bg-slate-800', 'bg-red-600');
+                btn.classList.replace('border-slate-600', 'border-red-400');
+                btn.innerHTML += ' <i data-lucide="x" class="inline w-4 h-4 ml-1"></i>';
+            }
+            lucide.createIcons();
+            checkCompletion();
+        }
+
+        // --- DRAG AND DROP LOGIC ---
+        const draggables = document.querySelectorAll('.draggable');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let dragScore = 0;
+        const totalDragItems = 12;
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const draggable = document.querySelector('.dragging');
+                if(!draggable) return;
+
+                const targetType = draggable.getAttribute('data-target');
+                const zoneType = zone.getAttribute('data-type');
+
+                if (targetType === zoneType) {
+                    // Correct Drop
+                    zone.querySelector('.bucket-content').appendChild(draggable);
+                    draggable.setAttribute('draggable', 'false');
+                    draggable.classList.remove('bg-slate-700', 'hover:bg-slate-600', 'cursor-grab');
+                    draggable.classList.add('bg-green-600', 'text-white', 'cursor-default', 'border-green-400');
+                    draggable.innerHTML += ' <i data-lucide="check" class="inline w-3 h-3 ml-1"></i>';
+                    lucide.createIcons();
+                    dragScore++;
+                    document.getElementById('score-b').innerText = dragScore;
+                    checkCompletion();
+                } else {
+                    // Incorrect Drop
+                    draggable.classList.add('shake');
+                    draggable.classList.add('bg-red-600', 'border-red-400');
+                    setTimeout(() => {
+                        draggable.classList.remove('shake', 'bg-red-600', 'border-red-400');
+                    }, 500);
+                }
+            });
+        });
+
+        function checkCompletion() {
+            // Requirement: 4/5 questions AND 12/12 drag items
+            if(buttonScore >= 4 && dragScore >= 12) {
+                document.getElementById('unlock-msg').classList.remove('hidden');
+                // Scroll to bottom
+                setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 200);
+            }
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

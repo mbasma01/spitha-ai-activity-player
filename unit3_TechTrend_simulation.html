@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyst Simulator: TechTrend Electronics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .highlight-row { background-color: #fef2f2; }
+        
+        /* Popup Animations */
+        .popup-enter { animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .popup-exit { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes slideUp { 
+            from { opacity: 1; transform: translateY(0); } 
+            to { opacity: 0; transform: translateY(-20px); pointer-events: none; } 
+        }
+
+        .email-card { border-left: 4px solid #10b981; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 p-4 shadow-sm z-10 flex justify-between items-center">
+        <div class="flex items-center gap-3 text-slate-800 font-bold text-lg">
+            <div class="bg-emerald-600 p-1.5 rounded text-white"><i data-lucide="cpu"></i></div>
+            <span>TechTrend <span class="font-normal text-slate-400">| Data Operations</span></span>
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+            <!-- Back Button (Initially Hidden) -->
+            <button id="btn-back" onclick="prevStep()" class="hidden flex items-center gap-2 text-slate-500 hover:text-emerald-600 font-bold transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Previous Step
+            </button>
+            
+            <div class="flex flex-col items-end border-l border-slate-200 pl-4">
+                <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Mission Progress</span>
+                <div class="flex items-center gap-2">
+                    <span id="step-counter" class="font-mono font-bold text-emerald-600">Step 1/15</span>
+                    <div class="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 6%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar: Task Control -->
+        <aside class="w-[400px] bg-white border-r border-slate-200 flex flex-col shadow-xl z-20 relative">
+            
+            <!-- Communication Header -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center z-10 relative">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Inbox</h2>
+                <button id="show-email-btn" onclick="recallEmail()" class="hidden text-xs font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full border border-emerald-200 flex items-center gap-2 transition-all">
+                    <i data-lucide="mail" class="w-3 h-3"></i> Show Briefing
+                </button>
+            </div>
+
+            <!-- Floating Email Popup -->
+            <div id="email-container" class="absolute top-16 left-4 right-4 z-50 bg-white p-4 rounded-xl shadow-2xl border border-slate-200 email-card hidden">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs" id="sender-avatar">JD</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800" id="email-sender">Sender</p>
+                            <p class="text-xs text-slate-500">To: Data Analyst</p>
+                        </div>
+                    </div>
+                    <button onclick="dismissEmail()" class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded border border-slate-100" id="email-body">
+                    Loading...
+                </p>
+                <!-- Timer Bar -->
+                <div class="mt-2 w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                    <div id="email-timer-bar" class="bg-emerald-400 h-full w-full"></div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex-1 p-6 overflow-y-auto bg-white relative">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="terminal-square" class="w-4 h-4 text-emerald-600"></i> Operational Console
+                </h3>
+                
+                <div id="controls-area" class="space-y-4">
+                    <!-- Dynamic Controls -->
+                </div>
+
+                <div id="feedback-msg" class="mt-4 p-3 rounded-lg text-sm hidden font-medium"></div>
+            </div>
+
+            <!-- Log -->
+            <div class="bg-slate-900 p-4 text-xs font-mono text-slate-300 h-32 overflow-y-auto border-t border-slate-800">
+                <div class="flex items-center gap-2 text-slate-500 mb-2 border-b border-slate-700 pb-1">
+                    <i data-lucide="activity" class="w-3 h-3"></i> SYSTEM LOG
+                </div>
+                <div id="console-output" class="space-y-1">
+                    <span class="text-emerald-500">>>> System Initialized.</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 bg-slate-100 p-8 flex flex-col relative overflow-hidden">
+            
+            <!-- View Tabs -->
+            <div class="flex gap-2 mb-0 ml-1">
+                <button class="px-4 py-2 bg-white rounded-t-lg text-sm font-bold text-emerald-600 border-t border-l border-r border-slate-200 shadow-sm transition-colors" id="tab-data">
+                    <i data-lucide="database" class="inline w-4 h-4 mr-1"></i> Data Grid
+                </button>
+                <button class="px-4 py-2 bg-slate-200 rounded-t-lg text-sm font-bold text-slate-500 border-t border-l border-r border-slate-200 transition-colors" id="tab-viz">
+                    <i data-lucide="pie-chart" class="inline w-4 h-4 mr-1"></i> Chart Output
+                </button>
+            </div>
+
+            <!-- Content Container -->
+            <div class="flex-1 bg-white rounded-b-lg rounded-tr-lg shadow-sm border border-slate-200 relative overflow-hidden">
+                
+                <!-- DATA TABLE -->
+                <div id="view-table" class="absolute inset-0 flex flex-col">
+                    <div class="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">df.head(10)</span>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-500 font-medium sticky top-0 z-10 shadow-sm">
+                                <tr id="table-header"></tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CHART -->
+                <div id="view-chart" class="absolute inset-0 hidden p-6 flex flex-col">
+                    <div class="flex-1 relative">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- INSIGHT MODAL (Overlay) -->
+                <div id="insight-modal" class="absolute inset-0 bg-slate-900/95 z-50 flex items-center justify-center p-4 hidden modal-enter">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-emerald-500" id="modal-content">
+                        <div class="bg-emerald-600 p-4 text-white flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                                <h3 class="font-bold">Analyst Insight Required</h3>
+                            </div>
+                            <button onclick="toggleModal()" class="text-white hover:bg-emerald-700 p-1 rounded transition-colors text-xs border border-white/30 px-2">
+                                Minimize / Peek
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-slate-700 font-medium mb-6 text-lg leading-relaxed" id="modal-question">Question goes here?</p>
+                            <div class="space-y-3" id="modal-options">
+                                <!-- Options -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESTORE MODAL BTN -->
+                <button id="restore-modal-btn" onclick="toggleModal()" class="hidden absolute bottom-6 right-6 bg-emerald-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-700 transition-all z-40 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-4 h-4"></i> Answer Question
+                </button>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATASET GENERATION ---
+        const generateData = () => {
+            const data = [
+                { Date: '2024-01-01', Category: 'Laptop', Product: 'ProBook', Units: 5, Price: 1200, Rev: 6000, Loc: 'NY', Promo: 'NEWYEAR' },
+                { Date: '2024-01-02', Category: 'Phone', Product: 'Galaxy X', Units: 10, Price: 800, Rev: 8000, Loc: 'CA', Promo: 'None' },
+                { Date: '2024-01-01', Category: 'Laptop', Product: 'ProBook', Units: 5, Price: 1200, Rev: 6000, Loc: 'NY', Promo: 'NEWYEAR' }, // Duplicate
+                { Date: '2024-01-03', Category: 'Tablet', Product: 'Tab S', Units: -2, Price: 400, Rev: -800, Loc: 'TX', Promo: 'None' }, // Negative Outlier
+                { Date: '2024-01-04', Category: 'phone', Product: 'Pixel 8', Units: 8, Price: 700, Rev: 5600, Loc: 'NY', Promo: 'None' }, // Case Error
+                { Date: '2024-01-05', Category: 'Laptop', Product: 'AirBook', Units: 3, Price: 1500, Rev: 4500, Loc: 'CA', Promo: 'None' },
+                { Date: '2024-01-06', Category: 'Audio', Product: 'Buds Pro', Units: 20, Price: 150, Rev: 3000, Loc: 'TX', Promo: 'None' },
+                { Date: '2024-01-07', Category: 'Phone', Product: 'iPhone 15', Units: 15, Price: 999, Rev: 14985, Loc: 'NY', Promo: 'None' },
+                { Date: '2024-01-08', Category: 'Tablet', Product: 'iPad', Units: 0, Price: null, Rev: 0, Loc: 'CA', Promo: 'None' } // Null
+            ];
+            return data;
+        };
+
+        // --- STATE ---
+        let currentStep = 0;
+        let chartInstance = null;
+        let dataset = generateData();
+        let activeCols = Object.keys(dataset[0]);
+        let stateHistory = []; // Stores { data, cols } for each step
+        let emailTimeout;
+
+        // Initialize History
+        stateHistory[0] = { 
+            data: JSON.parse(JSON.stringify(dataset)), 
+            cols: [...activeCols] 
+        };
+
+        // --- SCENARIOS (15 Steps) ---
+        const scenarios = [
+            // PHASE 1: CLEANING (5 Steps)
+            {
+                type: 'clean',
+                sender: "System Admin",
+                subject: "Err: Duplicate Entries",
+                body: "Database migration caused row duplication. Please deduplicate the ledger.",
+                tool: 'dedupe',
+                msg: "Duplicates Removed.",
+                challenge: {
+                    type: 'code',
+                    pre: "df.drop_duplicates(inplace=",
+                    options: ["True", "False"],
+                    ans: "True",
+                    post: ")"
+                }
+            },
+            {
+                type: 'clean',
+                sender: "Sales Mgr",
+                subject: "Err: Negative Sales?",
+                body: "I see rows with negative 'Units'. Please filter these out.",
+                tool: 'outlier',
+                msg: "Negative values filtered.",
+                challenge: {
+                    type: 'code',
+                    pre: "df = df[df['Units'] ",
+                    options: [">=", "<=", "=="],
+                    ans: ">=",
+                    post: " 0]"
+                }
+            },
+            {
+                type: 'clean',
+                sender: "Data Quality Bot",
+                subject: "Warn: Missing Prices",
+                body: "Some rows have NULL Price values. Fill them with the category average (Mean).",
+                tool: 'fill',
+                msg: "Nulls imputed with Mean.",
+                challenge: {
+                    type: 'choice',
+                    text: "How should we fill the missing price?",
+                    options: ["Fill with 0", "Fill with Mean", "Drop Rows"],
+                    ans: "Fill with Mean"
+                }
+            },
+            {
+                type: 'clean',
+                sender: "Marketing",
+                subject: "Fix: Category Names",
+                body: "We have 'Phone' and 'phone'. Please standardize text capitalization.",
+                tool: 'case',
+                msg: "Text standardized to Title Case.",
+                challenge: {
+                    type: 'code',
+                    pre: "df['Category'] = df['Category'].str.",
+                    options: ["upper()", "title()", "lower()"],
+                    ans: "title()",
+                    post: ""
+                }
+            },
+            {
+                type: 'clean',
+                sender: "Security",
+                subject: "Req: Drop Promo Column",
+                body: "The 'Promo' column contains deprecated codes. Drop it.",
+                tool: 'drop',
+                col: 'Promo',
+                msg: "Column 'Promo' dropped.",
+                challenge: {
+                    type: 'choice',
+                    text: "Select the column to drop:",
+                    options: ["Promo", "Loc", "Date"],
+                    ans: "Promo"
+                }
+            },
+            // PHASE 2: VISUALIZATION (10 Steps)
+            { type: 'viz', sender: "CEO", subject: "Q1: Revenue Trend", body: "Are our sales going up or down? Show me a **Line Chart** of Date vs Revenue.", target: {t:'line', x:'Date', y:'Rev'}, q: { text: "Look at the chart. What is the trend?", options: ["Increasing", "Decreasing", "Flat"], ans: "Increasing" } },
+            { type: 'viz', sender: "Product Lead", subject: "Q2: Top Category", body: "Which category brings in the most money? **Bar Chart** of Category vs Revenue.", target: {t:'bar', x:'Category', y:'Rev'}, q: { text: "Which category has the highest bar?", options: ["Laptop", "Phone", "Audio"], ans: "Phone" } },
+            { type: 'viz', sender: "Regional Mgr", subject: "Q3: Location Share", body: "How are sales split between NY, CA, and TX? Use a **Pie Chart**.", target: {t:'pie', x:'Loc', y:'Rev'}, q: { text: "Which location has the largest slice?", options: ["NY", "CA", "TX"], ans: "NY" } },
+            { type: 'viz', sender: "Sales Ops", subject: "Q4: Price vs Volume", body: "Do cheaper items sell more? **Scatter Plot** of Price vs Units.", target: {t:'scatter', x:'Price', y:'Units'}, q: { text: "Is there a negative correlation (Down slope)?", options: ["Yes", "No"], ans: "Yes" } },
+            { type: 'viz', sender: "Finance", subject: "Q5: Price Distribution", body: "I need to see the spread of our product prices. Use a **Bar Chart** of Price vs Units (Simplified Hist).", target: {t:'bar', x:'Price', y:'Units'}, q: { text: "Are high prices common?", options: ["Yes", "No"], ans: "No" } },
+            { type: 'viz', sender: "CEO", subject: "Q6: Comparison", body: "Compare Revenue by Date. **Bar Chart**.", target: {t:'bar', x:'Date', y:'Rev'}, q: { text: "Which date had the spike?", options: ["2024-01-07", "2024-01-01"], ans: "2024-01-07" } },
+            { type: 'viz', sender: "Marketing", subject: "Q7: Top Product", body: "What is our single #1 specific product? **Bar Chart** of Product vs Units.", target: {t:'bar', x:'Product', y:'Units'}, q: { text: "Identify the top product.", options: ["ProBook", "Buds Pro", "iPhone 15"], ans: "Buds Pro" } },
+            { type: 'viz', sender: "Regional Mgr", subject: "Q8: Store Performance", body: "Compare Total Revenue by Location again, but use a **Bar Chart** this time for precision.", target: {t:'bar', x:'Loc', y:'Rev'}, q: { text: "Is CA performing better than TX?", options: ["Yes", "No"], ans: "Yes" } },
+            { type: 'viz', sender: "Ops", subject: "Q9: Volume Trend", body: "Revenue is up, but what about volume? **Line Chart** of Date vs Units.", target: {t:'line', x:'Date', y:'Units'}, q: { text: "Is volume growing as fast as revenue?", options: ["Yes", "No, it's slower"], ans: "No, it's slower" } },
+            { type: 'viz', sender: "CEO", subject: "Q10: High Value", body: "Show me Revenue by Product. **Bar Chart**.", target: {t:'bar', x:'Product', y:'Rev'}, q: { text: "Which Product makes the most money?", options: ["iPhone 15", "Galaxy X"], ans: "iPhone 15" } }
+        ];
+
+        // --- CORE LOGIC ---
+
+        function initStep() {
+            if(currentStep >= scenarios.length) {
+                alert("Simulation Complete!");
+                return;
+            }
+
+            // Restore State from History if navigating back
+            if(stateHistory[currentStep]) {
+                dataset = JSON.parse(JSON.stringify(stateHistory[currentStep].data));
+                activeCols = [...stateHistory[currentStep].cols];
+            } else {
+                // If moving forward to new step, assume current state is starting point
+                // But we should have saved it at end of previous step
+                // Fallback for initial load
+                stateHistory[currentStep] = { data: JSON.parse(JSON.stringify(dataset)), cols: [...activeCols] };
+            }
+
+            const s = scenarios[currentStep];
+            
+            // UI Updates
+            document.getElementById('step-counter').innerText = `Step ${currentStep + 1}/15`;
+            document.getElementById('progress-bar').style.width = `${((currentStep+1)/15)*100}%`;
+            document.getElementById('feedback-msg').className = "hidden";
+            
+            // Back Button Visibility
+            const backBtn = document.getElementById('btn-back');
+            if (currentStep > 0) backBtn.classList.remove('hidden');
+            else backBtn.classList.add('hidden');
+
+            // Email
+            triggerEmail(s);
+
+            // Render Controls
+            const area = document.getElementById('controls-area');
+            area.innerHTML = '';
+
+            if(s.type === 'clean') {
+                switchTab('data');
+                renderCleaningChallenge(area, s.challenge);
+            } else {
+                switchTab('viz');
+                renderVizBuilder(area);
+            }
+            lucide.createIcons();
+            renderTable();
+        }
+
+        // --- HISTORY NAVIGATION ---
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                initStep();
+                logConsole("Reverted to Step " + (currentStep + 1));
+            }
+        }
+
+        function saveNextState() {
+            // Called on successful completion of a step
+            // Save the resulting state for the NEXT step index
+            stateHistory[currentStep + 1] = { 
+                data: JSON.parse(JSON.stringify(dataset)), 
+                cols: [...activeCols] 
+            };
+        }
+
+        // --- EMAIL SYSTEM ---
+        function triggerEmail(s) {
+            const el = document.getElementById('email-container');
+            const btn = document.getElementById('show-email-btn');
+            const bar = document.getElementById('email-timer-bar');
+            
+            document.getElementById('email-sender').innerText = s.sender;
+            document.getElementById('sender-avatar').innerText = s.sender.substring(0,2).toUpperCase();
+            document.getElementById('email-body').innerHTML = `<strong>${s.subject}</strong><br><br>${s.body}`;
+            
+            el.classList.remove('hidden', 'popup-exit');
+            el.classList.add('popup-enter');
+            btn.classList.add('hidden');
+            
+            // Reset Animation
+            bar.style.transition = 'none';
+            bar.style.width = '100%';
+            setTimeout(() => {
+                bar.style.transition = 'width 8s linear';
+                bar.style.width = '0%';
+            }, 50);
+
+            if(emailTimeout) clearTimeout(emailTimeout);
+            emailTimeout = setTimeout(dismissEmail, 8000);
+        }
+
+        function dismissEmail() {
+            const el = document.getElementById('email-container');
+            el.classList.remove('popup-enter');
+            el.classList.add('popup-exit');
+            setTimeout(() => {
+                if(el.classList.contains('popup-exit')) {
+                    el.classList.add('hidden');
+                    document.getElementById('show-email-btn').classList.remove('hidden');
+                }
+            }, 450);
+        }
+
+        function recallEmail() {
+            const s = scenarios[currentStep];
+            triggerEmail(s);
+        }
+
+        // --- RENDERERS ---
+
+        function renderCleaningChallenge(container, challenge) {
+            if(challenge.type === 'code') {
+                container.innerHTML = `
+                    <div class="bg-slate-900 p-4 rounded-lg font-mono text-sm text-slate-300 mb-4 shadow-inner">
+                        ${challenge.pre}
+                        <select id="clean-input" class="bg-slate-800 border-b border-emerald-500 text-white outline-none cursor-pointer">
+                            <option value="">???</option>
+                            ${challenge.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+                        </select>
+                        ${challenge.post}
+                    </div>
+                    <button onclick="checkCleanAnswer()" class="w-full bg-emerald-600 text-white py-2 rounded-lg font-bold hover:bg-emerald-700 transition-colors">Run Code</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <p class="text-sm font-bold text-slate-700 mb-3">${challenge.text}</p>
+                    <div class="space-y-2">
+                        ${challenge.options.map(o => `
+                            <button onclick="checkCleanAnswer('${o}')" class="w-full p-3 text-left border border-slate-300 rounded hover:bg-emerald-50 hover:border-emerald-400 transition-colors text-sm font-medium">${o}</button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function renderVizBuilder(container) {
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Chart Type</label>
+                        <select id="viz-type" class="w-full p-2 border rounded text-sm bg-white"><option value="line">Line Chart</option><option value="bar">Bar Chart</option><option value="pie">Pie Chart</option><option value="scatter">Scatter Plot</option></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">X-Axis</label>
+                        <select id="viz-x" class="w-full p-2 border rounded text-sm bg-white">${activeCols.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Y-Axis</label>
+                        <select id="viz-y" class="w-full p-2 border rounded text-sm bg-white">${activeCols.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="runViz(false)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-2 rounded font-bold hover:bg-slate-50 text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="eye" class="w-4 h-4"></i> Preview
+                        </button>
+                        <button onclick="runViz(true)" class="flex-1 bg-emerald-600 text-white py-2 rounded font-bold hover:bg-emerald-700 text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i> Submit
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- VALIDATION & LOGIC ---
+
+        function checkCleanAnswer(val) {
+            const s = scenarios[currentStep];
+            const inputVal = val || document.getElementById('clean-input').value;
+            const fb = document.getElementById('feedback-msg');
+
+            if(inputVal === s.challenge.ans) {
+                // Apply Transformation
+                if(s.tool === 'dedupe') dataset = dataset.filter((_,i) => i !== 2);
+                if(s.tool === 'outlier') dataset = dataset.filter(d => d.Units >= 0);
+                if(s.tool === 'fill') dataset.forEach(d => { if(!d.Price) d.Price = 800; });
+                if(s.tool === 'case') dataset.forEach(d => d.Category = d.Category.charAt(0).toUpperCase() + d.Category.slice(1).toLowerCase());
+                if(s.tool === 'drop') activeCols = activeCols.filter(c => c !== 'Promo');
+
+                saveNextState(); // Commit state
+                renderTable();
+                logConsole(`Operation Successful: ${s.msg}`);
+                fb.className = "mt-4 p-3 rounded-lg text-sm font-medium bg-green-100 text-green-700 border border-green-200 block";
+                fb.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Correct! Next step...</div>`;
+                setTimeout(() => { currentStep++; initStep(); }, 1500);
+            } else {
+                fb.className = "mt-4 p-3 rounded-lg text-sm font-medium bg-red-100 text-red-700 border border-red-200 block";
+                fb.innerText = "Incorrect choice. Check the data/email and try again.";
+            }
+            lucide.createIcons();
+        }
+
+        function runViz(isSubmit) {
+            const t = document.getElementById('viz-type').value;
+            const x = document.getElementById('viz-x').value;
+            const y = document.getElementById('viz-y').value;
+            const fb = document.getElementById('feedback-msg');
+            
+            renderChart(t, x, y);
+
+            if(isSubmit) {
+                const s = scenarios[currentStep];
+                // Check requirements
+                if(t === s.target.t && x === s.target.x && y === s.target.y) {
+                    // Show Insight Modal
+                    document.getElementById('modal-question').innerText = s.q.text;
+                    document.getElementById('modal-options').innerHTML = s.q.options.map(o => 
+                        `<button onclick="checkInsight('${o}')" class="w-full text-left p-3 rounded border hover:bg-emerald-50 hover:border-emerald-300 transition-colors font-medium text-sm">${o}</button>`
+                    ).join('');
+                    document.getElementById('insight-modal').classList.remove('hidden');
+                    fb.classList.add('hidden');
+                } else {
+                    fb.innerText = "Chart doesn't match requirements. Check type and axes.";
+                    fb.className = "mt-4 p-3 rounded-lg text-sm font-medium bg-amber-100 text-amber-800 border border-amber-200 block";
+                }
+            } else {
+                fb.classList.add('hidden'); // Clear error on preview
+            }
+        }
+
+        // --- PEEK LOGIC ---
+        function toggleModal() {
+            const modal = document.getElementById('insight-modal');
+            const restoreBtn = document.getElementById('restore-modal-btn');
+            
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                restoreBtn.classList.remove('hidden');
+            } else {
+                modal.classList.remove('hidden');
+                restoreBtn.classList.add('hidden');
+            }
+        }
+
+        function checkInsight(ans) {
+            const s = scenarios[currentStep];
+            if(ans === s.q.ans) {
+                document.getElementById('insight-modal').classList.add('hidden');
+                logConsole(`Analysis Confirmed: ${ans}`);
+                saveNextState(); // Commit state
+                currentStep++;
+                setTimeout(initStep, 1000);
+            } else {
+                alert("Incorrect observation. Minimize the window to check the chart again.");
+            }
+        }
+
+        // --- UTILS ---
+        function logConsole(msg) {
+            document.getElementById('console-output').innerHTML += `<br><span class="text-white">>>> ${msg}</span>`;
+            const c = document.querySelector('.bg-slate-900.overflow-y-auto');
+            if(c) c.scrollTop = c.scrollHeight;
+        }
+
+        function renderTable() {
+            const thead = document.getElementById('table-header');
+            thead.innerHTML = activeCols.map(c => `<th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">${c}</th>`).join('');
+            const tbody = document.getElementById('table-body');
+            const isDirty = dataset.length === 9 && currentStep === 0;
+            tbody.innerHTML = dataset.map((row, i) => {
+                const isDupe = isDirty && (i === 2);
+                return `
+                    <tr class="bg-white border-b hover:bg-slate-50 transition-colors ${isDupe ? 'highlight-row' : ''}">
+                        ${activeCols.map(c => `<td class="px-4 py-3 text-slate-700 ${isDupe ? 'text-red-500 font-bold' : ''}">${row[c]}</td>`).join('')}
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderChart(type, xKey, yKey) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+
+            const agg = {};
+            if(type === 'scatter') {
+                // No Agg
+            } else {
+                dataset.forEach(d => {
+                    const key = d[xKey];
+                    const val = parseFloat(d[yKey]) || 0;
+                    agg[key] = (agg[key] || 0) + val;
+                });
+            }
+
+            let dataConfig;
+            if(type === 'scatter') {
+                dataConfig = {
+                    datasets: [{
+                        label: `${xKey} vs ${yKey}`,
+                        data: dataset.map(d => ({x: d[xKey], y: d[yKey]})),
+                        backgroundColor: '#db2777'
+                    }]
+                };
+            } else {
+                dataConfig = {
+                    labels: Object.keys(agg),
+                    datasets: [{
+                        label: yKey,
+                        data: Object.values(agg),
+                        backgroundColor: type === 'pie' ? ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'] : '#10b981',
+                        borderColor: '#10b981',
+                        borderWidth: type === 'pie' ? 0 : 2,
+                        tension: 0.3
+                    }]
+                };
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: type === 'scatter' ? 'scatter' : (type === 'pie' ? 'pie' : (type === 'line' ? 'line' : 'bar')),
+                data: dataConfig,
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function switchTab(t) {
+            const btnD = document.getElementById('tab-data');
+            const btnV = document.getElementById('tab-viz');
+            const vD = document.getElementById('view-table');
+            const vV = document.getElementById('view-chart');
+
+            if(t === 'data') {
+                btnD.classList.replace('bg-slate-200', 'bg-white'); btnD.classList.replace('text-slate-500', 'text-emerald-600');
+                btnV.classList.replace('bg-white', 'bg-slate-200'); btnV.classList.replace('text-emerald-600', 'text-slate-500');
+                vD.classList.remove('hidden'); vV.classList.add('hidden');
+            } else {
+                btnV.classList.replace('bg-slate-200', 'bg-white'); btnV.classList.replace('text-slate-500', 'text-emerald-600');
+                btnD.classList.replace('bg-white', 'bg-slate-200'); btnD.classList.replace('text-emerald-600', 'text-slate-500');
+                vV.classList.remove('hidden'); vD.classList.add('hidden');
+            }
+        }
+
+        initStep();
+        document.getElementById('tab-data').onclick = () => switchTab('data');
+        document.getElementById('tab-viz').onclick = () => switchTab('viz');
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization: Theory & Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Slide Animations */
+        .slide-enter { animation: slideIn 0.4s ease-out forwards; }
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateX(20px); } 
+            to { opacity: 1; transform: translateX(0); } 
+        }
+        
+        .hidden-slide { display: none; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Drag Styles */
+        .draggable { cursor: grab; user-select: none; }
+        .draggable:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable.dragging { opacity: 0.5; }
+        .drop-zone { transition: all 0.2s; }
+        .drop-zone.drag-over { background-color: rgba(99, 102, 241, 0.2); border-color: #818cf8; transform: scale(1.02); }
+        
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        .tab-active { background-color: #334155; border-bottom: 2px solid #60a5fa; color: white; }
+        .tab-inactive { color: #94a3b8; }
+        .tab-inactive:hover { background-color: #1e293b; color: #cbd5e1; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col">
+
+    <!-- Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-2 bg-slate-800 z-50">
+        <div id="progress-bar" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col justify-center max-w-4xl mx-auto px-6 py-12 w-full">
+        
+        <!-- SLIDE 0: INTRO -->
+        <div id="slide-0" class="slide-content text-center">
+            <div class="inline-block p-4 bg-purple-600 rounded-2xl mb-6 shadow-lg shadow-purple-500/20">
+                <i data-lucide="bar-chart-2" class="w-12 h-12 text-white"></i>
+            </div>
+            <h1 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">The Art of Visualization</h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                To create meaningful charts, you must first understand the language of data.
+                <br>We will master 4 key concepts before entering the lab.
+            </p>
+            <button onclick="nextSlide()" class="bg-white text-slate-900 px-10 py-4 rounded-full font-bold text-lg hover:bg-slate-200 transition-all transform hover:scale-105 shadow-xl flex items-center gap-2 mx-auto">
+                Start Learning <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- SLIDE 1: C1 THEORY -->
+        <div id="slide-1" class="hidden-slide">
+            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div class="flex items-center gap-3 mb-6 text-blue-400 border-b border-slate-700 pb-4">
+                    <div class="p-2 bg-blue-500/20 rounded-lg"><i data-lucide="hash" class="w-6 h-6"></i></div>
+                    <h2 class="text-3xl font-bold">1. Data Types</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 mb-6">
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-white text-lg mb-2">Numerical (The Ruler)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Values that measure quantity. You can do math on them (Sum, Average).
+                            <br><br><span class="text-blue-300 font-mono bg-blue-900/20 px-2 py-1 rounded">Examples: Age, Height, Price ($)</span>
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-white text-lg mb-2">Categorical (The Bucket)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Values that describe qualities or labels. You sort them into groups.
+                            <br><br><span class="text-pink-300 font-mono bg-pink-900/20 px-2 py-1 rounded">Examples: City, Gender, Zip Code</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="p-4 bg-blue-900/20 border border-blue-500/20 rounded-lg text-sm text-blue-200 flex gap-3">
+                    <i data-lucide="alert-circle" class="shrink-0"></i>
+                    <p><strong>Trap Alert:</strong> "Zip Codes" and "Phone Numbers" look like numbers, but they are labels. You would never calculate the "Average Phone Number". Therefore, they are <strong>Categorical</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: C1 PRACTICE -->
+        <div id="slide-2" class="hidden-slide">
+            <div class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><i data-lucide="dumbbell"></i> Practice Gym: Data Types</h3>
+                    <div class="text-sm font-mono text-blue-400 bg-slate-800 px-3 py-1 rounded-full" id="c1-progress">Question 1/3</div>
+                </div>
+
+                <!-- C1 Q1 -->
+                <div id="c1-q1" class="question-block">
+                    <p class="text-center text-sm mb-6 text-slate-300">Drag the items to their correct definition.</p>
+                    <div class="flex gap-4 h-32 mb-6">
+                        <div class="drop-zone flex-1 border-2 border-dashed border-blue-500/30 rounded-lg bg-blue-500/10 flex flex-col items-center justify-center text-xs text-blue-300 font-bold" data-type="numerical">NUMERICAL</div>
+                        <div class="drop-zone flex-1 border-2 border-dashed border-pink-500/30 rounded-lg bg-pink-500/10 flex flex-col items-center justify-center text-xs text-pink-300 font-bold" data-type="categorical">CATEGORICAL</div>
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-center min-h-[50px]" id="drag-pool-c1">
+                        <div draggable="true" class="draggable px-4 py-2 bg-slate-700 rounded text-sm font-mono border border-slate-500 shadow-lg" data-target="numerical">Age: 25</div>
+                        <div draggable="true" class="draggable px-4 py-2 bg-slate-700 rounded text-sm font-mono border border-slate-500 shadow-lg" data-target="categorical">Paris</div>
+                        <div draggable="true" class="draggable px-4 py-2 bg-slate-700 rounded text-sm font-mono border border-slate-500 shadow-lg" data-target="numerical">$9.99</div>
+                        <div draggable="true" class="draggable px-4 py-2 bg-slate-700 rounded text-sm font-mono border border-slate-500 shadow-lg" data-target="categorical">Size: L</div>
+                    </div>
+                    <div id="fb-c1-q1" class="hidden text-center mt-6">
+                        <p class="text-sm font-bold text-green-400 mb-2">All Sorted! Great job.</p>
+                        <button onclick="showNextQ('c1', 2)" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-500 transition-colors animate-bounce">Next Question</button>
+                    </div>
+                </div>
+
+                <!-- C1 Q2 -->
+                <div id="c1-q2" class="question-block hidden">
+                    <div class="text-center py-4">
+                        <p class="text-xl font-medium mb-2">Is a "Phone Number" Numerical or Categorical?</p>
+                        <p class="text-sm text-slate-500 mb-8">Hint: Does calculating the "Average Phone Number" make sense?</p>
+                        <div class="flex justify-center gap-6">
+                            <button onclick="checkMCQ(this, false, 'c1-q2-fb', 'c1', 3)" class="px-8 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-slate-500 font-bold transition-all">Numerical</button>
+                            <button onclick="checkMCQ(this, true, 'c1-q2-fb', 'c1', 3)" class="px-8 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-slate-500 font-bold transition-all">Categorical</button>
+                        </div>
+                        <div id="c1-q2-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                    </div>
+                </div>
+
+                <!-- C1 Q3 -->
+                <div id="c1-q3" class="question-block hidden">
+                    <div class="text-center py-4">
+                        <p class="text-xl font-medium mb-8">Which of these can be calculated for Categorical data?</p>
+                        <div class="flex flex-col md:flex-row justify-center gap-4">
+                            <button onclick="checkMCQ(this, false, 'c1-q3-fb')" class="px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:bg-slate-700">Calculate Average</button>
+                            <button onclick="checkMCQ(this, true, 'c1-q3-fb')" class="px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:bg-slate-700">Count Frequency</button>
+                            <button onclick="checkMCQ(this, false, 'c1-q3-fb')" class="px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg hover:bg-slate-700">Find Max Value</button>
+                        </div>
+                        <div id="c1-q3-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: C2 THEORY -->
+        <div id="slide-3" class="hidden-slide">
+            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div class="flex items-center gap-3 mb-6 text-pink-400 border-b border-slate-700 pb-4">
+                    <div class="p-2 bg-pink-500/20 rounded-lg"><i data-lucide="bar-chart" class="w-6 h-6"></i></div>
+                    <h2 class="text-3xl font-bold">2. Distribution</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-white text-lg mb-2">The Shape of Data</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            Distribution tells us how data is spread out. Are values clustered in the middle? Or bunched at one end?
+                        </p>
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-600">
+                            <p class="text-xs text-slate-500 uppercase mb-1">Analogy</p>
+                            <p class="text-slate-300 text-sm">Imagine a crowd of people. Most are average height. A few are short, a few are tall. That's a <strong>Normal</strong> distribution.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-white text-sm mb-1">Normal Distribution</h4>
+                            <p class="text-slate-400 text-xs">Bell-shaped. Symmetrical.</p>
+                        </div>
+                        <div class="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-white text-sm mb-1">Skewed Distribution</h4>
+                            <p class="text-slate-400 text-xs">Leans to one side. (e.g., Income is skewed by billionaires).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: C2 PRACTICE -->
+        <div id="slide-4" class="hidden-slide">
+            <div class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><i data-lucide="dumbbell"></i> Practice Gym: Distribution</h3>
+                    <div class="text-sm font-mono text-pink-400 bg-slate-800 px-3 py-1 rounded-full" id="c2-progress">Question 1/3</div>
+                </div>
+
+                <!-- C2 Q1 -->
+                <div id="c2-q1" class="question-block text-center py-4">
+                    <p class="text-sm mb-6 text-slate-300">Click the chart that shows a <strong>Skewed</strong> distribution.</p>
+                    <div class="flex justify-center gap-8">
+                        <div onclick="checkVisual(false, this, 'c2-q1-fb', 'c2', 2)" class="cursor-pointer p-4 border-2 border-slate-600 rounded-xl hover:border-pink-400 bg-slate-800 transition-all hover:scale-105">
+                            <div class="flex items-end gap-1 h-24 w-40 justify-center">
+                                <div class="w-4 bg-slate-500 h-[20%] rounded-t"></div><div class="w-4 bg-slate-500 h-[60%] rounded-t"></div><div class="w-4 bg-slate-500 h-[90%] rounded-t"></div><div class="w-4 bg-slate-500 h-[60%] rounded-t"></div><div class="w-4 bg-slate-500 h-[20%] rounded-t"></div>
+                            </div>
+                            <span class="text-xs text-slate-500 font-bold uppercase mt-2 block">Chart A</span>
+                        </div>
+                        <div onclick="checkVisual(true, this, 'c2-q1-fb', 'c2', 2)" class="cursor-pointer p-4 border-2 border-slate-600 rounded-xl hover:border-pink-400 bg-slate-800 transition-all hover:scale-105">
+                            <div class="flex items-end gap-1 h-24 w-40 justify-center">
+                                <div class="w-4 bg-slate-500 h-[20%] rounded-t"></div><div class="w-4 bg-slate-500 h-[30%] rounded-t"></div><div class="w-4 bg-slate-500 h-[40%] rounded-t"></div><div class="w-4 bg-slate-500 h-[60%] rounded-t"></div><div class="w-4 bg-slate-500 h-[90%] rounded-t"></div>
+                            </div>
+                            <span class="text-xs text-slate-500 font-bold uppercase mt-2 block">Chart B</span>
+                        </div>
+                    </div>
+                    <div id="c2-q1-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C2 Q2 -->
+                <div id="c2-q2" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-8">If data is "Skewed Right", where are the outliers (extreme values)?</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c2-q2-fb', 'c2', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">On the Left (Low values)</button>
+                        <button onclick="checkMCQ(this, true, 'c2-q2-fb', 'c2', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">On the Right (High values)</button>
+                    </div>
+                    <div id="c2-q2-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C2 Q3 -->
+                <div id="c2-q3" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-4">In a small company, 99 employees make $50k, but the CEO makes $10M.</p>
+                    <p class="text-sm text-slate-400 mb-8">How does this affect the Average (Mean)?</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c2-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Average stays near $50k</button>
+                        <button onclick="checkMCQ(this, true, 'c2-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Average is pulled way up</button>
+                    </div>
+                    <div id="c2-q3-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: C3 THEORY -->
+        <div id="slide-5" class="hidden-slide">
+            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div class="flex items-center gap-3 mb-6 text-emerald-400 border-b border-slate-700 pb-4">
+                    <div class="p-2 bg-emerald-500/20 rounded-lg"><i data-lucide="move-diagonal-2" class="w-6 h-6"></i></div>
+                    <h2 class="text-3xl font-bold">3. Correlation</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-white text-lg mb-2">The Connection</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            How two variables move together.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
+                                <i data-lucide="trending-up" class="text-emerald-400"></i>
+                                <span class="text-sm text-slate-300"><strong>Positive:</strong> Both go up together. (Study Time vs Grades)</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
+                                <i data-lucide="trending-down" class="text-red-400"></i>
+                                <span class="text-sm text-slate-300"><strong>Negative:</strong> One up, one down. (Speed vs Travel Time)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 flex items-center justify-center text-center">
+                        <div>
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-400 mx-auto mb-2"></i>
+                            <h4 class="font-bold text-white mb-2">Correlation != Causation</h4>
+                            <p class="text-xs text-slate-400">Ice cream sales and shark attacks both go up in summer.<br>They correlate, but ice cream doesn't cause sharks!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: C3 PRACTICE -->
+        <div id="slide-6" class="hidden-slide">
+            <div class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><i data-lucide="dumbbell"></i> Practice Gym: Correlation</h3>
+                    <div class="text-sm font-mono text-emerald-400 bg-slate-800 px-3 py-1 rounded-full" id="c3-progress">Question 1/3</div>
+                </div>
+
+                <!-- C3 Q1 -->
+                <div id="c3-q1" class="question-block text-center py-8">
+                    <p class="text-xl font-medium mb-8">"As Rainfall goes UP, Umbrella Sales go UP."</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, true, 'c3-q1-fb', 'c3', 2)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-emerald-500">Positive Correlation</button>
+                        <button onclick="checkMCQ(this, false, 'c3-q1-fb', 'c3', 2)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-red-500">Negative Correlation</button>
+                    </div>
+                    <div id="c3-q1-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C3 Q2 -->
+                <div id="c3-q2" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-8">"As Car Speed goes UP, Time to Destination goes DOWN."</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c3-q2-fb', 'c3', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-emerald-500">Positive Correlation</button>
+                        <button onclick="checkMCQ(this, true, 'c3-q2-fb', 'c3', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700 hover:border-red-500">Negative Correlation</button>
+                    </div>
+                    <div id="c3-q2-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C3 Q3 -->
+                <div id="c3-q3" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-8">"Shoe Size vs. Intelligence Score."</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c3-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Positive</button>
+                        <button onclick="checkMCQ(this, false, 'c3-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Negative</button>
+                        <button onclick="checkMCQ(this, true, 'c3-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">No Correlation</button>
+                    </div>
+                    <div id="c3-q3-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: C4 THEORY -->
+        <div id="slide-7" class="hidden-slide">
+            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
+                <div class="flex items-center gap-3 mb-6 text-orange-400 border-b border-slate-700 pb-4">
+                    <div class="p-2 bg-orange-500/20 rounded-lg"><i data-lucide="layers" class="w-6 h-6"></i></div>
+                    <h2 class="text-3xl font-bold">4. Aggregation</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-white text-lg mb-2">The Summary</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                            Raw data is too detailed (every single transaction). Visualizations often need summaries.
+                            <br><br><span class="bg-orange-900/20 text-orange-300 px-2 py-1 rounded">Operations: Sum, Mean, Count, Max</span>
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-lg mb-2">Granularity</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            How zoomed in are you?
+                            <br>Daily -> Monthly -> Yearly.
+                            <br>Low Granularity (Yearly) shows long trends. High Granularity (Daily) shows noise.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: C4 PRACTICE -->
+        <div id="slide-8" class="hidden-slide">
+            <div class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                    <h3 class="text-lg font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2"><i data-lucide="dumbbell"></i> Practice Gym: Aggregation</h3>
+                    <div class="text-sm font-mono text-orange-400 bg-slate-800 px-3 py-1 rounded-full" id="c4-progress">Question 1/3</div>
+                </div>
+
+                <!-- C4 Q1 -->
+                <div id="c4-q1" class="question-block text-center py-8">
+                    <p class="text-xl font-medium mb-8">To plot "Total Revenue per City", what data format do you need?</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c4-q1-fb', 'c4', 2)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">10,000 Raw Transaction Rows</button>
+                        <button onclick="checkMCQ(this, true, 'c4-q1-fb', 'c4', 2)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">1 Summary Row per City</button>
+                    </div>
+                    <div id="c4-q1-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C4 Q2 -->
+                <div id="c4-q2" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-8">I want to see the typical price of a house in London. Which aggregation?</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c4-q2-fb', 'c4', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Sum (Total)</button>
+                        <button onclick="checkMCQ(this, true, 'c4-q2-fb', 'c4', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Mean (Average)</button>
+                        <button onclick="checkMCQ(this, false, 'c4-q2-fb', 'c4', 3)" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Count</button>
+                    </div>
+                    <div id="c4-q2-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+
+                <!-- C4 Q3 -->
+                <div id="c4-q3" class="question-block hidden text-center py-8">
+                    <p class="text-xl font-medium mb-8">Which granularity is best for spotting a long-term 10-year trend?</p>
+                    <div class="flex justify-center gap-6">
+                        <button onclick="checkMCQ(this, false, 'c4-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Hourly Data</button>
+                        <button onclick="checkMCQ(this, true, 'c4-q3-fb')" class="px-6 py-4 bg-slate-800 border-2 border-slate-600 rounded-xl hover:bg-slate-700">Yearly Average</button>
+                    </div>
+                    <div id="c4-q3-fb" class="mt-6 font-bold text-lg hidden text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: CHART DOCTOR -->
+        <div id="slide-9" class="hidden-slide">
+            <div class="text-center slide-enter">
+                <h2 class="text-3xl font-bold mb-4">Part 2: The Chart Doctor</h2>
+                <p class="text-slate-400 mb-8">Apply your knowledge to choose the right chart for the job.</p>
+                
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-10 rounded-3xl border border-indigo-500/30 text-center shadow-xl">
+                    <div class="bg-slate-800/80 p-8 rounded-2xl max-w-2xl mx-auto backdrop-blur-sm border border-slate-600">
+                        <div id="quiz-header" class="mb-6 flex justify-between items-center px-4 border-b border-slate-700 pb-4">
+                            <span class="text-xs font-mono bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider" id="q-type">Scenario</span>
+                            <span class="text-xs font-mono text-slate-400" id="q-counter">1/10</span>
+                        </div>
+                        
+                        <!-- Visual Question Area -->
+                        <div id="quiz-visual" class="mb-6 flex justify-center hidden"></div>
+                        
+                        <p class="text-xl text-white mb-8 font-medium leading-relaxed" id="quiz-q">Loading...</p>
+                        <div id="quiz-options" class="grid grid-cols-2 gap-6">
+                            <!-- Options injected here -->
+                        </div>
+                        <div id="quiz-feedback" class="mt-8 font-bold hidden text-lg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAVIGATION CONTROLS -->
+        <div class="mt-12 flex justify-between items-center border-t border-slate-800 pt-6">
+            <button onclick="prevSlide()" id="btn-prev" class="text-slate-400 hover:text-white font-bold flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-0">
+                <i data-lucide="arrow-left"></i> Back
+            </button>
+            <span class="text-slate-500 font-mono text-xs" id="slide-counter">1 / 10</span>
+            <button onclick="nextSlide()" id="btn-next" class="bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center gap-2 px-6 py-3 rounded-lg transition-all shadow-lg hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
+                Next <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- SLIDESHOW LOGIC ---
+        let currentSlide = 0;
+        const totalSlides = 10;
+
+        function showSlide(idx) {
+            document.querySelectorAll('[id^="slide-"]').forEach(el => {
+                el.classList.add('hidden-slide');
+                el.classList.remove('slide-enter');
+            });
+            const slide = document.getElementById(`slide-${idx}`);
+            slide.classList.remove('hidden-slide');
+            void slide.offsetWidth; 
+            slide.classList.add('slide-enter');
+
+            document.getElementById('slide-counter').innerText = `${idx + 1} / ${totalSlides}`;
+            document.getElementById('progress-bar').style.width = `${((idx + 1) / totalSlides) * 100}%`;
+            
+            document.getElementById('btn-prev').disabled = idx === 0;
+            const nextBtn = document.getElementById('btn-next');
+            
+            if(idx === 0) {
+                nextBtn.classList.add('hidden');
+            } else if (idx === totalSlides - 1) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                nextBtn.innerText = "Next Concept";
+                nextBtn.innerHTML += ' <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>';
+            }
+            if(idx === 9) startVizQuiz();
+            lucide.createIcons();
+        }
+
+        function nextSlide() {
+            if(currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevSlide() {
+            if(currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // --- SEQUENTIAL QUESTION LOGIC ---
+        function showNextQ(concept, qNum) {
+            // Hide previous Q
+            document.getElementById(`${concept}-q${qNum-1}`).classList.add('hidden');
+            // Show next Q with animation
+            const nextQ = document.getElementById(`${concept}-q${qNum}`);
+            nextQ.classList.remove('hidden');
+            nextQ.classList.add('fade-in');
+            
+            // Update Progress Indicator
+            document.getElementById(`${concept}-progress`).innerText = `Question ${qNum}/3`;
+        }
+
+        // --- MCQ LOGIC ---
+        function checkMCQ(btn, isCorrect, feedbackId, concept = null, nextQNum = null) {
+            const fb = document.getElementById(feedbackId);
+            fb.classList.remove('hidden');
+            
+            if(isCorrect) {
+                btn.classList.replace('bg-slate-800', 'bg-green-600');
+                btn.classList.replace('border-slate-600', 'border-green-400');
+                
+                if(nextQNum) {
+                    fb.innerHTML = `
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-green-400">Correct!</span>
+                            <button onclick="showNextQ('${concept}', ${nextQNum})" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-500 transition-colors animate-bounce">Next Question</button>
+                        </div>
+                    `;
+                } else {
+                    fb.innerText = "Correct! Section Complete.";
+                    fb.className = "mt-6 font-bold text-lg text-green-400 animate-pulse";
+                }
+            } else {
+                btn.classList.replace('bg-slate-800', 'bg-red-600');
+                btn.classList.replace('border-slate-600', 'border-red-400');
+                btn.classList.add('shake');
+                fb.innerText = "Incorrect. Try again.";
+                fb.className = "mt-6 font-bold text-lg text-red-400";
+                setTimeout(() => btn.classList.remove('shake'), 500);
+            }
+        }
+
+        // --- VISUAL LOGIC ---
+        function checkVisual(isCorrect, el, feedbackId, concept, nextQNum) {
+            const fb = document.getElementById(feedbackId);
+            fb.classList.remove('hidden');
+            
+            if(isCorrect) {
+                el.classList.add('ring-4', 'ring-green-500', 'bg-green-900/20');
+                fb.innerHTML = `
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="text-green-400">Correct! The tail drags to the right.</span>
+                        <button onclick="showNextQ('${concept}', ${nextQNum})" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-500 transition-colors animate-bounce">Next Question</button>
+                    </div>
+                `;
+            } else {
+                el.classList.add('ring-4', 'ring-red-500', 'bg-red-900/20', 'shake');
+                fb.innerText = "Incorrect. This is symmetric (Normal).";
+                fb.className = "mt-6 font-bold text-lg text-red-400";
+                setTimeout(() => el.classList.remove('shake'), 500);
+            }
+        }
+
+        // --- DRAG & DROP LOGIC ---
+        const draggables = document.querySelectorAll('.draggable');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let sortedCount = 0;
+
+        draggables.forEach(d => {
+            d.addEventListener('dragstart', () => d.classList.add('dragging'));
+            d.addEventListener('dragend', () => d.classList.remove('dragging'));
+        });
+
+        dropZones.forEach(z => {
+            z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('drag-over'); });
+            z.addEventListener('dragleave', () => z.classList.remove('drag-over'));
+            z.addEventListener('drop', e => {
+                e.preventDefault();
+                z.classList.remove('drag-over');
+                const d = document.querySelector('.dragging');
+                if(!d) return;
+                
+                if(d.dataset.target === z.dataset.type) {
+                    z.appendChild(d);
+                    d.classList.replace('bg-slate-700', 'bg-green-600');
+                    d.classList.add('cursor-default');
+                    d.setAttribute('draggable', false);
+                    sortedCount++;
+                    if(sortedCount === 4) document.getElementById('fb-c1-q1').classList.remove('hidden');
+                } else {
+                    d.classList.add('shake', 'bg-red-500');
+                    setTimeout(() => d.classList.remove('shake', 'bg-red-500'), 500);
+                }
+            });
+        });
+
+        // --- SVG ICONS FOR CHART DOCTOR ---
+        const svgs = {
+            scatter_neg: `<svg viewBox="0 0 100 50" class="w-full h-full text-red-400"><circle cx="10" cy="10" r="2" fill="currentColor"/><circle cx="30" cy="20" r="2" fill="currentColor"/><circle cx="50" cy="30" r="2" fill="currentColor"/><circle cx="70" cy="40" r="2" fill="currentColor"/><circle cx="90" cy="45" r="2" fill="currentColor"/></svg>`,
+            boxplot_outlier: `<svg viewBox="0 0 100 50" class="w-full h-full text-indigo-400"><line x1="50" y1="10" x2="50" y2="40" stroke="currentColor" stroke-width="2"/><rect x="40" y="20" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"/><circle cx="50" cy="5" r="3" fill="red"/></svg>`,
+            heatmap_strong: `<svg viewBox="0 0 100 100" class="w-24 h-24"><rect x="0" y="0" width="50" height="50" fill="#1e293b"/><rect x="50" y="0" width="50" height="50" fill="#ef4444"/><rect x="0" y="50" width="50" height="50" fill="#1e293b"/><rect x="50" y="50" width="50" height="50" fill="#1e293b"/></svg>`,
+            bar_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><path d="M12 20V10M18 20V4M6 20v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+            scatter_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><circle cx="5" cy="5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="19" r="2" fill="currentColor"/></svg>`,
+            line_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><polyline points="4 18 10 12 16 16 20 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>`,
+            hist_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><path d="M4 20h4v-8H4v8zm5 0h4V4H9v16zm5 0h4v-5h-4v5z" fill="currentColor"/></svg>`,
+            box_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><rect x="4" y="8" width="16" height="8" stroke="currentColor" fill="none"/><line x1="12" y1="4" x2="12" y2="8" stroke="currentColor"/><line x1="12" y1="16" x2="12" y2="20" stroke="currentColor"/></svg>`,
+            heat_icon: `<svg viewBox="0 0 24 24" class="w-6 h-6 inline mr-2"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor" opacity="0.5"/><rect x="3" y="14" width="7" height="7" fill="currentColor" opacity="0.5"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>`
+        };
+
+        const getIcon = (name) => {
+            if(name.includes("Bar")) return svgs.bar_icon;
+            if(name.includes("Scatter")) return svgs.scatter_icon;
+            if(name.includes("Line")) return svgs.line_icon;
+            if(name.includes("Histogram")) return svgs.hist_icon;
+            if(name.includes("Box")) return svgs.box_icon;
+            if(name.includes("Heatmap")) return svgs.heat_icon;
+            return "";
+        };
+
+        // --- VIZ DOCTOR LOGIC ---
+        const scenarios = [
+            { type: "Tool Selection", q: "I need to check if 'Study Hours' has any connection to 'Exam Score'. What chart connects two numbers?", options: ["Bar Chart", "Scatter Plot"], ans: "Scatter Plot" },
+            { type: "Interpretation", q: "You see this pattern where dots drift downwards. What does this mean?", visual: svgs.scatter_neg, options: ["Negative Correlation", "Positive Correlation"], ans: "Negative Correlation" },
+            { type: "Tool Selection", q: "I want to compare 'Total Revenue' across 5 different 'Cities'.", options: ["Line Chart", "Bar Chart"], ans: "Bar Chart" },
+            { type: "Tool Selection", q: "I need to see the trend of 'Stock Price' over the last 365 days.", options: ["Histogram", "Line Chart"], ans: "Line Chart" },
+            { type: "Tool Selection", q: "I suspect 'Age' has extreme outliers. How do I visualize the spread?", options: ["Box Plot", "Heatmap"], ans: "Box Plot" },
+            { type: "Interpretation", q: "In this Box Plot, a dot floats far above the box. What is it?", visual: svgs.boxplot_outlier, options: ["Median", "Outlier"], ans: "Outlier" },
+            { type: "Tool Selection", q: "I want to see the most common age group (buckets).", options: ["Histogram", "Line Chart"], ans: "Histogram" },
+            { type: "Tool Selection", q: "I want to see correlation between 10 different variables at once.", options: ["Heatmap", "Bar Chart"], ans: "Heatmap" },
+            { type: "Interpretation", q: "This Heatmap shows a dark red square where 'Ice Cream' meets 'Temperature'. Conclusion?", visual: svgs.heatmap_strong, options: ["Strong Connection", "No Connection"], ans: "Strong Connection" },
+            { type: "Tool Selection", q: "Compare average salary of 3 Departments.", options: ["Bar Chart", "Scatter Plot"], ans: "Bar Chart" }
+        ];
+        
+        let qIdx = 0;
+        function startVizQuiz() { loadQ(); }
+        function loadQ() {
+            if(qIdx >= scenarios.length) {
+                document.querySelector('#slide-9 .bg-slate-800\\/80').innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="inline-block p-4 bg-green-500/20 rounded-full mb-4 text-green-400">
+                            <i data-lucide="award" class="w-12 h-12"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-2">Mastery Complete!</h3>
+                        <p class="text-slate-400 mb-8">You can speak the language of data.</p>
+                        <a href="viz_guided_lab.html" class="inline-block bg-purple-600 text-white px-8 py-4 rounded-full font-bold hover:bg-purple-500 transition-colors shadow-lg shadow-purple-900/50">
+                            Start Guided Lab <i data-lucide="arrow-right" class="inline w-4 h-4 ml-1"></i>
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            const s = scenarios[qIdx];
+            document.getElementById('q-type').innerText = s.type;
+            document.getElementById('q-counter').innerText = `${qIdx + 1}/${scenarios.length}`;
+            document.getElementById('quiz-q').innerText = s.q;
+            
+            // Handle Visuals
+            const vizContainer = document.getElementById('quiz-visual');
+            if(s.visual) {
+                vizContainer.innerHTML = s.visual;
+                vizContainer.classList.remove('hidden');
+                // Ensure SVG scales
+                const svg = vizContainer.querySelector('svg');
+                if(svg && !svg.classList.contains('w-full')) svg.classList.add('w-64', 'h-32');
+            } else {
+                vizContainer.classList.add('hidden');
+            }
+
+            document.getElementById('quiz-feedback').className = "mt-6 font-bold hidden";
+            document.getElementById('quiz-options').innerHTML = s.options.map(o => 
+                `<button onclick="checkViz('${o}')" class="p-6 bg-slate-700 hover:bg-indigo-600 rounded-xl font-bold border border-slate-600 text-lg transition-all hover:scale-105 flex items-center justify-center">
+                    ${getIcon(o)} ${o}
+                </button>`
+            ).join('');
+        }
+        function checkViz(choice) {
+            const s = scenarios[qIdx];
+            const fb = document.getElementById('quiz-feedback');
+            fb.classList.remove('hidden');
+            if(choice === s.ans) {
+                fb.innerText = "Correct!"; fb.className = "mt-6 font-bold text-green-400 text-xl";
+                setTimeout(() => { qIdx++; loadQ(); }, 1200);
+            } else {
+                fb.innerText = "Try again."; fb.className = "mt-6 font-bold text-red-400 text-xl";
+            }
+        }
+
+        // Init
+        showSlide(0);
+        lucide.createIcons();
+    </script>
+</body>
+</html>

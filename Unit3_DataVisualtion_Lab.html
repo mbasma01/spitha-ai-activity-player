@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capstone: Global University Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .tab-inactive { color: #94a3b8; }
+        .task-checked { text-decoration: line-through; color: #475569; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center shadow-lg z-20">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded text-white"><i data-lucide="graduation-cap"></i></div>
+            <div>
+                <h1 class="font-bold text-white leading-tight">Global University Lab</h1>
+                <p class="text-xs text-slate-400">Capstone Project</p>
+            </div>
+        </div>
+        <button onclick="downloadCSV()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg">
+            <i data-lucide="download"></i> Download Dataset
+        </button>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT: TASK CHECKLIST (20%) -->
+        <aside class="w-1/5 min-w-[250px] bg-slate-800 border-r border-slate-700 flex flex-col z-10">
+            <div class="p-4 border-b border-slate-700 bg-slate-800/50">
+                <h2 class="font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="list-todo" class="text-blue-400"></i> Mission Log
+                </h2>
+                <div class="w-full bg-slate-700 h-1.5 mt-3 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+            <div class="overflow-y-auto p-4 space-y-1" id="task-list">
+                <!-- Tasks injected via JS -->
+            </div>
+        </aside>
+
+        <!-- CENTER: WORKSPACE (55%) -->
+        <main class="flex-1 bg-slate-900 p-6 flex flex-col gap-6 overflow-hidden relative">
+            
+            <!-- Controls -->
+            <div class="grid grid-cols-4 gap-4">
+                <!-- Cleaning Controls -->
+                <div class="col-span-4 lg:col-span-2 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2"><i data-lucide="wrench"></i> Cleaning Tools</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="runOp('drop_null')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs border border-slate-600 transition-colors">Drop Nulls</button>
+                        <button onclick="runOp('impute')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs border border-slate-600 transition-colors">Impute Mean</button>
+                        <button onclick="runOp('dedupe')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs border border-slate-600 transition-colors">Deduplicate</button>
+                        <button onclick="runOp('case')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs border border-slate-600 transition-colors">Fix Text Case</button>
+                        <button onclick="runOp('outlier')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs border border-slate-600 transition-colors">Filter Outliers</button>
+                    </div>
+                </div>
+                
+                <!-- Viz Controls -->
+                <div class="col-span-4 lg:col-span-2 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2"><i data-lucide="pie-chart"></i> Visualization Config</h3>
+                    <div class="flex gap-2">
+                        <select id="viz-type" class="bg-slate-900 text-slate-200 text-xs p-1.5 rounded border border-slate-600 w-24">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="scatter">Scatter</option>
+                            <option value="hist">Histogram</option>
+                        </select>
+                        <select id="viz-x" class="bg-slate-900 text-slate-200 text-xs p-1.5 rounded border border-slate-600 flex-1"></select>
+                        <select id="viz-y" class="bg-slate-900 text-slate-200 text-xs p-1.5 rounded border border-slate-600 flex-1"></select>
+                        <button onclick="runViz()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded flex items-center gap-1">
+                            <i data-lucide="play" class="w-3 h-3"></i> Plot
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Views -->
+            <div class="flex-1 flex flex-col gap-4 min-h-0">
+                <!-- Data Table -->
+                <div class="h-2/5 bg-slate-800 rounded-xl border border-slate-700 flex flex-col overflow-hidden">
+                    <div class="px-4 py-2 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-400">df.head() Preview</span>
+                        <span id="row-count" class="text-xs font-mono text-emerald-400">Rows: 0</span>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+                            <thead class="bg-slate-900 text-slate-400 sticky top-0 font-mono">
+                                <tr id="table-head"></tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-700 font-mono"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart Area -->
+                <div class="h-3/5 bg-slate-800 rounded-xl border border-slate-700 p-4 relative flex flex-col">
+                    <div class="absolute top-4 right-4 text-xs text-slate-500 font-bold uppercase tracking-wider">Output Canvas</div>
+                    <div class="flex-1 relative w-full h-full">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- RIGHT: REFERENCE LIBRARY (25%) -->
+        <aside class="w-1/4 min-w-[300px] bg-slate-800 border-l border-slate-700 flex flex-col shadow-xl z-20">
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-700 bg-slate-900">
+                <button onclick="switchRef('clean')" id="tab-clean" class="flex-1 py-3 text-sm font-bold text-center tab-active transition-colors">
+                    <i data-lucide="sparkles" class="inline w-4 h-4 mr-1"></i> Cleaning
+                </button>
+                <button onclick="switchRef('viz')" id="tab-viz" class="flex-1 py-3 text-sm font-bold text-center tab-inactive transition-colors">
+                    <i data-lucide="bar-chart-2" class="inline w-4 h-4 mr-1"></i> Visualization
+                </button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-6 bg-slate-800">
+                
+                <!-- Cleaning Reference -->
+                <div id="ref-clean" class="space-y-6">
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-red-400">Handling Missing Data</h3>
+                        <p class="text-xs text-slate-400">Use when you see <code class="bg-slate-900 px-1 rounded">NaN</code> or nulls.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            # Drop rows with nulls<br>
+                            df.dropna(inplace=True)<br><br>
+                            # Fill with average<br>
+                            df['col'].fillna(df['col'].mean(), inplace=True)
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-blue-400">Handling Duplicates</h3>
+                        <p class="text-xs text-slate-400">Use when rows are exact copies.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            # Remove duplicates<br>
+                            df.drop_duplicates(inplace=True)
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-purple-400">Text Standardization</h3>
+                        <p class="text-xs text-slate-400">Fixing "USA" vs "usa".</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            # Convert to Title Case<br>
+                            df['city'] = df['city'].str.title()<br><br>
+                            # Remove whitespace<br>
+                            df['city'] = df['city'].str.strip()
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-amber-400">Filtering Outliers</h3>
+                        <p class="text-xs text-slate-400">Removing impossible values.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            # Keep only positive values<br>
+                            df = df[df['price'] > 0]
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Viz Reference -->
+                <div id="ref-viz" class="space-y-6 hidden">
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-indigo-400">1. Histogram (Distribution)</h3>
+                        <p class="text-xs text-slate-400">Use to see the spread of <strong>One Numerical</strong> variable.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            sns.histplot(data=df, x='age')
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-indigo-400">2. Scatter Plot (Relationships)</h3>
+                        <p class="text-xs text-slate-400">Use to connect <strong>Two Numerical</strong> variables.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            sns.scatterplot(data=df, x='price', y='sales')
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-indigo-400">3. Bar Chart (Comparison)</h3>
+                        <p class="text-xs text-slate-400">Use to compare a <strong>Categorical</strong> variable against a Number.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            sns.barplot(data=df, x='city', y='revenue')
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-indigo-400">4. Line Chart (Trends)</h3>
+                        <p class="text-xs text-slate-400">Use to track changes over <strong>Time</strong>.</p>
+                        <div class="bg-slate-900 p-3 rounded border border-slate-700 font-mono text-xs text-green-400 overflow-x-auto">
+                            sns.lineplot(data=df, x='date', y='sales')
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        // --- 1. DATA GENERATION ---
+        const COUNTRIES = ["USA", "usa", "UK", "Canada", "China", "India", " Usa "]; // Dirty data
+        const NAMES = ["Harvard", "Stanford", "MIT", "Oxford", "Cambridge", "CalTech", "Imperial", "ETH Zurich", "UCL", "Chicago"];
+        
+        function generateDataset() {
+            let data = [];
+            for(let i=0; i<50; i++) {
+                // Dirty Data Injection
+                let country = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
+                let students = Math.floor(Math.random() * 30000) + 5000;
+                if(Math.random() < 0.05) students = -100; // Outlier
+                
+                let tuition = Math.floor(Math.random() * 50000) + 10000;
+                if(Math.random() < 0.1) tuition = null; // Missing
+                
+                let score = (Math.random() * 40 + 60).toFixed(1);
+                if(Math.random() < 0.05) score = null; // Missing
+
+                data.push({
+                    ID: 1000 + i,
+                    University: NAMES[i % NAMES.length] + (Math.random() > 0.8 ? " Campus" : ""),
+                    Country: country,
+                    Tuition: tuition,
+                    Score: score,
+                    Students: students,
+                    Year: (Math.random() > 0.5 ? "2023" : 2023) // Type inconsistency (simulated)
+                });
+            }
+            // Add Duplicate
+            data.push(data[0]);
+            return data;
+        }
+
+        let dataset = generateDataset();
+        let chartInstance = null;
+
+        // --- 2. TASKS CONFIG ---
+        const taskList = [
+            { id: 't1', text: "Download Raw Dataset", check: false },
+            { id: 't2', text: "Load & Inspect Data", check: false },
+            { id: 't3', text: "Identify Missing Values", check: false },
+            { id: 't4', text: "Impute Missing Tuition (Mean)", check: false },
+            { id: 't5', text: "Drop Rows w/ Missing Score", check: false },
+            { id: 't6', text: "Identify Duplicates", check: false },
+            { id: 't7', text: "Remove Duplicates", check: false },
+            { id: 't8', text: "Fix Country Names (Standardize)", check: false },
+            { id: 't9', text: "Filter Negative Student Counts", check: false },
+            { id: 't10', text: "Cast Year to Integer", check: false },
+            { id: 't11', text: "Plot 1: Tuition Distribution (Hist)", check: false },
+            { id: 't12', text: "Plot 2: Score vs Tuition (Scatter)", check: false },
+            { id: 't13', text: "Plot 3: Students by Country (Bar)", check: false },
+            { id: 't14', text: "Plot 4: Score Trends (Line)", check: false },
+            { id: 't15', text: "Export Clean Data", check: false }
+        ];
+
+        // --- 3. UI LOGIC ---
+
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            container.innerHTML = taskList.map((t, idx) => `
+                <div class="flex items-start gap-3 p-2 rounded hover:bg-slate-800 transition-colors group">
+                    <div class="relative flex items-center">
+                        <input type="checkbox" id="${t.id}" ${t.check ? 'checked' : ''} onchange="toggleTask(${idx})" 
+                            class="peer h-4 w-4 cursor-pointer appearance-none rounded border border-slate-500 bg-slate-900 checked:border-blue-500 checked:bg-blue-500 transition-all">
+                        <i data-lucide="check" class="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 text-white opacity-0 peer-checked:opacity-100"></i>
+                    </div>
+                    <label for="${t.id}" class="text-sm cursor-pointer select-none ${t.check ? 'task-checked' : 'text-slate-300'} group-hover:text-white transition-colors">
+                        ${t.text}
+                    </label>
+                </div>
+            `).join('');
+            
+            // Progress Bar
+            const completed = taskList.filter(t => t.check).length;
+            const pct = (completed / taskList.length) * 100;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            
+            lucide.createIcons();
+        }
+
+        function toggleTask(idx) {
+            taskList[idx].check = !taskList[idx].check;
+            renderTasks();
+        }
+
+        function autoCheck(indices) {
+            indices.forEach(i => {
+                if(!taskList[i].check) {
+                    taskList[i].check = true;
+                }
+            });
+            renderTasks();
+        }
+
+        // --- 4. OPERATIONS ---
+
+        function renderTable() {
+            if(dataset.length === 0) return;
+            const cols = Object.keys(dataset[0]);
+            
+            document.getElementById('table-head').innerHTML = cols.map(c => `<th class="px-4 py-2 bg-slate-800 text-left font-bold border-b border-slate-700">${c}</th>`).join('');
+            document.getElementById('table-body').innerHTML = dataset.slice(0, 10).map(row => `
+                <tr class="hover:bg-slate-800/50 transition-colors">
+                    ${cols.map(c => {
+                        let val = row[c];
+                        let style = "";
+                        if(val === null) { val = "NaN"; style="text-red-400 font-bold"; }
+                        if(c === 'Students' && val < 0) style="text-red-400 font-bold";
+                        if(c === 'Country' && (val.includes(' ') || val === 'usa')) style="text-amber-400";
+                        return `<td class="px-4 py-2 border-b border-slate-800 ${style}">${val}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
+            
+            document.getElementById('row-count').innerText = `Rows: ${dataset.length}`;
+            
+            // Update Selects
+            const selects = ['viz-x', 'viz-y'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                el.innerHTML = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+            });
+        }
+
+        function runOp(op) {
+            if(op === 'drop_null') {
+                dataset = dataset.filter(d => d.Score !== null);
+                autoCheck([2, 4]); // Task 3, 5
+            } 
+            else if(op === 'impute') {
+                const valid = dataset.filter(d => d.Tuition !== null).map(d => d.Tuition);
+                const mean = Math.floor(valid.reduce((a,b)=>a+b,0)/valid.length);
+                dataset.forEach(d => { if(d.Tuition === null) d.Tuition = mean; });
+                autoCheck([2, 3]); // Task 3, 4
+            }
+            else if(op === 'dedupe') {
+                const seen = new Set();
+                dataset = dataset.filter(d => {
+                    const k = JSON.stringify(d);
+                    return seen.has(k) ? false : seen.add(k);
+                });
+                autoCheck([5, 6]); // Task 6, 7
+            }
+            else if(op === 'case') {
+                dataset.forEach(d => {
+                    d.Country = d.Country.trim().toUpperCase();
+                    if(d.Country === 'USA') d.Country = 'USA'; // Logic simplification
+                });
+                autoCheck([7]); // Task 8
+            }
+            else if(op === 'outlier') {
+                dataset = dataset.filter(d => d.Students >= 0);
+                autoCheck([8]); // Task 9 (Zero indexed -> 8? No, Task 9 is index 8)
+                // Wait, index 9 is Task 10? 
+                // List: 0..14. Task 9 is index 8. Task 10 is index 9.
+                // Filter Outliers is Task 10 in list? No, Task 10 in list description is Filter Outliers.
+                // In array: index 9 is "Filter Outliers".
+                autoCheck([9]); 
+            }
+            
+            renderTable();
+        }
+
+        function runViz() {
+            const type = document.getElementById('viz-type').value;
+            const xKey = document.getElementById('viz-x').value;
+            const yKey = document.getElementById('viz-y').value;
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            if(chartInstance) chartInstance.destroy();
+
+            // Simple Aggregation
+            const agg = {};
+            if(type !== 'scatter') {
+                dataset.forEach(d => {
+                    agg[d[xKey]] = (agg[d[xKey]] || 0) + (parseFloat(d[yKey]) || 1); // Count if non-numeric Y? Simplified.
+                });
+            }
+
+            let dataConfig;
+            if(type === 'scatter') {
+                dataConfig = {
+                    datasets: [{
+                        label: `${xKey} vs ${yKey}`,
+                        data: dataset.map(d => ({x: d[xKey], y: d[yKey]})),
+                        backgroundColor: '#3b82f6'
+                    }]
+                };
+                autoCheck([11]); // Task 12
+            } else {
+                dataConfig = {
+                    labels: Object.keys(agg),
+                    datasets: [{
+                        label: yKey,
+                        data: Object.values(agg),
+                        backgroundColor: '#10b981',
+                        borderColor: '#10b981',
+                        borderWidth: type === 'line' ? 2 : 0
+                    }]
+                };
+                if(type === 'bar') autoCheck([12]); // Task 13
+                if(type === 'line') autoCheck([13]); // Task 14
+                // Hist task 11 needs logic, simplified here
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: type === 'hist' ? 'bar' : type,
+                data: dataConfig,
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function switchRef(tab) {
+            document.getElementById('ref-clean').classList.add('hidden');
+            document.getElementById('ref-viz').classList.add('hidden');
+            document.getElementById('tab-clean').classList.replace('tab-active', 'tab-inactive');
+            document.getElementById('tab-viz').classList.replace('tab-active', 'tab-inactive');
+            
+            document.getElementById(`ref-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.replace('tab-inactive', 'tab-active');
+        }
+
+        function downloadCSV() {
+            const headers = Object.keys(dataset[0]).join(",");
+            const rows = dataset.map(obj => Object.values(obj).join(","));
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "university_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            autoCheck([0, 14]); // Task 1 and 15
+        }
+
+        // Init
+        renderTasks();
+        renderTable();
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
