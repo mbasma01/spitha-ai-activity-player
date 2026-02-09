@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization Challenge: E-Commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .slide-in-right { animation: slideRight 0.3s ease-out; }
+        @keyframes slideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 h-screen flex overflow-hidden">
+
+    <!-- LEFT PANEL: MISSION CONTROL (65%) -->
+    <section class="flex-1 flex flex-col relative border-r border-slate-800">
+        
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 p-2 rounded-lg text-white"><i data-lucide="target" class="w-6 h-6"></i></div>
+                <div>
+                    <h1 class="font-bold text-white text-xl tracking-tight">E-Commerce Challenge</h1>
+                    <p class="text-xs text-red-400 font-bold uppercase tracking-widest">Hard Mode • No Hints</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-slate-500 font-bold uppercase mb-1">Challenge Progress</div>
+                <div class="w-48 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-red-600 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission Card Container -->
+        <div class="flex-1 flex flex-col items-center justify-center p-12 relative overflow-hidden bg-slate-950">
+            
+            <!-- Background Decoration -->
+            <div class="absolute inset-0 opacity-5 pointer-events-none">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="1" fill="white" />
+                    </pattern>
+                    <rect width="100" height="100" fill="url(#grid)" />
+                </svg>
+            </div>
+
+            <!-- Active Task Card -->
+            <div id="mission-card" class="relative z-10 w-full max-w-3xl">
+                <!-- Content injected via JS -->
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-16 flex gap-6 relative z-10">
+                <button onclick="prevTask()" id="btn-prev" class="hidden px-6 py-3 rounded-lg font-bold text-slate-500 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-2 border border-transparent hover:border-slate-700">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Previous
+                </button>
+                <button onclick="nextTask()" id="btn-next" class="px-10 py-4 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold shadow-2xl shadow-red-900/40 transition-all hover:scale-105 flex items-center gap-3 text-lg border border-red-500">
+                    Mark Complete <i data-lucide="check-square" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- RIGHT PANEL: API REFERENCE (35%) -->
+    <aside class="w-[450px] flex flex-col bg-slate-900 shadow-2xl z-20 border-l border-slate-800">
+        
+        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+            <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="book" class="w-4 h-4 text-blue-500"></i> API Reference
+            </h2>
+            <div class="text-xs text-slate-500">Pandas / Seaborn v0.12</div>
+        </div>
+
+        <!-- Documentation Container -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-8" id="docs-container">
+            
+            <!-- Load Data -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Data Loading</h3>
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-blue-400 font-mono text-xs">pd.read_csv()</span>
+                        <button onclick="copyToClipboard('pd.read_csv(\'filename.csv\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-2">Load comma-separated values.</p>
+                </div>
+            </div>
+
+            <!-- Distribution Plots -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Distribution</h3>
+                
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-pink-400 font-mono text-xs">sns.histplot()</span>
+                        <button onclick="copyToClipboard('sns.histplot(data=df, x=\'col\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Univariate.</strong> Shows frequency/count of one numerical variable.</p>
+                </div>
+
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-pink-400 font-mono text-xs">sns.boxplot()</span>
+                        <button onclick="copyToClipboard('sns.boxplot(data=df, x=\'cat\', y=\'num\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Summary.</strong> Shows median, quartiles, and outliers.</p>
+                </div>
+            </div>
+
+            <!-- Relational Plots -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Relationships</h3>
+                
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-indigo-400 font-mono text-xs">sns.scatterplot()</span>
+                        <button onclick="copyToClipboard('sns.scatterplot(data=df, x=\'num1\', y=\'num2\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Correlation.</strong> Shows relationship between two numbers.</p>
+                </div>
+
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-indigo-400 font-mono text-xs">sns.heatmap()</span>
+                        <button onclick="copyToClipboard('sns.heatmap(df.corr(), annot=True)')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Matrix.</strong> Shows correlation strength across all numerical columns.</p>
+                </div>
+            </div>
+
+            <!-- Categorical Plots -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Categorical / Trends</h3>
+                
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-emerald-400 font-mono text-xs">sns.barplot()</span>
+                        <button onclick="copyToClipboard('sns.barplot(data=df, x=\'cat\', y=\'num\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Comparison.</strong> Shows aggregate (mean/sum) of value by category.</p>
+                </div>
+
+                <div class="bg-slate-950 rounded border border-slate-800 p-3 group hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-emerald-400 font-mono text-xs">sns.lineplot()</span>
+                        <button onclick="copyToClipboard('sns.lineplot(data=df, x=\'time\', y=\'val\')')" class="text-slate-600 hover:text-white"><i data-lucide="copy" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Trend.</strong> Shows data evolution over time.</p>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Feedback Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-6 py-3 rounded-full shadow-2xl font-bold text-sm hidden flex items-center gap-2 z-50 transform transition-all scale-95 opacity-0">
+        <i data-lucide="check-circle" class="text-green-600"></i> <span id="toast-msg">Copied</span>
+    </div>
+
+    <script>
+        const DATA_URL = "https://raw.githubusercontent.com/mbasma01/spitha-ai-notebooks/main/clean_ecommerce.csv";
+
+        // --- TASKS CONFIG (NO HINTS) ---
+        const tasks = [
+            {
+                title: "Initialize Workspace",
+                desc: "Copy the clean dataset URL and load it into your Pandas environment.",
+                action: "copy_url",
+                btnText: "Copy Data URL"
+            },
+            {
+                title: "Statistical Overview",
+                desc: "Generate a statistical summary (mean, min, max) of all numerical columns to understand the data range."
+            },
+            {
+                title: "Price Distribution Analysis",
+                desc: "We need to know how our products are priced. Visualize the frequency distribution of 'Unit_Price'. Choose the appropriate chart for single-variable distribution."
+            },
+            {
+                title: "Revenue by Region",
+                desc: "Compare the Total Revenue generated across different Regions. We need to see which region performs best."
+            },
+            {
+                title: "Marketing ROI",
+                desc: "Is there a relationship between 'Marketing_Spend' and 'Total_Revenue'? Visualize the correlation between these two numerical variables."
+            },
+            {
+                title: "Category Performance",
+                desc: "Visualize the average 'Customer_Rating' for each 'Category'. Which category has the highest satisfaction?"
+            },
+            {
+                title: "Sales Velocity",
+                desc: "Analyze the trend of 'Total_Revenue' over time (Date). Are sales increasing or decreasing?"
+            },
+            {
+                title: "Rating Spread",
+                desc: "We suspect some categories have volatile ratings. Use a chart to visualize the spread (quartiles/median) of Ratings by Category."
+            },
+            {
+                title: "Top Products",
+                desc: "Identify the top 10 products by 'Units_Sold'. Visualize this comparison."
+            },
+            {
+                title: "Global Correlation",
+                desc: "Create a matrix visualization to show the correlation coefficients between all numerical variables in the dataset."
+            },
+            {
+                title: "Final Report",
+                desc: "Export your findings into a clean notebook."
+            }
+        ];
+
+        // --- 3. UI LOGIC ---
+        let currentTaskIdx = 0;
+
+        function renderTask() {
+            const t = tasks[currentTaskIdx];
+            const card = document.getElementById('mission-card');
+            const progress = document.getElementById('progress-bar');
+            
+            // Animate out
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                let actionBtn = '';
+                if (t.action === 'copy_url') {
+                    actionBtn = `
+                        <div class="mt-8 flex justify-center">
+                            <button onclick="copyDataUrl()" class="bg-white text-slate-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-50 transition-transform hover:scale-105 flex items-center gap-2">
+                                <i data-lucide="link"></i> ${t.btnText}
+                            </button>
+                        </div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
+                        <div class="absolute top-0 right-0 p-6 opacity-10">
+                            <i data-lucide="hash" class="w-32 h-32 text-slate-500"></i>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="inline-block px-3 py-1 rounded bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20">
+                                Objective ${currentTaskIdx + 1}
+                            </span>
+                            <div class="h-px bg-slate-800 flex-1"></div>
+                        </div>
+                        
+                        <h2 class="text-3xl font-bold text-white mb-6 leading-tight tracking-tight">${t.title}</h2>
+                        <p class="text-slate-400 text-lg leading-relaxed font-light">${t.desc}</p>
+                        
+                        ${actionBtn}
+                    </div>
+                `;
+                
+                // Animate In
+                card.style.transition = 'all 0.4s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+                
+                // Progress Bar
+                const pct = ((currentTaskIdx) / (tasks.length - 1)) * 100;
+                progress.style.width = `${pct}%`;
+
+                // Buttons
+                document.getElementById('btn-prev').classList.toggle('hidden', currentTaskIdx === 0);
+                const nextBtn = document.getElementById('btn-next');
+                if (currentTaskIdx === tasks.length - 1) {
+                    nextBtn.innerHTML = `Finish Simulation <i data-lucide="flag" class="w-5 h-5"></i>`;
+                    nextBtn.className = "px-10 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shadow-2xl transition-all hover:scale-105 flex items-center gap-3 text-lg border border-emerald-500";
+                } else {
+                    nextBtn.innerHTML = `Mark Complete <i data-lucide="check-square" class="w-5 h-5"></i>`;
+                    nextBtn.className = "px-10 py-4 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold shadow-2xl shadow-red-900/40 transition-all hover:scale-105 flex items-center gap-3 text-lg border border-red-500";
+                }
+
+                lucide.createIcons();
+            }, 200);
+        }
+
+        function nextTask() {
+            if (currentTaskIdx < tasks.length - 1) {
+                currentTaskIdx++;
+                renderTask();
+                showToast("Objective Complete");
+            } else {
+                alert("Challenge Complete! You have successfully analyzed the dataset.");
+            }
+        }
+
+        function prevTask() {
+            if (currentTaskIdx > 0) {
+                currentTaskIdx--;
+                renderTask();
+            }
+        }
+
+        function copyDataUrl() {
+            const textArea = document.createElement("textarea");
+            textArea.value = DATA_URL;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("URL Copied to Clipboard");
+            } catch (err) {
+                console.error('Copy failed', err);
+                showToast("Failed to copy URL");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Snippet Copied");
+            } catch (err) {
+                console.error('Copy failed', err);
+                showToast("Failed to copy snippet");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.remove('scale-95', 'opacity-0');
+                toast.classList.add('scale-100', 'opacity-100');
+            });
+
+            setTimeout(() => {
+                toast.classList.remove('scale-100', 'opacity-100');
+                toast.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 2000);
+        }
+
+        // Init
+        renderTask();
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
