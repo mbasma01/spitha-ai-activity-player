@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Flowers Data Visualisation Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hide { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-lg shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="bg-blue-600 p-2 rounded-xl text-white">
+                <i data-lucide="list-checks"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl tracking-tight">Iris Flowers Viz Lab</h1>
+                <p class="text-[10px] text-blue-400 uppercase font-black tracking-widest">Classification Challenge</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex flex-col items-end">
+                <span id="progress-text" class="text-xs font-bold mb-1">0 / 15 Tasks</span>
+                <div class="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-700 w-0"></div>
+                </div>
+            </div>
+            <a href="https://colab.research.google.com/" target="_blank" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-full text-sm shadow-lg transition-all active:scale-95">
+                Open Colab <i data-lucide="external-link" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-100">
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="search-input" placeholder="Search syntax..." class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-500/20">
+                </div>
+            </div>
+            <div id="cheat-sheet-container" class="flex-1 overflow-y-auto p-5 space-y-6">
+                <!-- Content injected by JS -->
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 p-8 bg-slate-50 overflow-y-auto">
+            <div class="max-w-2xl mx-auto space-y-8">
+                <div id="task-card" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-8 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <span id="task-number" class="bg-blue-600 text-white font-black px-3 py-1 rounded-lg text-xs">Task 1</span>
+                        <button id="mark-done-btn" onclick="toggleTaskDone()" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border">
+                            <i id="done-icon" data-lucide="circle" class="w-4 h-4"></i>
+                            <span id="done-text">Mark Task</span>
+                        </button>
+                    </div>
+                    <div class="p-10 space-y-6">
+                        <div class="flex items-center gap-2 text-blue-600">
+                            <i data-lucide="target" class="w-6 h-6"></i>
+                            <span class="text-xs font-black uppercase tracking-widest">Objective</span>
+                        </div>
+                        <h2 id="task-title" class="text-3xl font-black text-slate-800 tracking-tight leading-tight">...</h2>
+                        <p id="task-desc" class="text-xl text-slate-500 leading-relaxed font-medium pb-8 border-b border-slate-100">...</p>
+                        
+                        <!-- Setup Hint (Specific for Data Load) -->
+                        <div id="hint-container" class="hide bg-slate-900 text-blue-300 p-6 rounded-xl font-mono text-sm border border-slate-800 relative group shadow-inner">
+                            <div class="flex items-center gap-2 text-blue-500 mb-3">
+                                <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Initial Setup Hint</span>
+                            </div>
+                            <code id="hint-code" class="block whitespace-pre leading-relaxed">...</code>
+                            <div class="absolute top-4 right-4">
+                                <button id="copy-hint-btn" class="text-[9px] font-bold uppercase text-slate-400 hover:text-blue-600 transition-colors">Copy</button>
+                            </div>
+                        </div>
+
+                        <!-- Quiz Container -->
+                        <div id="quiz-container" class="hide bg-blue-50 rounded-xl p-6 border border-blue-100 animate-in fade-in">
+                            <div class="flex items-center gap-2 text-blue-700 mb-3">
+                                <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                <span class="text-xs font-black uppercase tracking-widest">Interactive Check</span>
+                            </div>
+                            <p id="quiz-question" class="text-base text-blue-900 font-bold leading-relaxed mb-4">...</p>
+                            <div id="quiz-options" class="space-y-2"></div>
+                            <div id="quiz-feedback" class="hide mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight"></div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Use the <strong>Cheat Sheet</strong> on the left to find the correct syntax. Once you have generated the visualization in Google Colab, answer the check and mark as complete.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-10 py-6 border-t border-slate-200 flex justify-between">
+                        <button id="prev-btn" onclick="prevTask()" class="flex items-center gap-2 px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30 hover:bg-slate-100"><i data-lucide="chevron-left"></i> Previous</button>
+                        <button id="next-btn" onclick="nextTask()" class="flex items-center gap-2 px-8 py-2 bg-slate-900 text-white rounded-xl font-bold shadow-lg disabled:opacity-30 hover:bg-slate-800">Next Task <i data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="success-banner" class="hide bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-2xl text-white flex items-center justify-between shadow-xl">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="award" class="w-12 h-12"></i>
+                        <div>
+                            <h3 class="font-black text-2xl">Certification Ready!</h3>
+                            <p class="opacity-90">All 15 Iris visualization tasks completed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const CHEAT_SHEET = [
+            { group: 'Pandas Basics', items: [
+                { label: 'View Top Rows', code: 'df.head()' },
+                { label: 'Summary Stats', code: 'df.describe()' },
+                { label: 'Data Info', code: 'df.info()' },
+                { label: 'Correlation', code: 'df.corr()' },
+                { label: 'Group By', code: 'df.groupby("species").mean()' }
+            ]},
+            { group: 'Matplotlib', items: [
+                { label: 'Set Size', code: 'plt.figure(figsize=(10,6))' },
+                { label: 'Add Title', code: 'plt.title("Iris Analysis")' },
+                { label: 'Display Plot', code: 'plt.show()' }
+            ]},
+            { group: 'Seaborn Viz', items: [
+                { label: 'Scatter Plot', code: 'sns.scatterplot(x="sepal_length", y="sepal_width", data=df, hue="species")' },
+                { label: 'Histogram', code: 'sns.histplot(df["petal_length"], kde=True)' },
+                { label: 'Boxplot', code: 'sns.boxplot(x="species", y="petal_length", data=df)' }
+            ]}
+        ];
+
+        const TASKS = [
+            { 
+                id: 1, 
+                title: "Data Exploration", 
+                desc: "Start by loading the iris dataset and viewing the first 5 rows to understand the structure.", 
+                hint: "import seaborn as sns\nimport matplotlib.pyplot as plt\n\n# Load the built-in iris dataset from seaborn\niris_df = sns.load_dataset('iris')\niris_df.head()",
+                quiz: { question: "How many numeric features and how many categorical features are in this dataset?", options: ["3 Numeric, 2 Categorical", "4 Numeric, 1 Categorical", "5 Numeric, 0 Categorical"], answer: 1 }
+            },
+            { id: 2, title: "Statistical Summary", desc: "Generate a statistical summary of the numeric columns (mean, std, min, max).", quiz: { question: "Which feature has the largest standard deviation (std) according to the summary?", options: ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"], answer: 2 }},
+            { id: 3, title: "Target Distribution", desc: "Check how many samples exist for each flower species.", quiz: { question: "True or False: The dataset is balanced with 50 samples for each species.", options: ["True", "False"], answer: 0 }},
+            { id: 4, title: "Sepal Relationship", desc: "Create a basic scatter plot of Sepal Length vs Sepal Width using Matplotlib." },
+            { id: 5, title: "Species Separation", desc: "Use Seaborn to create a scatter plot colored by species.", quiz: { question: "Which species is most distinct and separable from the others using sepal dimensions?", options: ["Setosa", "Versicolor", "Virginica"], answer: 0 }},
+            { id: 6, title: "Petal Length Distribution", desc: "Create a histogram with a KDE curve for Petal Length." },
+            { id: 7, title: "Feature Density", desc: "Visualize the density of Petal Width using a KDE plot." },
+            { id: 8, title: "Species Variation", desc: "Compare Petal Length across species using a boxplot.", quiz: { question: "Which species shows the largest range (IQR) for petal length?", options: ["Setosa", "Versicolor", "Virginica"], answer: 2 }},
+            { id: 9, title: "Violin Comparison", desc: "Use a violin plot to see both distribution and density of Sepal Length." },
+            { id: 10, title: "Feature Correlation", desc: "Calculate the correlation matrix and display it as a heatmap.", quiz: { question: "Which pair of features has the strongest positive correlation?", options: ["Sepal Width & Length", "Petal Length & Width"], answer: 1 }},
+            { id: 11, title: "The Pairplot", desc: "Create a comprehensive pairplot for the entire dataset.", quiz: { question: "In the pairplot, which features show better separation?", options: ["Sepal Measurements", "Petal Measurements"], answer: 1 }},
+            { id: 12, title: "Joint Relationships", desc: "Analyze the joint distribution of Sepal Length and Sepal Width." },
+            { id: 13, title: "Categorical Swarm", desc: "Plot the Petal Width for each species using a swarm plot." },
+            { id: 14, title: "Multi-Grid Plots", desc: "Use FacetGrid to show histograms side-by-side." },
+            { id: 15, title: "Advanced Layering", desc: "Layer a stripplot over a boxplot for petal length.", quiz: { question: "Are there visible outliers in the Virginica petal length group?", options: ["Yes", "No"], answer: 0 }}
+        ];
+
+        let currentIndex = 0;
+        let completed = [];
+        let userAnswers = {};
+
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+
+        function renderCheatSheet(search = '') {
+            const container = document.getElementById('cheat-sheet-container');
+            container.innerHTML = '';
+            CHEAT_SHEET.forEach(group => {
+                const filtered = group.items.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
+                if (filtered.length === 0) return;
+                
+                const groupEl = document.createElement('div');
+                groupEl.innerHTML = `<h4 class="text-[11px] font-bold text-slate-800 mb-2 border-l-2 border-blue-500 pl-2 uppercase">${group.group}</h4>`;
+                const list = document.createElement('div');
+                list.className = 'space-y-2';
+                filtered.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'p-2.5 bg-slate-50 rounded-lg border border-slate-100';
+                    itemEl.innerHTML = `
+                        <div class="flex justify-between items-start mb-1.5">
+                            <span class="text-[10px] font-semibold text-slate-600">${item.label}</span>
+                            <button onclick="copyToClipboard('${item.code.replace(/\n/g, '\\n')}')" class="text-[9px] font-bold uppercase text-slate-400 hover:text-blue-600">Copy</button>
+                        </div>
+                        <code class="text-[10px] text-blue-700 font-mono block leading-relaxed break-all">${item.code}</code>
+                    `;
+                    list.appendChild(itemEl);
+                });
+                groupEl.appendChild(list);
+                container.appendChild(groupEl);
+            });
+        }
+
+        function renderTask() {
+            const task = TASKS[currentIndex];
+            const isDone = completed.includes(task.id);
+            const selected = userAnswers[task.id];
+
+            document.getElementById('task-number').innerText = `Task ${currentIndex + 1}`;
+            document.getElementById('task-title').innerText = task.title;
+            document.getElementById('task-desc').innerText = task.desc;
+            
+            const markBtn = document.getElementById('mark-done-btn');
+            markBtn.className = isDone 
+                ? 'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-green-100 text-green-700 border-green-200'
+                : 'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-white text-slate-400 border-slate-200 hover:text-blue-500';
+            
+            document.getElementById('done-text').innerText = isDone ? 'Completed' : 'Mark Task';
+            document.getElementById('done-icon').setAttribute('data-lucide', isDone ? 'check-circle-2' : 'circle');
+
+            // Handle Hint
+            const hintCont = document.getElementById('hint-container');
+            if (task.hint) {
+                hintCont.classList.remove('hide');
+                document.getElementById('hint-code').innerText = task.hint;
+                document.getElementById('copy-hint-btn').onclick = () => copyToClipboard(task.hint);
+            } else {
+                hintCont.classList.add('hide');
+            }
+
+            // Handle Quiz
+            const quizCont = document.getElementById('quiz-container');
+            if (task.quiz) {
+                quizCont.classList.remove('hide');
+                document.getElementById('quiz-question').innerText = task.quiz.question;
+                const optionsCont = document.getElementById('quiz-options');
+                optionsCont.innerHTML = '';
+                task.quiz.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left p-3 rounded-lg border-2 transition-all text-sm font-semibold`;
+                    if (selected === idx) {
+                        const correct = idx === task.quiz.answer;
+                        btn.className += correct ? ' bg-green-500 border-green-600 text-white' : ' bg-red-500 border-red-600 text-white';
+                    } else {
+                        btn.className += ' bg-white border-slate-200 hover:border-blue-400';
+                    }
+                    btn.innerText = opt;
+                    btn.onclick = () => selectQuiz(idx);
+                    optionsCont.appendChild(btn);
+                });
+
+                const feedback = document.getElementById('quiz-feedback');
+                if (selected !== undefined) {
+                    feedback.classList.remove('hide');
+                    const correct = selected === task.quiz.answer;
+                    feedback.className = correct ? 'mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-green-600' : 'mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-red-500';
+                    feedback.innerHTML = correct ? 'Correct! Mark the task done.' : 'Incorrect. Try again.';
+                } else {
+                    feedback.classList.add('hide');
+                }
+            } else {
+                quizCont.classList.add('hide');
+            }
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === TASKS.length - 1;
+            
+            const progress = (completed.length / TASKS.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').innerText = `${completed.length} / 15 Tasks`;
+            document.getElementById('success-banner').className = progress === 100 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-2xl text-white flex items-center justify-between shadow-xl' : 'hide';
+
+            lucide.createIcons();
+        }
+
+        function selectQuiz(idx) {
+            userAnswers[TASKS[currentIndex].id] = idx;
+            renderTask();
+        }
+
+        function toggleTaskDone() {
+            const task = TASKS[currentIndex];
+            if (task.quiz && userAnswers[task.id] !== task.quiz.answer) return;
+            if (completed.includes(task.id)) {
+                completed = completed.filter(id => id !== task.id);
+            } else {
+                completed.push(task.id);
+            }
+            renderTask();
+        }
+
+        function nextTask() { if (currentIndex < TASKS.length - 1) { currentIndex++; renderTask(); } }
+        function prevTask() { if (currentIndex > 0) { currentIndex--; renderTask(); } }
+
+        document.getElementById('search-input').oninput = (e) => renderCheatSheet(e.target.value);
+
+        window.onload = () => {
+            renderCheatSheet();
+            renderTask();
+        }
+    </script>
+</body>
+</html>

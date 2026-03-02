@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boston Housing Data Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hide { display: none; }
+        .btn-quiz { transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col overflow-hidden text-slate-900">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-lg shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="bg-orange-600 p-2 rounded-xl">
+                <i data-lucide="database"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl tracking-tight">Boston Housing Viz Lab</h1>
+                <p class="text-[10px] text-orange-400 uppercase font-black tracking-widest">Regression Challenge</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex flex-col items-end">
+                <span id="progress-text" class="text-xs font-bold mb-1">0 / 15 Tasks</span>
+                <div class="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-orange-500 transition-all duration-700 w-0"></div>
+                </div>
+            </div>
+            <a href="https://colab.research.google.com/" target="_blank" class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-full text-sm shadow-lg transition-all active:scale-95">
+                Launch Colab <i data-lucide="external-link" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-100">
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="search-input" placeholder="Search snippets..." class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-orange-500/20">
+                </div>
+            </div>
+            <div id="cheat-sheet-container" class="flex-1 overflow-y-auto p-5 space-y-6">
+                <!-- Content injected by JS -->
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="flex-1 p-8 bg-slate-50 overflow-y-auto">
+            <div class="max-w-2xl mx-auto space-y-8 pb-12">
+                <div id="task-card" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-8 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <span id="task-number" class="bg-orange-600 text-white font-black px-3 py-1 rounded-lg text-xs tracking-tighter">Exercise 1</span>
+                        <button id="mark-done-btn" class="flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all border">
+                            <i id="done-icon" data-lucide="circle" class="w-4 h-4"></i>
+                            <span id="done-text">Mark Task</span>
+                        </button>
+                    </div>
+                    <div class="p-10 space-y-6">
+                        <div class="flex items-center gap-2 text-orange-600">
+                            <i data-lucide="target" class="w-6 h-6"></i>
+                            <span class="text-xs font-black uppercase tracking-widest">Exercise Objective</span>
+                        </div>
+                        <h2 id="task-title" class="text-3xl font-black text-slate-800 tracking-tight">...</h2>
+                        <p id="task-desc" class="text-xl text-slate-500 leading-relaxed font-medium pb-8 border-b border-slate-100">...</p>
+                        
+                        <!-- Setup Hint -->
+                        <div id="hint-container" class="hide bg-slate-900 text-orange-300 p-6 rounded-xl font-mono text-sm border border-slate-800 relative group shadow-inner">
+                            <div class="flex items-center gap-2 text-orange-500 mb-3">
+                                <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Initial Setup Hint</span>
+                            </div>
+                            <code id="hint-code" class="block whitespace-pre leading-relaxed">...</code>
+                            <div class="absolute top-4 right-4">
+                                <button id="copy-hint-btn" class="text-[9px] font-bold uppercase text-slate-400 hover:text-orange-600 transition-colors">Copy</button>
+                            </div>
+                        </div>
+
+                        <!-- Quiz Container -->
+                        <div id="quiz-container" class="hide bg-orange-50 rounded-xl p-6 border border-orange-100 animate-in fade-in">
+                            <div class="flex items-center gap-2 text-orange-700 mb-3">
+                                <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                <span class="text-xs font-black uppercase tracking-widest text-orange-600">Observation Check</span>
+                            </div>
+                            <p id="quiz-question" class="text-base text-orange-900 font-bold leading-relaxed mb-4">...</p>
+                            <div id="quiz-options" class="space-y-2"></div>
+                            <div id="quiz-feedback" class="hide mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight"></div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                            <p class="text-sm text-slate-600 leading-relaxed italic">
+                                Look at the <strong>Syntax Reference</strong> on the left to build your code. Answer the interpretation check to unlock the next task.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-10 py-6 border-t border-slate-200 flex justify-between">
+                        <button id="prev-btn" class="flex items-center gap-2 px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 disabled:opacity-30 hover:bg-slate-100 transition-colors"><i data-lucide="chevron-left"></i> Prev</button>
+                        <button id="next-btn" class="flex items-center gap-2 px-8 py-2 bg-slate-900 text-white rounded-xl font-bold shadow-lg disabled:opacity-30 hover:bg-slate-800 transition-colors">Next <i data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="success-banner" class="hide bg-gradient-to-r from-orange-600 to-red-600 p-8 rounded-2xl text-white flex items-center justify-between shadow-xl">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="award" class="w-12 h-12"></i>
+                        <div>
+                            <h3 class="font-black text-2xl">Analysis Master!</h3>
+                            <p class="opacity-90">Boston housing market workflow completed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const CHEAT_SHEET = [
+            { group: 'Pandas', items: [
+                { label: 'View Data', code: 'df.head()' },
+                { label: 'Info', code: 'df.info()' },
+                { label: 'Correlation', code: 'df.corr()' },
+                { label: 'Sort', code: 'df.sort_values("medv", ascending=False)' }
+            ]},
+            { group: 'Seaborn', items: [
+                { label: 'Histogram', code: 'sns.histplot(df["medv"], kde=True)' },
+                { label: 'Regression', code: 'sns.regplot(x="rm", y="medv", data=df)' },
+                { label: 'Heatmap', code: 'sns.heatmap(df.corr(), annot=True, cmap="RdBu")' }
+            ]},
+            { group: 'Matplotlib', items: [
+                { label: 'Grid of Hists', code: 'df.hist(figsize=(15,10))' },
+                { label: 'Tighten Layout', code: 'plt.tight_layout()' }
+            ]}
+        ];
+
+        const TASKS = [
+            { 
+                id: 1, 
+                title: "Housing Data Loading", 
+                desc: "Load the Boston housing dataset and inspect the first 5 records.", 
+                hint: "import pandas as pd\nimport seaborn as sns\nimport matplotlib.pyplot as plt\n\n# Load the dataset from a public URL\nurl = 'https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv'\nboston_df = pd.read_csv(url)\nboston_df.head()",
+                quiz: { question: "How many total features (columns) are in this dataset?", options: ["10", "12", "14", "15"], answer: 2 }
+            },
+            { id: 2, title: "Price Distribution", desc: "Visualize the distribution of the median house value (MEDV).", quiz: { question: "Is the distribution perfectly normal or skewed?", options: ["Normal", "Right-Skewed", "Left-Skewed"], answer: 1 }},
+            { id: 3, title: "Rooms vs Price", desc: "Investigate if more rooms (RM) lead to higher prices.", quiz: { question: "What relationship do you observe?", options: ["Positive Correlation", "Negative Correlation", "No Relationship"], answer: 0 }},
+            { id: 4, title: "Linear Regression Fit", desc: "Add a regression line to the Room vs Price plot.", quiz: { question: "True or False: Every additional room predicts a price increase.", options: ["True", "False"], answer: 0 }},
+            { id: 5, title: "Socioeconomic Impact", desc: "Analyze how % lower status population (LSTAT) correlates with prices.", quiz: { question: "How does LSTAT relate to prices?", options: ["Positive", "Negative", "Neutral"], answer: 1 }},
+            { id: 6, title: "Pollution & Crime", desc: "Visualize the relationship between Nitrogen Oxide (NOX) and Crime rate (CRIM).", quiz: { question: "Where is the highest density?", options: ["High/High", "Low/Low", "High/Low"], answer: 1 }},
+            { id: 7, title: "Correlation Heatmap", desc: "Identify features strongly correlated with Price.", quiz: { question: "Strongest POSITIVE correlation with Price?", options: ["LSTAT", "RM", "PTRATIO"], answer: 1 }},
+            { id: 8, title: "River Proximity", desc: "Does living near the Charles River (CHAS) affect prices?", quiz: { question: "Do riverside houses have higher or lower median prices?", options: ["Higher", "Lower", "Same"], answer: 0 }},
+            { id: 9, title: "Property Tax Analysis", desc: "Examine the distribution of property tax (TAX).", quiz: { question: "Is the distribution unimodal or bimodal?", options: ["Unimodal", "Bimodal"], answer: 1 }},
+            { id: 10, title: "Industry & Pollution", desc: "Compare Industrial proportion (INDUS) vs NOX." },
+            { id: 11, title: "Highway Accessibility", desc: "Count the properties per Accessibility Index (RAD).", quiz: { question: "Which RAD value has the highest frequency?", options: ["Index 4", "Index 5", "Index 24"], answer: 2 }},
+            { id: 12, title: "Education Impact", desc: "Plot Relationship between Pupil-Teacher ratio and Price." },
+            { id: 13, title: "Whole Dataset Hists", desc: "Plot histograms for every numeric variable." },
+            { id: 14, title: "Crime Outlier Check", desc: "Identify outliers in crime rates using a boxplot.", quiz: { question: "Are there significant outliers in CRIM?", options: ["Yes", "No"], answer: 0 }},
+            { id: 15, title: "Core Matrix Analysis", desc: "Generate a pairplot for medv, rm, lstat, and ptratio.", quiz: { question: "Most linear-looking relationship?", options: ["RM vs MEDV", "PTRATIO vs MEDV"], answer: 0 }}
+        ];
+
+        let currentIndex = 0;
+        let completed = [];
+        let userAnswers = {};
+
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+
+        function renderCheatSheet(search = '') {
+            const container = document.getElementById('cheat-sheet-container');
+            container.innerHTML = '';
+            CHEAT_SHEET.forEach(group => {
+                const filtered = group.items.filter(item => 
+                    item.label.toLowerCase().includes(search.toLowerCase()) ||
+                    item.code.toLowerCase().includes(search.toLowerCase())
+                );
+                if (filtered.length === 0) return;
+                
+                const groupEl = document.createElement('div');
+                const title = document.createElement('h4');
+                title.className = "text-[11px] font-bold text-slate-800 mb-2 border-l-2 border-orange-500 pl-2 uppercase tracking-tighter";
+                title.innerText = group.group;
+                groupEl.appendChild(title);
+
+                const list = document.createElement('div');
+                list.className = 'space-y-2';
+                
+                filtered.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'p-2.5 bg-slate-50 rounded-lg border border-slate-100';
+                    
+                    const topRow = document.createElement('div');
+                    topRow.className = 'flex justify-between items-start mb-1.5';
+                    
+                    const label = document.createElement('span');
+                    label.className = 'text-[10px] font-semibold text-slate-600';
+                    label.innerText = item.label;
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'text-[9px] font-bold uppercase text-slate-400 hover:text-orange-600 transition-colors';
+                    copyBtn.innerText = 'Copy';
+                    copyBtn.addEventListener('click', () => copyToClipboard(item.code));
+                    
+                    topRow.appendChild(label);
+                    topRow.appendChild(copyBtn);
+                    
+                    const code = document.createElement('code');
+                    code.className = 'text-[10px] text-orange-700 font-mono block leading-relaxed break-all';
+                    code.innerText = item.code;
+                    
+                    itemEl.appendChild(topRow);
+                    itemEl.appendChild(code);
+                    list.appendChild(itemEl);
+                });
+                
+                groupEl.appendChild(list);
+                container.appendChild(groupEl);
+            });
+        }
+
+        function renderTask() {
+            const task = TASKS[currentIndex];
+            const isDone = completed.includes(task.id);
+            const selected = userAnswers[task.id];
+
+            document.getElementById('task-number').innerText = `Exercise ${currentIndex + 1}`;
+            document.getElementById('task-title').innerText = task.title;
+            document.getElementById('task-desc').innerText = task.desc;
+            
+            const markBtn = document.getElementById('mark-done-btn');
+            markBtn.className = isDone 
+                ? 'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-green-100 text-green-700 border-green-200'
+                : 'flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-white text-slate-400 border-slate-200 hover:text-orange-500';
+            
+            document.getElementById('done-text').innerText = isDone ? 'Done' : 'Mark Task';
+            
+            // Handle Icon update correctly for static DOM
+            const doneIcon = document.getElementById('done-icon');
+            doneIcon.setAttribute('data-lucide', isDone ? 'check-circle-2' : 'circle');
+
+            // Handle Hint
+            const hintCont = document.getElementById('hint-container');
+            if (task.hint) {
+                hintCont.classList.remove('hide');
+                document.getElementById('hint-code').innerText = task.hint;
+                const copyHintBtn = document.getElementById('copy-hint-btn');
+                // Remove old listeners by cloning
+                const newBtn = copyHintBtn.cloneNode(true);
+                copyHintBtn.parentNode.replaceChild(newBtn, copyHintBtn);
+                newBtn.addEventListener('click', () => copyToClipboard(task.hint));
+            } else {
+                hintCont.classList.add('hide');
+            }
+
+            // Handle Quiz
+            const quizCont = document.getElementById('quiz-container');
+            if (task.quiz) {
+                quizCont.classList.remove('hide');
+                document.getElementById('quiz-question').innerText = task.quiz.question;
+                const optionsCont = document.getElementById('quiz-options');
+                optionsCont.innerHTML = '';
+                task.quiz.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left p-3 rounded-lg border-2 transition-all text-sm font-semibold btn-quiz`;
+                    if (selected === idx) {
+                        const correct = idx === task.quiz.answer;
+                        btn.className += correct ? ' bg-green-500 border-green-600 text-white' : ' bg-red-500 border-red-600 text-white';
+                    } else {
+                        btn.className += ' bg-white border-slate-200 hover:border-orange-400';
+                    }
+                    btn.innerText = opt;
+                    btn.addEventListener('click', () => selectQuiz(idx));
+                    optionsCont.appendChild(btn);
+                });
+
+                const feedback = document.getElementById('quiz-feedback');
+                if (selected !== undefined) {
+                    feedback.classList.remove('hide');
+                    const correct = selected === task.quiz.answer;
+                    feedback.className = correct ? 'mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-green-600' : 'mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-red-500';
+                    feedback.innerHTML = correct ? '<i data-lucide="check" class="w-3 h-3"></i> Correct! Continue.' : '<i data-lucide="x" class="w-3 h-3"></i> Incorrect interpretation.';
+                } else {
+                    feedback.classList.add('hide');
+                }
+            } else {
+                quizCont.classList.add('hide');
+            }
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === TASKS.length - 1;
+            
+            const progress = (completed.length / TASKS.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').innerText = `${completed.length} / 15 Tasks`;
+            document.getElementById('success-banner').className = progress === 100 ? 'bg-gradient-to-r from-orange-600 to-red-600 p-8 rounded-2xl text-white flex items-center justify-between shadow-xl' : 'hide';
+
+            lucide.createIcons();
+        }
+
+        function selectQuiz(idx) {
+            userAnswers[TASKS[currentIndex].id] = idx;
+            renderTask();
+        }
+
+        function toggleTaskDone() {
+            const task = TASKS[currentIndex];
+            if (task.quiz && userAnswers[task.id] !== task.quiz.answer) return;
+            if (completed.includes(task.id)) {
+                completed = completed.filter(id => id !== task.id);
+            } else {
+                completed.push(task.id);
+            }
+            renderTask();
+        }
+
+        function nextTask() { if (currentIndex < TASKS.length - 1) { currentIndex++; renderTask(); } }
+        function prevTask() { if (currentIndex > 0) { currentIndex--; renderTask(); } }
+
+        // Setup persistent event listeners
+        document.getElementById('search-input').oninput = (e) => renderCheatSheet(e.target.value);
+        document.getElementById('mark-done-btn').addEventListener('click', toggleTaskDone);
+        document.getElementById('next-btn').addEventListener('click', nextTask);
+        document.getElementById('prev-btn').addEventListener('click', prevTask);
+
+        window.onload = () => {
+            renderCheatSheet();
+            renderTask();
+        }
+    </script>
+</body>
+</html>
