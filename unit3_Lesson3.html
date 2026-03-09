@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsupervised Learning: The Pattern Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fcfaff; color: #1e293b; scroll-behavior: smooth; }
+        .purple-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        .card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-width: 2px; }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 25px 30px -10px rgba(139, 92, 246, 0.15); }
+        .drop-zone { min-height: 120px; transition: all 0.3s ease; }
+        .drop-zone.active { border-color: #8b5cf6; background-color: #f5f3ff; }
+        .cosmic-item { cursor: grab; transition: transform 0.2s; }
+        .cosmic-item:active { cursor: grabbing; transform: scale(1.1); }
+        @keyframes shine {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shine-text {
+            background: linear-gradient(90deg, #6366f1, #d946ef, #6366f1);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        .ai-terminal { background: #0f172a; border: 1px solid #334155; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-16">
+        
+        <!-- Hero Header -->
+        <header class="purple-gradient rounded-[3rem] p-10 md:p-20 text-center text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-flex items-center gap-2 px-5 py-2 bg-white/20 rounded-full mb-8 backdrop-blur-md border border-white/30 text-sm font-bold uppercase tracking-widest">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                    The Discovery Path
+                </div>
+                <h1 class="text-5xl md:text-8xl font-black mb-6 tracking-tighter">Unsupervised Learning</h1>
+                <p class="text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto leading-relaxed font-light">
+                    The AI that explores the world without a map. No labels, no teacher—just raw curiosity and the search for <strong>hidden structure</strong>.
+                </p>
+            </div>
+            <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/20 rounded-full translate-y-1/3 -translate-x-1/3 blur-3xl"></div>
+        </header>
+
+        <!-- Concept: The Explorer -->
+        <section class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-extrabold text-slate-900 flex items-center gap-4">
+                    <span class="p-3 bg-purple-100 rounded-2xl text-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+                    </span>
+                    The Explorer AI
+                </h2>
+                <div class="prose prose-lg text-slate-600 leading-relaxed space-y-4">
+                    <p>
+                        In <strong>Supervised Learning</strong>, a teacher tells the computer: "This is a cat." 
+                    </p>
+                    <p>
+                        In <strong>Unsupervised Learning</strong>, there is no teacher. The computer is like an explorer in a new land. It looks at millions of objects and notices: 
+                        <span class="block mt-2 font-semibold italic text-purple-600">"I don't know what these are, but these 500 things all have pointed ears and whiskers, while these other 500 have floppy ears and tails."</span>
+                    </p>
+                </div>
+                <div class="bg-indigo-50 border-l-8 border-indigo-500 p-8 rounded-r-3xl shadow-sm">
+                    <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                        💡 When do we use this?
+                    </h4>
+                    <p class="text-indigo-800 text-sm">When we have <strong>too much data</strong> to label manually, or when we want to find patterns that humans haven't even thought of yet.</p>
+                </div>
+            </div>
+
+            <!-- Visual comparison -->
+            <div class="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 space-y-8">
+                <div class="flex flex-col gap-6">
+                    <div class="p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-widest text-center">Supervised (Categorizing)</p>
+                        <div class="flex justify-center gap-4 text-4xl">
+                            <span class="p-2 bg-white rounded-lg shadow-sm border border-green-200">🍎</span>
+                            <span class="p-2 bg-white rounded-lg shadow-sm border border-red-200">🍓</span>
+                            <span class="p-2 bg-white rounded-lg shadow-sm border border-green-200">🍏</span>
+                        </div>
+                        <p class="text-center text-[10px] mt-2 font-bold text-slate-500">Teacher says: These are "Fruit"</p>
+                    </div>
+                    <div class="p-6 bg-purple-50 rounded-2xl border-2 border-dashed border-purple-200">
+                        <p class="text-xs font-bold text-purple-400 uppercase mb-4 tracking-widest text-center">Unsupervised (Clustering)</p>
+                        <div class="flex justify-center gap-4 text-4xl">
+                            <span class="p-2 bg-white rounded-lg shadow-sm border-purple-100">🍎</span>
+                            <span class="p-2 bg-white rounded-lg shadow-sm border-purple-100">🍏</span>
+                            <span class="p-2 bg-white rounded-lg shadow-sm border-purple-100">🍅</span>
+                        </div>
+                        <p class="text-center text-[10px] mt-2 font-bold text-purple-500">AI says: These look "Round"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Long Exercise 1: The Cosmic Cataloguer -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] shadow-2xl border border-slate-100 space-y-10">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black text-slate-900">Lab 01: The Cosmic Cataloguer</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">You are a space probe that just arrived in a new galaxy. You see 12 objects. Sort them into <strong>3 Clusters</strong> based on their visual similarities. No one told you what they are!</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Cluster Zones -->
+                <div class="lg:col-span-2 grid md:grid-cols-3 gap-6">
+                    <div id="cluster-1" ondrop="dropCosmic(event, 1)" ondragover="allowDrop(event)" class="drop-zone p-6 border-4 border-dashed border-purple-100 bg-purple-50/20 rounded-[2.5rem] flex flex-col items-center">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-xl mb-3">🌌</div>
+                        <h4 class="text-xs font-black text-purple-800 uppercase tracking-widest">Cluster Alpha</h4>
+                        <div class="flex flex-wrap justify-center gap-2 mt-4" id="list-1"></div>
+                    </div>
+                    <div id="cluster-2" ondrop="dropCosmic(event, 2)" ondragover="allowDrop(event)" class="drop-zone p-6 border-4 border-dashed border-indigo-100 bg-indigo-50/20 rounded-[2.5rem] flex flex-col items-center">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-xl mb-3">💫</div>
+                        <h4 class="text-xs font-black text-indigo-800 uppercase tracking-widest">Cluster Beta</h4>
+                        <div class="flex flex-wrap justify-center gap-2 mt-4" id="list-2"></div>
+                    </div>
+                    <div id="cluster-3" ondrop="dropCosmic(event, 3)" ondragover="allowDrop(event)" class="drop-zone p-6 border-4 border-dashed border-pink-100 bg-pink-50/20 rounded-[2.5rem] flex flex-col items-center">
+                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-xl mb-3">☄️</div>
+                        <h4 class="text-xs font-black text-pink-800 uppercase tracking-widest">Cluster Gamma</h4>
+                        <div class="flex flex-wrap justify-center gap-2 mt-4" id="list-3"></div>
+                    </div>
+                </div>
+
+                <!-- Cosmic Items -->
+                <div class="lg:col-span-1 bg-slate-900 rounded-[2.5rem] p-8">
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 text-center">Unidentified Signals</h4>
+                    <div class="grid grid-cols-4 gap-4" id="cosmic-bank">
+                        <div draggable="true" ondragstart="dragCosmic(event, 'sphere')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c1">☀️</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'sphere')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c2">🟡</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'sphere')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c3">🟠</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'sphere')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c4">🔴</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'ring')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c5">🪐</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'ring')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c6">💿</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'ring')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c7">🌀</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'ring')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c8">🧿</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'spiky')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c9">✨</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'spiky')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c10">✳️</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'spiky')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c11">✴️</div>
+                        <div draggable="true" ondragstart="dragCosmic(event, 'spiky')" class="cosmic-item text-3xl p-2 bg-white/5 rounded-xl text-center" id="c12">💥</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cosmic-feedback" class="hidden text-center p-8 bg-purple-600 text-white rounded-3xl animate-bounce shadow-xl">
+                <p class="text-2xl font-bold">🎯 Scientific Discovery!</p>
+                <p class="text-sm opacity-90">You just acted like a Clustering algorithm. You grouped objects based on shape and characteristics without knowing their names.</p>
+            </div>
+        </section>
+
+        <!-- New Section: The Secret Behind Generative AI -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] shadow-2xl border border-slate-100 overflow-hidden relative">
+            <div class="grid lg:grid-cols-2 gap-12 items-center relative z-10">
+                <div class="space-y-8">
+                    <div class="inline-block p-3 bg-indigo-100 rounded-2xl text-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
+                    </div>
+                    <h2 class="text-4xl font-black text-slate-900 leading-tight">Modern AI & LLMs: <br><span class="text-indigo-600">The Power of "Self-Supervision"</span></h2>
+                    <p class="text-slate-600 text-lg leading-relaxed">
+                        Ever wonder how ChatGPT was trained? There isn't a human teacher big enough to label the whole internet. Instead, LLMs use <strong>Self-Supervised Learning</strong>—a special form of unsupervised learning.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 card">
+                            <div class="text-2xl">📖</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">The Fill-in-the-Blank Game</h4>
+                                <p class="text-sm text-slate-500">The AI reads a sentence like "The sky is ___." It guesses "blue." Since it has the original text, it checks its own answer. <strong>The data is the teacher!</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Lab 03: The Next Word Predictor -->
+                <div class="ai-terminal p-8 rounded-[2.5rem] shadow-2xl space-y-6">
+                    <h4 class="text-indigo-400 font-mono text-sm uppercase tracking-widest text-center">Interactive: Predict the Pattern</h4>
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 font-mono text-white space-y-4">
+                        <p class="text-lg">Input: <span class="text-indigo-300 italic">"Artificial intelligence is changing the..."</span></p>
+                        <div class="grid grid-cols-1 gap-3">
+                            <button onclick="predictWord(this, true)" class="text-left p-3 rounded-xl border border-slate-600 hover:bg-slate-700 transition">🌍 World</button>
+                            <button onclick="predictWord(this, false)" class="text-left p-3 rounded-xl border border-slate-600 hover:bg-slate-700 transition">🍕 Pizza</button>
+                            <button onclick="predictWord(this, true)" class="text-left p-3 rounded-xl border border-slate-600 hover:bg-slate-700 transition">💼 Future</button>
+                        </div>
+                    </div>
+                    <div id="predict-fb" class="text-center text-indigo-300 text-xs hidden">
+                        Patterns in language data make "World" or "Future" mathematically more likely than "Pizza."
+                    </div>
+                    <div class="pt-4 border-t border-slate-700">
+                        <p class="text-[10px] text-slate-500 text-center italic">This is Generative AI: Using unsupervised patterns to create the next likely piece of content.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-indigo-50 rounded-full"></div>
+        </section>
+
+        <!-- Association Rules Section -->
+        <section class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="bg-indigo-900 rounded-[3rem] p-10 text-white shadow-xl order-2 lg:order-1 relative overflow-hidden">
+                <h3 class="text-3xl font-bold mb-6">Discovery Type 2: Association</h3>
+                <p class="text-indigo-100 leading-relaxed text-lg mb-8">
+                    Instead of grouping <em>items</em>, we look for <strong>rules</strong> that link them. If a customer buys Item A, they almost always buy Item B. 
+                </p>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/10">
+                        <div class="text-3xl">🍺</div>
+                        <div>
+                            <p class="font-bold">The Legend</p>
+                            <p class="text-xs opacity-70">A grocery store found that men who buy diapers on Friday nights also buy beer. They moved them closer together and sales went up!</p>
+                        </div>
+                        <div class="text-3xl">👶</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6 order-1 lg:order-2">
+                <h2 class="text-4xl font-extrabold text-slate-900 underline decoration-indigo-200">Pattern Linkage</h2>
+                <p class="text-slate-600 text-lg">
+                    This is how recommendation engines work. "Because you bought a hammer, you might need nails." The AI doesn't know what a hammer is; it just knows they appear in the same digital "baskets" frequently.
+                </p>
+            </div>
+        </section>
+
+        <!-- Long Exercise 2: The Market Basket Detective -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] shadow-2xl border border-slate-100 space-y-10">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black text-slate-900">Lab 02: Market Basket Detective</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">Look at these 5 receipts. Can you find the <strong>hidden association rule</strong> that is hiding in the data?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="receipts">
+                <div class="bg-slate-50 p-6 border-t-8 border-indigo-500 rounded-b-2xl shadow-sm text-xs font-mono space-y-2">
+                    <p class="text-slate-400">REC-001</p>
+                    <p>• Milk</p>
+                    <p class="text-indigo-600 font-bold">✓ Cereal</p>
+                    <p>• Bananas</p>
+                    <p class="text-indigo-600 font-bold">✓ Milk</p>
+                </div>
+                <div class="bg-slate-50 p-6 border-t-8 border-indigo-500 rounded-b-2xl shadow-sm text-xs font-mono space-y-2">
+                    <p class="text-slate-400">REC-002</p>
+                    <p>• Bread</p>
+                    <p>• Eggs</p>
+                    <p>• Butter</p>
+                </div>
+                <div class="bg-slate-50 p-6 border-t-8 border-indigo-500 rounded-b-2xl shadow-sm text-xs font-mono space-y-2">
+                    <p class="text-slate-400">REC-003</p>
+                    <p class="text-indigo-600 font-bold">✓ Cereal</p>
+                    <p>• Yogurt</p>
+                    <p class="text-indigo-600 font-bold">✓ Milk</p>
+                </div>
+                <div class="bg-slate-50 p-6 border-t-8 border-indigo-500 rounded-b-2xl shadow-sm text-xs font-mono space-y-2">
+                    <p class="text-slate-400">REC-004</p>
+                    <p>• Apple</p>
+                    <p>• Milk</p>
+                    <p class="text-indigo-600 font-bold">✓ Cereal</p>
+                    <p class="text-indigo-600 font-bold">✓ Milk</p>
+                </div>
+                <div class="bg-slate-50 p-6 border-t-8 border-indigo-500 rounded-b-2xl shadow-sm text-xs font-mono space-y-2">
+                    <p class="text-slate-400">REC-005</p>
+                    <p>• Coffee</p>
+                    <p>• Sugar</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-10 rounded-[3rem] text-center text-white space-y-6">
+                <h4 class="text-xl font-bold">What is the Association Rule?</h4>
+                <div class="flex flex-col md:flex-row justify-center gap-4">
+                    <button onclick="checkRule(false)" class="px-8 py-4 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 transition">People buy Apples + Milk</button>
+                    <button onclick="checkRule(true)" class="px-8 py-4 bg-indigo-600 border border-indigo-400 rounded-2xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/30">People buy Milk + Cereal</button>
+                    <button onclick="checkRule(false)" class="px-8 py-4 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 transition">People buy Coffee + Bread</button>
+                </div>
+                <p id="rule-feedback" class="text-emerald-400 font-bold hidden">Correct! The data shows a strong link between these two items. Retailers use this to design store layouts!</p>
+            </div>
+        </section>
+
+        <!-- Dimensionality Reduction -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-center">
+            <div class="flex-1 space-y-6">
+                <h2 class="text-3xl font-black text-slate-900">Bonus: Dimensionality Reduction</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    Ever try to summarize a 500-page book into 1 page? That's <strong>Dimensionality Reduction</strong>. The AI takes complex data and finds the most important features, throwing away the "noise."
+                </p>
+                <div class="flex gap-4">
+                    <div class="p-3 bg-slate-100 rounded-lg text-xs font-mono">5,000 Features</div>
+                    <div class="p-3 bg-purple-100 text-purple-700 rounded-lg text-xs font-mono font-bold">➜ AI ➜</div>
+                    <div class="p-3 bg-indigo-600 text-white rounded-lg text-xs font-mono font-bold">5 Main Themes</div>
+                </div>
+            </div>
+            <div class="flex-1 relative w-full h-48 bg-slate-100 rounded-[2.5rem] flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 bg-grid-slate-200 opacity-20"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-16 h-16 bg-purple-500 rounded animate-ping absolute opacity-20"></div>
+                    <div class="w-12 h-12 bg-purple-600 rounded-xl shadow-lg flex items-center justify-center text-white">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18"/></svg>
+                    </div>
+                </div>
+                <p class="absolute bottom-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic">Simplifying Complexity</p>
+            </div>
+        </section>
+
+        <!-- Final Mastery Quiz -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] shadow-2xl border border-slate-100">
+            <h2 class="text-4xl font-black mb-10 text-slate-900 text-center">Mastery Challenge</h2>
+            
+            <div class="space-y-12 max-w-3xl mx-auto">
+                <!-- Q1 -->
+                <div class="space-y-4">
+                    <p class="text-xl font-bold text-slate-800">1. How does modern Generative AI (LLMs) relate to Unsupervised Learning?</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <button onclick="finalCheck(1, 'A')" class="p-6 text-left border-2 rounded-2xl hover:border-purple-500 transition group" id="q1a">
+                            <span class="font-bold block text-purple-600 mb-1">Choice A</span>
+                            LLMs use Self-Supervision to find patterns in text without human labels.
+                        </button>
+                        <button onclick="finalCheck(1, 'B')" class="p-6 text-left border-2 rounded-2xl hover:border-purple-500 transition group" id="q1b">
+                            <span class="font-bold block text-purple-600 mb-1">Choice B</span>
+                            LLMs are traditional rule-based programs that follow human scripts.
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="space-y-4">
+                    <p class="text-xl font-bold text-slate-800">2. Why is Unsupervised Learning crucial for big data?</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <button onclick="finalCheck(2, 'A')" class="p-6 text-left border-2 rounded-2xl hover:border-purple-500 transition group" id="q2a">
+                            <span class="font-bold block text-purple-600 mb-1">Choice A</span>
+                            It makes sure every image has a perfect label provided by a person.
+                        </button>
+                        <button onclick="finalCheck(2, 'B')" class="p-6 text-left border-2 rounded-2xl hover:border-purple-500 transition group" id="q2b">
+                            <span class="font-bold block text-purple-600 mb-1">Choice B</span>
+                            It discovers structure in datasets that are too massive for humans to label.
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mastery-feedback" class="mt-12 hidden p-8 rounded-[2rem] text-center font-bold text-2xl transition-all scale-0"></div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-sm py-10 border-t border-slate-100">
+            AI Discovery Lab • Lesson 3 • Finding Truth in Chaos
+        </footer>
+    </div>
+
+    <script>
+        // Cosmic Cataloguer Logic
+        let cosmicSolved = 0;
+        const totalCosmic = 12;
+        let userClusters = { 1: [], 2: [], 3: [] };
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        function dragCosmic(ev, type) { ev.dataTransfer.setData("text", ev.target.id); }
+
+        function dropCosmic(ev, clusterId) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const item = document.getElementById(data);
+            const targetList = document.getElementById(`list-${clusterId}`);
+            
+            targetList.appendChild(item);
+            item.classList.remove('p-2', 'bg-white/5');
+            item.classList.add('animate-bounce');
+            
+            userClusters[clusterId].push(data);
+            cosmicSolved++;
+
+            if (cosmicSolved === totalCosmic) {
+                document.getElementById('cosmic-feedback').classList.remove('hidden');
+            }
+        }
+
+        // Word Predictor Logic
+        function predictWord(btn, isLikely) {
+            const fb = document.getElementById('predict-fb');
+            fb.classList.remove('hidden');
+            if(isLikely) {
+                btn.classList.add('bg-emerald-500/20', 'border-emerald-500');
+            } else {
+                btn.classList.add('bg-rose-500/20', 'border-rose-500');
+            }
+        }
+
+        // Rule Detective Logic
+        function checkRule(correct) {
+            const fb = document.getElementById('rule-feedback');
+            fb.classList.remove('hidden');
+            if (correct) {
+                fb.innerText = "🎯 Correct! Milk and Cereal appear together in 60% of these transactions. You just calculated 'Support' and 'Confidence'!";
+                fb.className = "text-emerald-400 font-bold mt-4";
+            } else {
+                fb.innerText = "❌ Look closer at the receipts. Check which items always show up when the other is present.";
+                fb.className = "text-rose-400 font-bold mt-4";
+            }
+        }
+
+        // Mastery Quiz Logic
+        let answers = { 1: null, 2: null };
+        function finalCheck(q, choice) {
+            answers[q] = choice;
+            const btnA = document.getElementById(`q${q}a`);
+            const btnB = document.getElementById(`q${q}b`);
+            
+            btnA.classList.remove('border-purple-500', 'bg-purple-50', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+            btnB.classList.remove('border-purple-500', 'bg-purple-50', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+
+            if (q === 1) {
+                if (choice === 'A') btnA.classList.add('border-emerald-500', 'bg-emerald-50');
+                else btnB.classList.add('border-rose-500', 'bg-rose-50');
+            } else if (q === 2) {
+                if (choice === 'B') btnB.classList.add('border-emerald-500', 'bg-emerald-50');
+                else btnA.classList.add('border-rose-500', 'bg-rose-50');
+            }
+
+            if (answers[1] === 'A' && answers[2] === 'B') {
+                const fb = document.getElementById('mastery-feedback');
+                fb.innerText = "✨ Explorer Certification Awarded! You understand that unsupervised learning isn't just about grouping items—it's the massive engine driving modern Generative AI.";
+                fb.classList.remove('hidden', 'scale-0');
+                fb.classList.add('bg-purple-600', 'text-white', 'scale-100');
+                fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+</body>
+</html>

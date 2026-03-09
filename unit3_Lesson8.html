@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Mastering train_test_split</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #cbd5e1; scroll-behavior: smooth; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); }
+        .gradient-border { border: 2px solid; border-image: linear-gradient(to right, #6366f1, #a855f7) 1; }
+        .interactive-card { transition: all 0.3s ease; border: 1px solid #334155; }
+        .interactive-card:hover { transform: translateY(-4px); border-color: #6366f1; background: rgba(30, 41, 59, 0.9); }
+        .shuffle-anim { animation: shuffle 0.5s ease-in-out infinite alternate; }
+        @keyframes shuffle { from { transform: translateX(-5px); } to { transform: translateX(5px); } }
+        .colab-btn { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-16">
+        
+        <!-- Header -->
+        <header class="relative p-10 md:p-20 text-center rounded-[3rem] overflow-hidden bg-slate-800 shadow-2xl border border-slate-700">
+            <div class="relative z-10">
+                <div class="inline-block px-4 py-1 mb-6 text-xs font-bold tracking-widest text-indigo-400 uppercase bg-indigo-500/10 rounded-full border border-indigo-500/20">
+                    Lesson 08: Scikit-Learn Implementation
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">Coding the Split</h1>
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                    Transitioning from theory to Python. Learn how to partition the <strong>Iris Dataset</strong> using industry-standard code.
+                </p>
+            </div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        </header>
+
+        <!-- The Concept: Why Scikit-Learn? -->
+        <section class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <span class="p-2 bg-indigo-500/20 rounded-lg text-indigo-400 text-2xl">📦</span>
+                    The Power of Automation
+                </h2>
+                <p class="text-lg text-slate-400 leading-relaxed">
+                    In a real project, you might have 1,000,000 rows. You can't split that manually. <span class="text-indigo-400 font-bold">Scikit-Learn</span> (sklearn) provides a tool that shuffles your data and cuts it into Training and Testing sets in one line of code.
+                </p>
+                <div class="p-6 bg-slate-800/50 rounded-2xl border border-slate-700 italic text-sm">
+                    "Data is like a deck of cards. If you don't shuffle before you deal, the game is biased."
+                </div>
+            </div>
+            <div class="glass-panel p-8 rounded-[2rem] space-y-4">
+                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Syntax Breakdown</h4>
+                <div class="bg-black/50 p-6 rounded-xl code-font text-sm leading-loose border border-slate-700">
+                    <span class="text-pink-400">from</span> sklearn.model_selection <span class="text-pink-400">import</span> train_test_split<br><br>
+                    X_train, X_test, y_train, y_test = train_test_split(<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;X, y, <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">test_size</span>=0.2, <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">random_state</span>=42<br>
+                    )
+                </div>
+            </div>
+        </section>
+
+        <!-- Analogies: The Poker Deck & The Exam Prep -->
+        <section class="space-y-8">
+            <h3 class="text-2xl font-bold text-white text-center">Understanding Through Analogy</h3>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="p-8 glass-panel rounded-3xl interactive-card">
+                    <div class="text-4xl mb-4">🃏</div>
+                    <h4 class="text-xl font-bold text-white mb-2">The Poker Shuffler</h4>
+                    <p class="text-sm text-slate-400">If you buy a new deck of cards, they are sorted by suit. If you deal without shuffling, Player 1 gets all Hearts. <code>train_test_split</code> shuffles your data so every "player" (Training/Testing) gets a fair mix of the "suits" (Classes).</p>
+                </div>
+                <div class="p-8 glass-panel rounded-3xl interactive-card">
+                    <div class="text-4xl mb-4">📝</div>
+                    <h4 class="text-xl font-bold text-white mb-2">The Exam Ratio</h4>
+                    <p class="text-sm text-slate-400">If you have 100 practice questions, using 99 to study and only 1 for the exam doesn't prove you know the material. Using 50 to study and 50 for the exam leaves you unprepared. Finding the <strong>Optimal Ratio</strong> (usually 80/20) is key.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Iris Dataset Context -->
+        <section class="p-10 rounded-[3rem] bg-indigo-600 text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10 grid md:grid-cols-2 gap-10 items-center">
+                <div>
+                    <h2 class="text-4xl font-black mb-4">The Iris Lab Case</h2>
+                    <p class="opacity-90 leading-relaxed">
+                        The Iris dataset contains 150 rows of data about three species of flowers.
+                    </p>
+                    <ul class="mt-6 space-y-2 text-sm">
+                        <li>✅ <strong>Features (X):</strong> Petal/Sepal length & width</li>
+                        <li>✅ <strong>Target (y):</strong> Species (Setosa, Versicolor, Virginica)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                    <p class="text-xs font-mono uppercase opacity-70 mb-4 tracking-widest">Iris Data Table (Sample)</p>
+                    <table class="w-full text-[10px] font-mono text-indigo-100">
+                        <thead><tr class="border-b border-white/20"><th class="pb-2 text-left">SL</th><th class="pb-2 text-left">SW</th><th class="pb-2 text-left">PL</th><th class="pb-2 text-left">PW</th><th class="pb-2 text-left text-white">Target</th></tr></thead>
+                        <tbody>
+                            <tr><td>5.1</td><td>3.5</td><td>1.4</td><td>0.2</td><td class="text-white">Setosa</td></tr>
+                            <tr><td>7.0</td><td>3.2</td><td>4.7</td><td>1.4</td><td class="text-white">Versicolor</td></tr>
+                            <tr><td>6.3</td><td>3.3</td><td>6.0</td><td>2.5</td><td class="text-white">Virginica</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </header>
+
+        <!-- EXERCISE 1: The Split Calculator -->
+        <section class="glass-panel p-10 rounded-[3rem] space-y-8">
+            <div class="text-center">
+                <h3 class="text-3xl font-black text-white">Lab 01: The Split Calculator</h3>
+                <p class="text-slate-400">Iris has <strong>150 rows</strong>. Calculate the sample sizes for these test settings.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+                <div class="space-y-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Scenario A: test_size = 0.2</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="calc1" class="bg-slate-900 border border-slate-700 p-3 rounded-xl w-full text-center" placeholder="Testing Rows?">
+                        <button onclick="checkCalc(1, 30)" class="px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold">Check</button>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Scenario B: test_size = 0.4</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="calc2" class="bg-slate-900 border border-slate-700 p-3 rounded-xl w-full text-center" placeholder="Testing Rows?">
+                        <button onclick="checkCalc(2, 60)" class="px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold">Check</button>
+                    </div>
+                </div>
+            </div>
+            <p id="calc-fb" class="text-center font-bold text-emerald-400 min-h-[24px]"></p>
+        </section>
+
+        <!-- EXERCISE 2: Randomness Roulette -->
+        <section class="glass-panel p-10 rounded-[3rem] space-y-10">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black text-white">Lab 02: Randomness Roulette</h3>
+                <p class="text-slate-400">Watch how <code>random_state</code> freezes time. Change the state to see how the sample rows change.</p>
+            </div>
+            <div class="max-w-xl mx-auto space-y-6">
+                <div class="flex gap-4 items-center justify-center">
+                    <span class="text-xs font-bold text-slate-500">RANDOM_STATE:</span>
+                    <button onclick="rollRandom(42)" class="px-4 py-2 bg-slate-700 rounded-lg hover:bg-indigo-600 transition">42</button>
+                    <button onclick="rollRandom(7)" class="px-4 py-2 bg-slate-700 rounded-lg hover:bg-indigo-600 transition">7</button>
+                    <button onclick="rollRandom(0)" class="px-4 py-2 bg-slate-700 rounded-lg hover:bg-indigo-600 transition">0</button>
+                </div>
+                <div class="bg-black/50 p-8 rounded-3xl border-2 border-dashed border-slate-700 text-center space-y-4">
+                    <p class="text-xs font-mono text-slate-500">Top 3 Rows of your <strong>X_train</strong>:</p>
+                    <div id="random-rows" class="text-xl font-mono text-indigo-400">Select a state above...</div>
+                </div>
+                <p class="text-center text-xs text-slate-500 italic">Notice: State 42 always gives the exact same rows. This makes your research "Reproducible."</p>
+            </div>
+        </section>
+
+        <!-- EXERCISE 3: The Shuffling Simulator -->
+        <section class="glass-panel p-10 rounded-[3rem] space-y-8">
+            <div class="text-center">
+                <h3 class="text-3xl font-black text-white">Lab 03: Why Shuffle?</h3>
+                <p class="text-slate-400">The Iris data is sorted by species. See what happens if we DON'T shuffle.</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-6 justify-center items-center">
+                <div class="p-6 bg-slate-800 rounded-2xl border border-rose-500/30 text-center">
+                    <p class="text-xs font-bold text-rose-400 mb-2">WITHOUT SHUFFLING</p>
+                    <div class="text-2xl">🌸🌸🌸🌸🌸</div>
+                    <p class="text-[10px] text-slate-500 mt-2 italic">Test set only sees "Setosa"</p>
+                </div>
+                <div class="text-3xl">➡️</div>
+                <div class="p-6 bg-slate-800 rounded-2xl border border-emerald-500/30 text-center">
+                    <p class="text-xs font-bold text-emerald-400 mb-2">WITH train_test_split</p>
+                    <div class="text-2xl shuffle-anim">🌸🌿🌺🌸🌿</div>
+                    <p class="text-[10px] text-slate-500 mt-2 italic">Balanced variety in both sets</p>
+                </div>
+            </div>
+            <div class="max-w-md mx-auto">
+                <p class="text-sm text-center">Which parameter ensures the mix is the same every time we run our code?</p>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button onclick="checkShuffle(false)" class="p-3 border border-slate-700 rounded-xl hover:bg-slate-700">test_size</button>
+                    <button onclick="checkShuffle(true)" class="p-3 border border-slate-700 rounded-xl hover:bg-slate-700">random_state</button>
+                </div>
+                <p id="shuffle-fb" class="text-center mt-4 font-bold text-indigo-400"></p>
+            </div>
+        </section>
+
+        <!-- EXERCISE 4: The Colab Syntax Challenge -->
+        <section class="glass-panel p-10 rounded-[3rem] space-y-8">
+            <div class="text-center">
+                <h3 class="text-3xl font-black text-white">Lab 04: Order of Operation</h3>
+                <p class="text-slate-400">Arrange the Python code in the correct logical order for Google Colab.</p>
+            </div>
+            <div id="code-order" class="space-y-2 max-w-lg mx-auto">
+                <div draggable="true" ondragstart="dragCode(event)" class="p-4 bg-slate-800 border border-slate-700 rounded-xl text-xs code-font cursor-move" id="c3">X_train, X_test, y_train, y_test = train_test_split(...)</div>
+                <div draggable="true" ondragstart="dragCode(event)" class="p-4 bg-slate-800 border border-slate-700 rounded-xl text-xs code-font cursor-move" id="c1">from sklearn.datasets import load_iris</div>
+                <div draggable="true" ondragstart="dragCode(event)" class="p-4 bg-slate-800 border border-slate-700 rounded-xl text-xs code-font cursor-move" id="c2">X, y = load_iris(return_X_y=True)</div>
+                <div draggable="true" ondragstart="dragCode(event)" class="p-4 bg-slate-800 border border-slate-700 rounded-xl text-xs code-font cursor-move" id="c4">print(f"Test size: {len(X_test)}")</div>
+            </div>
+            <div class="text-center">
+                <button onclick="checkCodeOrder()" class="px-10 py-3 bg-indigo-600 text-white rounded-full font-bold">Verify Script</button>
+            </div>
+            <p id="order-fb" class="text-center font-bold text-emerald-400"></p>
+        </section>
+
+        <!-- EXERCISE 5: The Bias Trap -->
+        <section class="p-10 rounded-[3rem] bg-amber-900/20 border border-amber-500/30 space-y-6">
+            <h3 class="text-2xl font-bold text-amber-400">Lab 05: The Stratification Challenge</h3>
+            <p class="text-sm leading-relaxed text-amber-100/70">
+                In the Iris dataset, there are exactly 50 flowers of each species. If your random split accidentally picks 30 Setosas but 0 Virginicas for the test set, your evaluation is <strong>biased</strong>.
+            </p>
+            <div class="p-6 bg-slate-900 rounded-2xl border border-amber-500/20">
+                <p class="text-sm mb-4">To force the split to keep the <strong>same ratio</strong> of species as the original data, which parameter do we add?</p>
+                <div class="flex gap-4">
+                    <button onclick="checkStrat(this, true)" class="flex-1 py-4 border border-amber-500/50 rounded-2xl text-xs font-bold hover:bg-amber-500 hover:text-white transition"><code>stratify=y</code></button>
+                    <button onclick="checkStrat(this, false)" class="flex-1 py-4 border border-amber-500/50 rounded-2xl text-xs font-bold hover:bg-amber-500 hover:text-white transition"><code>shuffle=False</code></button>
+                </div>
+            </div>
+            <p id="strat-fb" class="text-center font-bold text-amber-400 hidden italic">Exactly! "Stratifying" ensures your training and testing sets are miniature clones of the whole dataset.</p>
+        </section>
+
+        <!-- EXERCISE 6: Final Colab Blueprint -->
+        <section id="colab-section" class="bg-white p-10 md:p-20 rounded-[4rem] text-slate-900 space-y-10 shadow-2xl">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black">Lab 06: Apply in Google Colab</h2>
+                <p class="text-slate-500">Copy this code into a new cell in <span class="font-bold">Colab</span> and try changing the <code>test_size</code> to see how the numbers react.</p>
+            </div>
+
+            <div class="relative group">
+                <div class="absolute -top-4 right-4 bg-amber-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase">Click to Copy</div>
+                <pre onclick="copyCode()" id="colab-code" class="p-8 bg-slate-900 text-emerald-400 rounded-3xl code-font text-xs overflow-x-auto cursor-copy leading-relaxed">
+# STEP 1: Import the tools
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+# STEP 2: Load the Iris Data
+iris = load_iris()
+X, y = iris.data, iris.target
+
+# STEP 3: The Split
+# Challenge: Change test_size to 0.5 and observe result
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.2, 
+    random_state=42,
+    stratify=y
+)
+
+# STEP 4: Verify the lengths
+print(f"Total dataset: {len(X)} rows")
+print(f"Training set:  {len(X_train)} rows")
+print(f"Testing set:   {len(X_test)} rows")
+                </pre>
+            </div>
+            
+            <div class="flex justify-center">
+                <a href="https://colab.research.google.com" target="_blank" class="colab-btn px-12 py-4 rounded-full text-white font-black uppercase tracking-widest shadow-xl hover:scale-105 transition">Launch Google Colab</a>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-500 text-xs py-10 border-t border-slate-800">
+            AI Discovery Lab • Lesson 8 • Sci-Kit Learn Implementation
+        </footer>
+    </div>
+
+    <script>
+        // Lab 01: Split Calculator
+        function checkCalc(id, ans) {
+            const val = document.getElementById(`calc${id}`).value;
+            const fb = document.getElementById('calc-fb');
+            if(val == ans) {
+                fb.innerText = "Correct! 150 rows × " + (id === 1 ? "0.2" : "0.4") + " = " + ans + " rows for testing.";
+                fb.className = "text-center font-bold text-emerald-400 mt-4";
+            } else {
+                fb.innerText = "Check your math. Total is 150 rows.";
+                fb.className = "text-center font-bold text-rose-400 mt-4";
+            }
+        }
+
+        // Lab 02: Randomness Roulette
+        const rows = {
+            42: "Index: [81, 133, 137]",
+            7: "Index: [102, 149, 13]",
+            0: "Index: [114, 62, 33]"
+        };
+        function rollRandom(state) {
+            document.getElementById('random-rows').innerText = rows[state];
+            document.getElementById('random-rows').classList.add('shuffle-anim');
+            setTimeout(() => document.getElementById('random-rows').classList.remove('shuffle-anim'), 500);
+        }
+
+        // Lab 03: Shuffling
+        function checkShuffle(isCorrect) {
+            const fb = document.getElementById('shuffle-fb'); // Fixed ID mismatch here
+            if(isCorrect) {
+                fb.innerText = "Spot on! random_state acts as a 'seed' that makes the random process predictable.";
+            } else {
+                fb.innerText = "Not quite. test_size only controls the volume, not the order.";
+            }
+        }
+
+        // Lab 04: Code Order
+        let dragSrcEl = null;
+        function dragCode(ev) { dragSrcEl = ev.target; ev.dataTransfer.setData("text", ev.target.id); }
+        document.getElementById('code-order').addEventListener('dragover', (e) => e.preventDefault());
+        document.getElementById('code-order').addEventListener('drop', (e) => {
+            e.preventDefault();
+            const target = e.target.closest('div');
+            if (target && target !== dragSrcEl) {
+                const parent = target.parentNode;
+                const items = Array.from(parent.children);
+                const iSrc = items.indexOf(dragSrcEl);
+                const iTarg = items.indexOf(target);
+                if (iSrc < iTarg) parent.insertBefore(dragSrcEl, target.nextSibling);
+                else parent.insertBefore(dragSrcEl, target);
+            }
+        });
+
+        function checkCodeOrder() {
+            const order = Array.from(document.getElementById('code-order').children).map(i => i.id).join('');
+            const fb = document.getElementById('order-fb');
+            if(order === "c1c2c3c4") {
+                fb.innerText = "Perfect Execution! Import → Load → Split → Print.";
+            } else {
+                fb.innerText = "The logic is broken. Remember: You must load data before you can split it!";
+                fb.className = "text-center font-bold text-rose-400 mt-4";
+            }
+        }
+
+        // Lab 05: Stratification
+        function checkStrat(btn, isCorrect) {
+            if(isCorrect) {
+                document.getElementById('strat-fb').classList.remove('hidden');
+                btn.className = "flex-1 py-4 bg-emerald-600 text-white rounded-2xl text-xs font-bold shadow-lg";
+            } else {
+                btn.className = "flex-1 py-4 bg-rose-900/50 text-rose-200 rounded-2xl text-xs font-bold opacity-50";
+            }
+        }
+
+        // Lab 06: Copy Logic
+        function copyCode() {
+            const code = document.getElementById('colab-code').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = code;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            alert("Code copied! Now paste it into Google Colab.");
+        }
+    </script>
+</body>
+</html>

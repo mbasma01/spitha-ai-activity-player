@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Foundations: Features & Targets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f4f5; color: #18181b; scroll-behavior: smooth; }
+        .feature-gradient { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
+        .target-gradient { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .btn-active-feature { background-color: #4f46e5; color: white; border-color: #4f46e5; }
+        .btn-active-target { background-color: #10b981; color: white; border-color: #10b981; }
+        .explanation-box { transition: all 0.5s ease; max-height: 0; overflow: hidden; opacity: 0; }
+        .explanation-box.show { max-height: 200px; opacity: 1; padding: 1rem; margin-top: 1rem; }
+        .drag-item { cursor: grab; transition: transform 0.2s; }
+        .drag-item:active { cursor: grabbing; transform: scale(1.05); }
+        .drop-zone { min-height: 80px; transition: all 0.3s ease; }
+        .drop-zone-hover { border-color: #4f46e5; background-color: #f5f3ff; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-16">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-4 py-10">
+            <div class="inline-block px-4 py-1.5 mb-2 text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-100 rounded-full">
+                Lesson 05: Data Anatomy
+            </div>
+            <h1 class="text-5xl md:text-6xl font-black text-zinc-900 tracking-tight">Features & Targets</h1>
+            <p class="text-xl text-zinc-500 max-w-2xl mx-auto">Mastering the art of identifying the <strong>clues</strong> and the <strong>answers</strong> in any dataset.</p>
+        </header>
+
+        <!-- The Elaborate Explanation -->
+        <section class="grid lg:grid-cols-2 gap-10">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-zinc-200 space-y-6">
+                <h2 class="text-3xl font-bold text-zinc-800">The "What" and the "Why"</h2>
+                <div class="space-y-4 text-zinc-600 leading-relaxed">
+                    <p>
+                        In Machine Learning, we don't just dump a bucket of data into a computer. We organize it so the computer can learn a specific relationship. 
+                    </p>
+                    <p>
+                        We call the <strong>Inputs</strong> "Features" ($X$) and the <strong>Output</strong> the "Target" ($y$). To a mathematician, this is $y = f(X)$. To a Data Scientist, it's the foundation of every prediction.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <div class="p-5 feature-gradient rounded-2xl text-white shadow-lg">
+                        <span class="text-xs font-bold uppercase opacity-70">Variable: X</span>
+                        <h4 class="text-xl font-bold">Features</h4>
+                        <p class="text-xs mt-2 opacity-90 italic">"The Clues"</p>
+                    </div>
+                    <div class="p-5 target-gradient rounded-2xl text-white shadow-lg">
+                        <span class="text-xs font-bold uppercase opacity-70">Variable: y</span>
+                        <h4 class="text-xl font-bold">Target</h4>
+                        <p class="text-xs mt-2 opacity-90 italic">"The Answer"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analogies Section -->
+            <div class="space-y-6">
+                <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 flex gap-5">
+                    <div class="text-4xl">🕵️‍♂️</div>
+                    <div>
+                        <h4 class="font-bold text-indigo-900">The Detective Analogy</h4>
+                        <p class="text-sm text-indigo-800/80 leading-relaxed">
+                            The fingerprints, the timestamp, and the witness statements are <strong>Features</strong>. The identity of the culprit is the <strong>Target</strong>.
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 flex gap-5">
+                    <div class="text-4xl">⛈️</div>
+                    <div>
+                        <h4 class="font-bold text-emerald-900">The Weather Analogy</h4>
+                        <p class="text-sm text-emerald-800/80 leading-relaxed">
+                            The air pressure and wind speed are the <strong>Features</strong>. Whether it will rain tomorrow is the <strong>Target</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXERCISE 1: The Clinical Conundrum -->
+        <section class="bg-zinc-900 rounded-[3rem] p-10 text-white space-y-8 shadow-2xl">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black">Exercise 1: The Clinical Conundrum</h3>
+                <p class="text-zinc-400 italic">Warning: Not every column is useful. Some might even be "noise."</p>
+            </div>
+
+            <div class="p-8 bg-zinc-800 rounded-3xl border border-zinc-700">
+                <h4 class="text-indigo-400 font-bold mb-6 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">🎯</span>
+                    Goal: Predict "Patient Recovery Time" (in days) after surgery.
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+                    <button onclick="toggleEx1(this, 'F', 'Correct! Age is a significant biological feature for recovery.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-indigo-400">Patient Age</button>
+                    <button onclick="toggleEx1(this, 'N', 'Wrong. A Patient ID is just a random number. It has no predictive power.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-rose-400">Patient ID #</button>
+                    <button onclick="toggleEx1(this, 'F', 'Correct! More complex surgeries usually take longer to recover from.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-indigo-400">Surgery Complexity Score</button>
+                    <button onclick="toggleEx1(this, 'T', 'Spot on! This is our dependent variable—the result we want to calculate.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-emerald-400">Total Recovery Days</button>
+                    <button onclick="toggleEx1(this, 'F', 'Correct! Pre-existing conditions serve as clues for potential delays.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-indigo-400">Health History Rank</button>
+                    <button onclick="toggleEx1(this, 'N', 'Wrong. The color of the hospital room likely has zero effect on medical recovery.')" class="p-4 bg-zinc-700/50 border border-zinc-600 rounded-2xl text-sm transition hover:border-rose-400">Hospital Wall Color</button>
+                </div>
+
+                <div id="ex1-feedback-text" class="p-6 bg-zinc-700 rounded-2xl text-sm min-h-[60px] flex items-center justify-center border border-zinc-600 italic text-zinc-400">
+                    Click a variable above to categorize it...
+                </div>
+            </div>
+        </section>
+
+        <!-- EXERCISE 2: The Goal Switch -->
+        <section class="bg-white rounded-[3rem] p-10 border border-zinc-200 shadow-sm space-y-10">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black text-zinc-800">Exercise 2: The Goal Switch</h3>
+                <p class="text-zinc-500">In ML, the <strong>Target</strong> depends entirely on the question you are asking. The same column can be a feature in one model and a target in another.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-10">
+                <div class="p-8 bg-indigo-50 rounded-3xl space-y-4 border border-indigo-100">
+                    <p class="font-bold text-indigo-900">Model A Goal: Determine if a customer will click a "Renew Subscription" button.</p>
+                    <div class="space-y-2">
+                        <button onclick="checkGoal(this, false, 'renewal')" class="w-full text-left p-3 text-sm bg-white border rounded-xl hover:bg-indigo-100">User's Monthly Income</button>
+                        <button onclick="checkGoal(this, true, 'renewal')" class="w-full text-left p-3 text-sm bg-white border rounded-xl hover:bg-emerald-100 font-bold border-emerald-300">Renewed Subscription (Yes/No)</button>
+                    </div>
+                </div>
+
+                <div class="p-8 bg-emerald-50 rounded-3xl space-y-4 border border-emerald-100">
+                    <p class="font-bold text-emerald-900">Model B Goal: Estimate how much a customer is willing to pay per month.</p>
+                    <div class="space-y-2">
+                        <button onclick="checkGoal(this, true, 'income')" class="w-full text-left p-3 text-sm bg-white border rounded-xl hover:bg-emerald-100 font-bold border-emerald-300">Customer Monthly Spending</button>
+                        <button onclick="checkGoal(this, false, 'income')" class="w-full text-left p-3 text-sm bg-white border rounded-xl hover:bg-indigo-100">User's Last Login Date</button>
+                    </div>
+                </div>
+            </div>
+            <p id="goal-fb" class="text-center font-medium text-zinc-500 hidden italic">Exactly. The "Answer" (Target) is always the thing you are trying to predict!</p>
+        </section>
+
+        <!-- EXERCISE 3: The Data Scientist's Review -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black text-zinc-800">Exercise 3: The Master Data Table</h3>
+                <p class="text-zinc-500">Categorize the columns for a "Movie Rating Predictor." We will explain every choice.</p>
+            </div>
+
+            <div class="overflow-hidden rounded-3xl border border-zinc-200 shadow-xl bg-white">
+                <table class="w-full text-left">
+                    <thead class="bg-zinc-800 text-white text-xs uppercase tracking-widest">
+                        <tr>
+                            <th class="p-6">Column Name</th>
+                            <th class="p-6 text-center">Your Selection</th>
+                            <th class="p-6">Feedback & Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 text-sm">
+                        <!-- Row 1 -->
+                        <tr class="group">
+                            <td class="p-6 font-bold">Production Budget</td>
+                            <td class="p-6 flex justify-center gap-2">
+                                <button onclick="tableVerify(this, 'F', 0)" class="px-4 py-2 border rounded-lg hover:bg-indigo-50">Feature</button>
+                                <button onclick="tableVerify(this, 'T', 0)" class="px-4 py-2 border rounded-lg hover:bg-emerald-50">Target</button>
+                            </td>
+                            <td id="td-0" class="p-6 text-zinc-400 italic">Pending...</td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="group">
+                            <td class="p-6 font-bold">Lead Actor's Twitter Followers</td>
+                            <td class="p-6 flex justify-center gap-2">
+                                <button onclick="tableVerify(this, 'F', 1)" class="px-4 py-2 border rounded-lg hover:bg-indigo-50">Feature</button>
+                                <button onclick="tableVerify(this, 'T', 1)" class="px-4 py-2 border rounded-lg hover:bg-emerald-50">Target</button>
+                            </td>
+                            <td id="td-1" class="p-6 text-zinc-400 italic">Pending...</td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="group">
+                            <td class="p-6 font-bold">Audience Score (1-100)</td>
+                            <td class="p-6 flex justify-center gap-2">
+                                <button onclick="tableVerify(this, 'F', 2)" class="px-4 py-2 border rounded-lg hover:bg-indigo-50">Feature</button>
+                                <button onclick="tableVerify(this, 'T', 2)" class="px-4 py-2 border rounded-lg hover:bg-emerald-50">Target</button>
+                            </td>
+                            <td id="td-2" class="p-6 text-zinc-400 italic">Pending...</td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="group">
+                            <td class="p-6 font-bold">Movie ID Number</td>
+                            <td class="p-6 flex justify-center gap-2">
+                                <button onclick="tableVerify(this, 'N', 3)" class="px-4 py-2 border rounded-lg hover:bg-indigo-50">Feature</button>
+                                <button onclick="tableVerify(this, 'N', 3)" class="px-4 py-2 border rounded-lg hover:bg-rose-50">Target</button>
+                            </td>
+                            <td id="td-3" class="p-6 text-zinc-400 italic">Pending...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- EXERCISE 4: Signal vs. Noise (Drag & Drop) -->
+        <section class="bg-indigo-900 rounded-[3rem] p-10 text-white space-y-8 shadow-2xl">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black">Exercise 4: The Signal vs. Noise Sorter</h3>
+                <p class="text-indigo-200">Drag each piece of Smart Home data into the correct bucket for our <strong>Energy Cost Predictor</strong>.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Data Bank -->
+                <div class="bg-indigo-800/50 p-6 rounded-3xl border border-indigo-700 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-4">Unsorted Data</h4>
+                    <div draggable="true" ondragstart="drag(event)" id="drag-1" class="drag-item p-3 bg-indigo-700 rounded-xl text-sm border border-indigo-500" data-role="F">Current Humidity (%)</div>
+                    <div draggable="true" ondragstart="drag(event)" id="drag-2" class="drag-item p-3 bg-indigo-700 rounded-xl text-sm border border-indigo-500" data-role="T">Monthly Bill Total ($)</div>
+                    <div draggable="true" ondragstart="drag(event)" id="drag-3" class="drag-item p-3 bg-indigo-700 rounded-xl text-sm border border-indigo-500" data-role="N">House Front Door Color</div>
+                    <div draggable="true" ondragstart="drag(event)" id="drag-4" class="drag-item p-3 bg-indigo-700 rounded-xl text-sm border border-indigo-500" data-role="F">Outdoor Temperature</div>
+                    <div draggable="true" ondragstart="drag(event)" id="drag-5" class="drag-item p-3 bg-indigo-700 rounded-xl text-sm border border-indigo-500" data-role="N">WIFI Password Length</div>
+                </div>
+
+                <!-- Drop Zones -->
+                <div class="lg:col-span-2 grid md:grid-cols-3 gap-4">
+                    <div ondrop="drop(event, 'F')" ondragover="allowDrop(event)" class="drop-zone p-4 bg-indigo-950/50 border-2 border-dashed border-indigo-500/30 rounded-3xl flex flex-col items-center">
+                        <span class="text-[10px] font-bold uppercase text-indigo-400 mb-2">Features (X)</span>
+                        <div class="w-full space-y-2" id="zone-F"></div>
+                    </div>
+                    <div ondrop="drop(event, 'T')" ondragover="allowDrop(event)" class="drop-zone p-4 bg-emerald-950/50 border-2 border-dashed border-emerald-500/30 rounded-3xl flex flex-col items-center">
+                        <span class="text-[10px] font-bold uppercase text-emerald-400 mb-2">Target (y)</span>
+                        <div class="w-full space-y-2" id="zone-T"></div>
+                    </div>
+                    <div ondrop="drop(event, 'N')" ondragover="allowDrop(event)" class="drop-zone p-4 bg-zinc-950/50 border-2 border-dashed border-zinc-500/30 rounded-3xl flex flex-col items-center">
+                        <span class="text-[10px] font-bold uppercase text-zinc-500 mb-2">Irrelevant (Noise)</span>
+                        <div class="w-full space-y-2" id="zone-N"></div>
+                    </div>
+                </div>
+            </div>
+            <p id="ex4-fb" class="text-center font-bold text-indigo-300 hidden">Nice sorting! Identifying what NOT to include is just as important as identifying features.</p>
+        </section>
+
+        <!-- EXERCISE 5: The Role Reversal Lab -->
+        <section class="bg-white rounded-[3rem] p-10 border border-zinc-200 shadow-sm space-y-8">
+            <div class="text-center space-y-2">
+                <h3 class="text-3xl font-black text-zinc-800">Exercise 5: The Role Reversal Lab</h3>
+                <p class="text-zinc-500 italic">Watch how "Monthly Spending" changes roles between these two financial models.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="p-8 bg-zinc-50 rounded-[2.5rem] border border-zinc-100 card-hover">
+                    <h4 class="font-bold text-zinc-800 mb-4">Model 1: Budget Planner</h4>
+                    <p class="text-sm text-zinc-500 mb-6 italic">Goal: Predict a person's <u>Estimated Retirement Savings</u>.</p>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="revCheck(this, 'F', 1)" class="p-4 border rounded-2xl text-left text-sm hover:bg-white flex justify-between">
+                            Monthly Spending <span class="text-xs opacity-0 font-bold uppercase">Role?</span>
+                        </button>
+                    </div>
+                    <div id="rev-fb-1" class="mt-4 text-xs text-indigo-600 hidden">In this model, spending is a <strong>Feature</strong> (clue) that helps estimate savings.</div>
+                </div>
+
+                <div class="p-8 bg-zinc-50 rounded-[2.5rem] border border-zinc-100 card-hover">
+                    <h4 class="font-bold text-zinc-800 mb-4">Model 2: Lifestyle Predictor</h4>
+                    <p class="text-sm text-zinc-500 mb-6 italic">Goal: Predict a person's <u>Monthly Spending Amount</u>.</p>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="revCheck(this, 'T', 2)" class="p-4 border rounded-2xl text-left text-sm hover:bg-white flex justify-between">
+                            Monthly Spending <span class="text-xs opacity-0 font-bold uppercase">Role?</span>
+                        </button>
+                    </div>
+                    <div id="rev-fb-2" class="mt-4 text-xs text-emerald-600 hidden">In this model, spending is the <strong>Target</strong> (the answer we want).</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXERCISE 6: The Architect's Blueprint -->
+        <section class="bg-white rounded-[3rem] p-10 border-2 border-zinc-900 space-y-10 shadow-xl">
+            <div class="text-center space-y-2">
+                <h3 class="text-4xl font-black text-zinc-900">Exercise 6: The Architect's Blueprint</h3>
+                <p class="text-zinc-500">For each unique business goal, click the correct variable to act as the <strong>Target</strong>.</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Goal A -->
+                <div class="p-8 bg-zinc-50 rounded-3xl flex flex-col md:flex-row items-center gap-6 border border-zinc-100">
+                    <div class="md:w-1/3">
+                        <h5 class="font-black text-xs uppercase tracking-widest text-zinc-400 mb-2">Goal A</h5>
+                        <p class="font-bold">Identify if a user is likely to Churn (cancel service).</p>
+                    </div>
+                    <div class="flex-grow flex gap-4 w-full">
+                        <button onclick="archCheck(this, false, 'a')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">Daily Usage Hours</button>
+                        <button onclick="archCheck(this, true, 'a')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">Cancelation Status</button>
+                    </div>
+                </div>
+
+                <!-- Goal B -->
+                <div class="p-8 bg-zinc-50 rounded-3xl flex flex-col md:flex-row items-center gap-6 border border-zinc-100">
+                    <div class="md:w-1/3">
+                        <h5 class="font-black text-xs uppercase tracking-widest text-zinc-400 mb-2">Goal B</h5>
+                        <p class="font-bold">Estimate a user's total active usage time next month.</p>
+                    </div>
+                    <div class="flex-grow flex gap-4 w-full">
+                        <button onclick="archCheck(this, true, 'b')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">Daily Usage Hours</button>
+                        <button onclick="archCheck(this, false, 'b')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">Cancelation Status</button>
+                    </div>
+                </div>
+
+                <!-- Goal C -->
+                <div class="p-8 bg-zinc-50 rounded-3xl flex flex-col md:flex-row items-center gap-6 border border-zinc-100">
+                    <div class="md:w-1/3">
+                        <h5 class="font-black text-xs uppercase tracking-widest text-zinc-400 mb-2">Goal C</h5>
+                        <p class="font-bold">Determine the optimal time to send a notification.</p>
+                    </div>
+                    <div class="flex-grow flex gap-4 w-full">
+                        <button onclick="archCheck(this, false, 'c')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">User Location</button>
+                        <button onclick="archCheck(this, true, 'c')" class="flex-1 p-4 bg-white border rounded-2xl text-sm hover:shadow-md">Notification Click Time</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="blueprint-fb" class="hidden text-center p-8 bg-zinc-900 rounded-[2.5rem] text-white animate-fade-in">
+                <h4 class="text-3xl font-black mb-4">Architect Mastery Unlocked! 🛠️</h4>
+                <p class="text-zinc-400">You've successfully built the logic for three distinct AI products. You're ready to start building!</p>
+            </div>
+        </section>
+
+        <footer class="text-center text-zinc-400 text-xs py-10">
+            AI Literacy Course &bull; Part 1 &bull; Lesson 5
+        </footer>
+    </div>
+
+    <script>
+        // Exercise 1: Clinical Conundrum
+        function toggleEx1(btn, type, explanation) {
+            const fb = document.getElementById('ex1-feedback-text');
+            fb.innerText = explanation;
+            
+            if (type === 'F') {
+                btn.className = "p-4 bg-indigo-600 border border-indigo-400 rounded-2xl text-sm transition text-white shadow-lg";
+                fb.className = "p-6 bg-indigo-900/10 rounded-2xl text-sm min-h-[60px] flex items-center justify-center border border-indigo-200 font-medium text-indigo-700";
+            } else if (type === 'T') {
+                btn.className = "p-4 bg-emerald-600 border border-emerald-400 rounded-2xl text-sm transition text-white shadow-lg";
+                fb.className = "p-6 bg-emerald-900/10 rounded-2xl text-sm min-h-[60px] flex items-center justify-center border border-emerald-200 font-medium text-emerald-700";
+            } else {
+                btn.className = "p-4 bg-rose-600 border border-rose-400 rounded-2xl text-sm transition text-white shadow-lg";
+                fb.className = "p-6 bg-rose-900/10 rounded-2xl text-sm min-h-[60px] flex items-center justify-center border border-rose-200 font-medium text-rose-700";
+            }
+        }
+
+        // Exercise 2: Goal Switch
+        let goalWins = 0;
+        function checkGoal(btn, isCorrect, type) {
+            if (isCorrect) {
+                btn.className = "w-full text-left p-3 text-sm bg-emerald-600 text-white rounded-xl font-bold shadow-md";
+                goalWins++;
+                if (goalWins >= 2) document.getElementById('goal-fb').classList.remove('hidden');
+            } else {
+                btn.className = "w-full text-left p-3 text-sm bg-rose-50 border-rose-300 border rounded-xl text-rose-800 line-through opacity-50";
+            }
+        }
+
+        // Exercise 3: Master Table
+        const tableLogic = {
+            0: { ans: 'F', reason: 'Feature. Money invested affects the quality and marketing of the clues.' },
+            1: { ans: 'F', reason: 'Feature. Social reach is a strong predictor of initial audience interest.' },
+            2: { ans: 'T', reason: 'Target. This is the rating we want to predict before the movie comes out!' },
+            3: { ans: 'N', reason: 'Neither. IDs are random labels; they contain no mathematical data.' }
+        };
+        let tableCorrect = 0;
+
+        function tableVerify(btn, choice, idx) {
+            const row = btn.parentElement;
+            const feedbackCell = document.getElementById(`td-${idx}`);
+            const logic = tableLogic[idx];
+            row.querySelectorAll('button').forEach(b => b.disabled = true);
+            if (choice === logic.ans) {
+                btn.className = "px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold";
+                feedbackCell.innerText = "✅ " + logic.reason;
+                feedbackCell.className = "p-6 text-emerald-700 font-medium";
+                tableCorrect++;
+            } else {
+                btn.className = "px-4 py-2 bg-rose-600 text-white rounded-lg font-bold opacity-50";
+                feedbackCell.innerText = "❌ No. " + logic.reason;
+                feedbackCell.className = "p-6 text-rose-700 font-medium";
+            }
+        }
+
+        // Exercise 4: Drag & Drop
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drop-zone-hover'); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        let ex4Score = 0;
+        function drop(ev, bucketRole) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drop-zone-hover');
+            const data = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(data);
+            const actualRole = draggedEl.getAttribute('data-role');
+            
+            if (actualRole === bucketRole) {
+                ev.currentTarget.appendChild(draggedEl);
+                draggedEl.classList.add('opacity-50');
+                draggedEl.draggable = false;
+                ex4Score++;
+                if(ex4Score === 5) document.getElementById('ex4-fb').classList.remove('hidden');
+            } else {
+                draggedEl.classList.add('animate-shake', 'border-rose-500');
+                setTimeout(() => draggedEl.classList.remove('animate-shake', 'border-rose-500'), 500);
+            }
+        }
+
+        // Exercise 5: Role Reversal
+        function revCheck(btn, role, modelId) {
+            const fb = document.getElementById(`rev-fb-${modelId}`);
+            fb.classList.remove('hidden');
+            btn.classList.add(role === 'F' ? 'btn-active-feature' : 'btn-active-target');
+            btn.querySelector('span').classList.remove('opacity-0');
+            btn.querySelector('span').innerText = role === 'F' ? 'FEATURE' : 'TARGET';
+        }
+
+        // Exercise 6: Blueprint
+        let blueprintScore = 0;
+        function archCheck(btn, isCorrect, goal) {
+            const row = btn.parentElement;
+            row.querySelectorAll('button').forEach(b => b.disabled = true);
+            if(isCorrect) {
+                btn.className = "flex-1 p-4 bg-emerald-600 text-white border rounded-2xl text-sm font-bold shadow-lg";
+                blueprintScore++;
+                if(blueprintScore === 3) {
+                    document.getElementById('blueprint-fb').classList.remove('hidden');
+                    document.getElementById('blueprint-fb').scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                btn.className = "flex-1 p-4 bg-rose-100 border-rose-300 border rounded-2xl text-sm opacity-50 line-through";
+            }
+        }
+    </script>
+</body>
+</html>

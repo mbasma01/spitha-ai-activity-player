@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Literacy: What is AI?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; scroll-behavior: smooth; }
+        .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .process-line { stroke-dasharray: 5; animation: dash 2s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -10; } }
+        .ai-glow { box-shadow: 0 0 15px rgba(124, 58, 237, 0.3); }
+        .path-card { border-left-width: 6px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto space-y-12">
+        <!-- Hero Header -->
+        <header class="hero-gradient rounded-3xl p-8 md:p-16 text-center text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-block p-4 bg-white/20 rounded-2xl mb-6 backdrop-blur-md border border-white/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black mb-6 tracking-tight">AI Literacy: What is AI?</h1>
+                <p class="text-xl md:text-2xl text-indigo-100 max-w-3xl mx-auto leading-relaxed">
+                    Unlocking the mystery of how machines transition from following "recipes" to discovering "patterns."
+                </p>
+            </div>
+            <div class="absolute -top-24 -right-24 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-indigo-900/20 rounded-full blur-3xl"></div>
+        </header>
+
+        <!-- Deep Dive: Logic vs. Learning -->
+        <section class="grid lg:grid-cols-5 gap-8">
+            <div class="lg:col-span-3 bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-200">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-indigo-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    The Paradigm Shift
+                </h2>
+                <div class="space-y-6 text-slate-600 leading-relaxed text-lg">
+                    <p>
+                        For 50 years, computers were <strong>Rule-Based</strong>. A human expert wrote every "If-Then" statement. If a computer saw an email, it looked for the word "WINNER" and marked it spam. This was rigid and easy to trick.
+                    </p>
+                    <p>
+                        <strong>Modern AI</strong> is "Learning-Based." Instead of rules, we give it a <strong>Neural Network</strong>—a mathematical structure inspired by the human brain. We don't tell it what "spam" looks like; we show it 10 million spam emails and let it notice the subtle, complex patterns itself.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="block font-bold text-slate-400 text-xs uppercase mb-2">Rule-Based</span>
+                            <code class="text-sm text-rose-600">If (Score > 50) then Pass</code>
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                            <span class="block font-bold text-indigo-400 text-xs uppercase mb-2">Learning-Based</span>
+                            <code class="text-sm text-indigo-600">Model.fit(PastData)</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Component: The Brain -->
+            <div class="lg:col-span-2 bg-indigo-900 rounded-3xl p-8 text-white flex flex-col justify-center relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>
+                        The AI Lifecycle
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-xs">1</div>
+                            <p class="text-sm text-indigo-100"><strong>Training:</strong> Look at data, find mistakes.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-bold text-xs">2</div>
+                            <p class="text-sm text-indigo-100"><strong>Adjustment:</strong> Tune the "weights" (math settings).</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-400 flex items-center justify-center font-bold text-xs">3</div>
+                            <p class="text-sm text-indigo-100"><strong>Prediction:</strong> Apply patterns to new data.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-10 top-1/2 -translate-y-1/2 opacity-20 scale-150 pointer-events-none">
+                    <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/><path d="M12 2a14.5 14.5 0 0 1 0 20"/></svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Section: The Two Paths of Learning -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="text-4xl font-black text-slate-800">The Two Paths of Learning</h2>
+                <p class="text-slate-500 text-lg">AI models aren't all trained the same way. Which path does the data take?</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Supervised Path -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 path-card border-emerald-500 card">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8-4 8 4"/><path d="m4 10 8 4 8-4"/><path d="m4 14 8 4 8-4"/><path d="m4 18 8 4 8-4"/></svg>
+                        </div>
+                        <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">"The Answer Key"</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Supervised Learning</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        The computer learns with a <strong>teacher</strong>. We provide the data <em>and</em> the answers (labels). 
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-emerald-50/50 rounded-xl flex items-center gap-3">
+                            <span class="text-emerald-600 font-bold">Q:</span>
+                            <span class="text-sm">"Is this photo a cat?"</span>
+                        </div>
+                        <div class="p-3 bg-indigo-50/50 rounded-xl flex items-center gap-3">
+                            <span class="text-indigo-600 font-bold">A:</span>
+                            <span class="text-sm italic">"Yes, this is a cat." (The Label)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unsupervised Path -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 path-card border-amber-500 card">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/><path d="M16 12h-8"/></svg>
+                        </div>
+                        <span class="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-100">"Self-Discovery"</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Unsupervised Learning</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        The computer learns <strong>on its own</strong>. We provide data, but no answers. It finds hidden groupings.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-amber-50/50 rounded-xl flex items-center gap-3">
+                            <span class="text-amber-600 font-bold">Q:</span>
+                            <span class="text-sm">"What do these 1 million users have in common?"</span>
+                        </div>
+                        <div class="p-3 bg-indigo-50/50 rounded-xl flex items-center gap-3">
+                            <span class="text-indigo-600 font-bold">A:</span>
+                            <span class="text-sm italic">"I found 3 clusters: Gamers, Cooks, and Hikers."</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery of Intelligence (Cards) -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-bold">Gallery of Intelligence</h2>
+                <p class="text-slate-500">Can you distinguish between AI-generated content and standard computer algorithms?</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border card flex flex-col justify-between" id="card-1">
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-100 rounded-2xl flex items-center justify-center text-4xl overflow-hidden">
+                            🎨
+                        </div>
+                        <p class="text-sm font-medium text-slate-700 italic">"An oil painting of a cat wearing a space helmet on Mars in the style of Van Gogh."</p>
+                    </div>
+                    <button onclick="revealSource(1, true, 'AI: Generative Diffusion Model')" class="mt-6 w-full py-2 bg-indigo-100 text-indigo-700 rounded-xl font-bold hover:bg-indigo-200 transition">AI or Not AI?</button>
+                    <div id="ans-1" class="hidden mt-2 text-center text-xs font-bold text-indigo-600"></div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border card flex flex-col justify-between" id="card-2">
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-100 rounded-2xl flex items-center justify-center text-4xl overflow-hidden">
+                            🧮
+                        </div>
+                        <p class="text-sm font-medium text-slate-700">"Finding the fastest route from New York to LA using the A* search algorithm."</p>
+                    </div>
+                    <button onclick="revealSource(2, false, 'NOT AI: Classic Math Algorithm')" class="mt-6 w-full py-2 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition">AI or Not AI?</button>
+                    <div id="ans-2" class="hidden mt-2 text-center text-xs font-bold text-slate-600"></div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border card flex flex-col justify-between" id="card-3">
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-100 rounded-2xl flex items-center justify-center text-4xl overflow-hidden">
+                            ✍️
+                        </div>
+                        <p class="text-sm font-medium text-slate-700 italic">"Write a haiku about a sandwich that feels lonely on a Tuesday."</p>
+                    </div>
+                    <button onclick="revealSource(3, true, 'AI: Large Language Model')" class="mt-6 w-full py-2 bg-indigo-100 text-indigo-700 rounded-xl font-bold hover:bg-indigo-200 transition">AI or Not AI?</button>
+                    <div id="ans-3" class="hidden mt-2 text-center text-xs font-bold text-indigo-600"></div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border card flex flex-col justify-between" id="card-4">
+                    <div class="space-y-4">
+                        <div class="h-40 bg-slate-100 rounded-2xl flex items-center justify-center text-4xl overflow-hidden">
+                            🌡️
+                        </div>
+                        <p class="text-sm font-medium text-slate-700">"If RoomTemp < 68, Then TurnOnHeater = True."</p>
+                    </div>
+                    <button onclick="revealSource(4, false, 'NOT AI: Simple Logic Rule')" class="mt-6 w-full py-2 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition">AI or Not AI?</button>
+                    <div id="ans-4" class="hidden mt-2 text-center text-xs font-bold text-slate-600"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analogies: The Toddler vs. The Clerk -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold px-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                Understanding through Analogy
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center font-bold">A</div>
+                    <h3 class="text-xl font-bold mb-4 text-rose-700">The Strict Clerk (Rules)</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Imagine a clerk who only accepts forms signed in black ink. If you bring a blue ink form, they reject it immediately. They have <strong>no common sense</strong>—only a manual of rules. This is how old software works.
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">B</div>
+                    <h3 class="text-xl font-bold mb-4 text-emerald-700">The Toddler (AI)</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Imagine a toddler watching 1,000 people open a door. They notice that people grab the handle and pull. Nobody gave the toddler a manual. They <strong>observed the patterns</strong> of success and learned on their own. This is AI.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Knowledge Check -->
+        <section class="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold mb-8">Mastery Check</h2>
+            
+            <div class="space-y-12">
+                <!-- Q1 -->
+                <div class="space-y-4">
+                    <p class="text-xl font-bold text-slate-800">1. Why can AI predict things that aren't in its original programming?</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <button onclick="finalCheck(1, 'A')" class="p-6 text-left border-2 rounded-2xl hover:border-indigo-500 transition-colors group" id="q1a">
+                            <span class="font-bold block text-indigo-600 mb-1 group-hover:translate-x-1 transition-transform">Choice A</span>
+                            Because it generalizes from past examples to find new connections.
+                        </button>
+                        <button onclick="finalCheck(1, 'B')" class="p-6 text-left border-2 rounded-2xl hover:border-indigo-500 transition-colors group" id="q1b">
+                            <span class="font-bold block text-indigo-600 mb-1 group-hover:translate-x-1 transition-transform">Choice B</span>
+                            Because programmers write a rule for every situation.
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="space-y-4">
+                    <p class="text-xl font-bold text-slate-800">2. Which type of AI would you use to group customers by "shopping style"?</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <button onclick="finalCheck(2, 'A')" class="p-6 text-left border-2 rounded-2xl hover:border-indigo-500 transition-colors group" id="q2a">
+                            <span class="font-bold block text-indigo-600 mb-1 group-hover:translate-x-1 transition-transform">Choice A</span>
+                            Supervised Learning (using labels).
+                        </button>
+                        <button onclick="finalCheck(2, 'B')" class="p-6 text-left border-2 rounded-2xl hover:border-indigo-500 transition-colors group" id="q2b">
+                            <span class="font-bold block text-indigo-600 mb-1 group-hover:translate-x-1 transition-transform">Choice B</span>
+                            Unsupervised Learning (finding hidden patterns).
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mastery-feedback" class="mt-12 hidden p-8 rounded-2xl text-center font-bold text-xl transition-all scale-0"></div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-sm py-10 border-t border-slate-200">
+            AI Discovery Lab • Lesson 1 • Foundations of Machine Intelligence
+        </footer>
+    </div>
+
+    <script>
+        function revealSource(id, isAI, label) {
+            const btn = document.querySelector(`#card-${id} button`);
+            const ans = document.getElementById(`ans-${id}`);
+            const card = document.getElementById(`card-${id}`);
+            
+            btn.classList.add('hidden');
+            ans.innerText = label;
+            ans.classList.remove('hidden');
+            
+            if (isAI) {
+                card.classList.add('border-indigo-500', 'bg-indigo-50/30', 'ai-glow');
+            } else {
+                card.classList.add('border-slate-400', 'bg-slate-50');
+            }
+        }
+
+        let answers = { 1: null, 2: null };
+        function finalCheck(q, choice) {
+            answers[q] = choice;
+            const btnA = document.getElementById(`q${q}a`);
+            const btnB = document.getElementById(`q${q}b`);
+            
+            btnA.classList.remove('border-indigo-500', 'bg-indigo-50', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+            btnB.classList.remove('border-indigo-500', 'bg-indigo-50', 'border-emerald-500', 'bg-emerald-50', 'border-rose-500', 'bg-rose-50');
+
+            if (q === 1) {
+                if (choice === 'A') {
+                    btnA.classList.add('border-emerald-500', 'bg-emerald-50');
+                } else {
+                    btnB.classList.add('border-rose-500', 'bg-rose-50');
+                }
+            } else if (q === 2) {
+                if (choice === 'B') {
+                    btnB.classList.add('border-emerald-500', 'bg-emerald-50');
+                } else {
+                    btnA.classList.add('border-rose-500', 'bg-rose-50');
+                }
+            }
+
+            if (answers[1] === 'A' && answers[2] === 'B') {
+                const fb = document.getElementById('mastery-feedback');
+                fb.innerText = "🌟 Mastery Unlocked! You've identified the fundamental truth: AI is about learning patterns, and choosing the right learning path (Supervised vs. Unsupervised) is the first step of every project.";
+                fb.classList.remove('hidden', 'scale-0');
+                fb.classList.add('bg-indigo-600', 'text-white', 'scale-100');
+                
+                fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+</body>
+</html>
