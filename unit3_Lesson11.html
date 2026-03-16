@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Lab: The Overfitting Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fef2f2; color: #7f1d1d; scroll-behavior: smooth; }
+        .hero-card { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        .wiggle-path { transition: d 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .accuracy-pill { @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter; }
+        .graph-line { transition: stroke-dasharray 0.5s ease-in-out; }
+        .diagnostic-stat { @apply flex flex-col items-center justify-center p-3 rounded-2xl border-2; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-6xl mx-auto space-y-16">
+        
+        <!-- Header -->
+        <header class="hero-card rounded-[3rem] p-10 md:p-20 text-center text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-red-100 uppercase bg-white/20 rounded-full backdrop-blur-md border border-white/30">
+                    Lesson 11: Advanced Model Tuning
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight text-white text-shadow-sm">The Overfitting Trap</h1>
+                <p class="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed text-red-50">
+                    Learn why models that are "too smart" often fail. The secret to AI isn't just learning—it's knowing when to stop.
+                </p>
+            </div>
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        </header>
+
+        <section class="grid lg:grid-cols-2 gap-10">
+            <!-- 1. Higher Order Complexity -->
+            <div class="bg-white p-8 md:p-10 rounded-[3rem] shadow-xl border border-red-100 space-y-8">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-2xl shadow-inner">📐</span>
+                        <h3 class="text-2xl font-black text-red-800 uppercase tracking-tighter">Polynomial Complexity</h3>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed text-sm">
+                        Standard Linear Regression uses a rigid line. Increasing the <strong>Order</strong> (to <i>x<sup>2</sup></i>, <i>x<sup>3</sup></i>) gives the model "joints" to bend. Too many joints, and it stops finding a trend to simply "memorize" the points.
+                    </p>
+                </div>
+                
+                <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Model Complexity (Degree)</span>
+                        <span id="order-label" class="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-black italic shadow-md">Order 1 (Linear)</span>
+                    </div>
+
+                    <!-- Math Equation Display -->
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 mb-6 text-center">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Mathematical Equation</p>
+                        <div id="equation-display" class="font-serif text-lg text-slate-800 italic">
+                            <i>y = w<sub>1</sub>x + b</i>
+                        </div>
+                    </div>
+
+                    <svg viewBox="0 0 200 100" class="w-full h-auto mb-6 bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                        <circle cx="30" cy="75" r="3" fill="#ef4444" />
+                        <circle cx="70" cy="35" r="3" fill="#ef4444" />
+                        <circle cx="110" cy="65" r="3" fill="#ef4444" />
+                        <circle cx="150" cy="25" r="3" fill="#ef4444" />
+                        <circle cx="180" cy="55" r="3" fill="#ef4444" />
+                        <path id="wiggle-path" d="M 0 85 L 200 45" stroke="#ef4444" stroke-width="3" fill="none" class="wiggle-path" />
+                    </svg>
+                    <input type="range" min="1" max="5" value="1" class="w-full h-2 bg-red-100 rounded-lg appearance-none cursor-pointer accent-red-600" oninput="updateWiggle(this.value)">
+                </div>
+            </div>
+
+            <!-- 2. The High Epoch Marathon -->
+            <div class="bg-white p-8 md:p-10 rounded-[3rem] shadow-xl border border-red-100 space-y-8">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-2xl shadow-inner">⏳</span>
+                        <h3 class="text-2xl font-black text-red-800 uppercase tracking-tighter">The Epoch Marathon</h3>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed text-sm">
+                        An <strong>Epoch</strong> is one training cycle. Staring at data for 10,000 cycles is like memorizing every smudge on a page rather than learning the content.
+                    </p>
+                </div>
+
+                <div class="p-8 bg-slate-900 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-6 relative z-10">
+                        <div class="text-center">
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Epochs Run</p>
+                            <div class="text-3xl font-black text-indigo-400" id="epoch-count">0</div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Diagnosis</p>
+                            <div class="text-sm font-black text-emerald-400 uppercase tracking-tight" id="epoch-state">Ready</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Learning Curve Graph -->
+                    <div class="h-40 w-full bg-black/40 rounded-xl border border-white/10 mb-6 p-4 relative shadow-inner">
+                        <svg viewBox="0 0 200 100" class="w-full h-full" preserveAspectRatio="none">
+                            <!-- X and Y Axes -->
+                            <line x1="0" y1="100" x2="200" y2="100" stroke="#334155" stroke-width="1" />
+                            <line x1="0" y1="0" x2="0" y2="100" stroke="#334155" stroke-width="1" />
+                            
+                            <!-- Graph Curves -->
+                            <path id="train-curve" d="M 0 100" stroke="#6366f1" stroke-width="2" fill="none" class="graph-line" />
+                            <path id="test-curve" d="M 0 100" stroke="#10b981" stroke-width="2" fill="none" class="graph-line" />
+                        </svg>
+                        <!-- Legend -->
+                        <div class="absolute top-2 left-4 flex gap-4">
+                            <div class="flex items-center gap-1.5"><div class="w-2 h-2 bg-indigo-500 rounded-full"></div><span class="text-[8px] font-bold text-slate-400 uppercase">Train Acc</span></div>
+                            <div class="flex items-center gap-1.5"><div class="w-2 h-2 bg-emerald-500 rounded-full"></div><span class="text-[8px] font-bold text-slate-400 uppercase">Test Acc</span></div>
+                        </div>
+                    </div>
+
+                    <button onclick="trainHarder()" class="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-red-700 transition active:scale-95 z-20 relative">
+                        Run 200 More Epochs
+                    </button>
+                    <p id="epoch-warning" class="text-[10px] text-center text-rose-400 font-bold mt-3 hidden animate-pulse uppercase">🚨 Accuracy Drop: Overfitting detected!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Exercise 3: Repair Shop -->
+        <section class="bg-white p-10 md:p-20 rounded-[4rem] shadow-2xl border border-red-100 space-y-12">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter italic">The AI Repair Shop</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto italic">Analyze the accuracy readouts to diagnose and "Repair" these broken models.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <!-- Case #001 -->
+                <div class="p-8 bg-slate-50 rounded-[3rem] border border-slate-200 space-y-8">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-black text-slate-800 uppercase tracking-tight">Case #001: The Memorizer</h4>
+                        <span class="px-2 py-1 bg-rose-100 text-rose-700 text-[10px] font-bold rounded">FAULTY</span>
+                    </div>
+
+                    <!-- Enhanced Data Readout -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="diagnostic-stat bg-white border-indigo-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mb-1">Train Accuracy</span>
+                            <span class="text-3xl font-black text-indigo-600">99.8%</span>
+                            <span class="text-[8px] text-emerald-500 font-bold mt-1">PERFECT</span>
+                        </div>
+                        <div class="diagnostic-stat bg-white border-rose-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mb-1">Test Accuracy</span>
+                            <span class="text-3xl font-black text-rose-600">41.2%</span>
+                            <span class="text-[8px] text-rose-500 font-bold mt-1">FAILURE</span>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-500 leading-relaxed text-center italic">"The model is acing the homework but failing the final exam."</p>
+                    
+                    <div class="space-y-2">
+                        <button onclick="repair(this, true, 'Correct! Stopping early prevents the model from chasing noise and widening that accuracy gap.')" class="w-full p-4 bg-white border border-slate-300 rounded-2xl text-xs font-black uppercase hover:border-emerald-500 transition shadow-sm">Solution: Apply Early Stopping</button>
+                        <button onclick="repair(this, false, 'No. More epochs will only deepen the memorization problem.')" class="w-full p-4 bg-white border border-slate-300 rounded-2xl text-xs font-black uppercase hover:border-rose-500 transition shadow-sm">Solution: Increase Epochs to 10k</button>
+                    </div>
+                </div>
+
+                <!-- Case #002 -->
+                <div class="p-8 bg-slate-50 rounded-[3rem] border border-slate-200 space-y-8">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-black text-slate-800 uppercase tracking-tight">Case #002: The Rigid Model</h4>
+                        <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded">FAULTY</span>
+                    </div>
+
+                    <!-- Enhanced Data Readout -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="diagnostic-stat bg-white border-amber-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mb-1">Train Accuracy</span>
+                            <span class="text-3xl font-black text-amber-600">52.1%</span>
+                            <span class="text-[8px] text-amber-500 font-bold mt-1">TOO LOW</span>
+                        </div>
+                        <div class="diagnostic-stat bg-white border-amber-100">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mb-1">Test Accuracy</span>
+                            <span class="text-3xl font-black text-amber-600">50.8%</span>
+                            <span class="text-[8px] text-amber-500 font-bold mt-1">TOO LOW</span>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-slate-500 leading-relaxed text-center italic">"The model is too simple. It doesn't understand the pattern at all."</p>
+
+                    <div class="space-y-2">
+                        <button onclick="repair(this, true, 'Correct! Higher order gives the model the mathematical joints needed to follow the curve.')" class="w-full p-4 bg-white border border-slate-300 rounded-2xl text-xs font-black uppercase hover:border-emerald-500 transition shadow-sm">Solution: Increase Polynomial Order</button>
+                        <button onclick="repair(this, false, 'No. Reducing flexibility makes a model that is already too rigid even worse.')" class="w-full p-4 bg-white border border-slate-300 rounded-2xl text-xs font-black uppercase hover:border-rose-500 transition shadow-sm">Solution: Simplify Input Features</button>
+                    </div>
+                </div>
+            </div>
+            <div id="repair-fb" class="text-center font-black text-emerald-600 min-h-[24px] italic"></div>
+        </section>
+
+        <!-- Final Mastery Quiz -->
+        <section class="bg-slate-900 rounded-[4rem] p-10 md:p-20 text-white shadow-2xl space-y-12">
+            <h2 class="text-4xl font-black text-center italic tracking-tighter">Knowledge Checkpoint</h2>
+            <div class="max-w-3xl mx-auto space-y-10">
+                <p class="text-xl font-bold text-indigo-300 text-center">In an overfitting model, what happens as training time (Epochs) increases?</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <button onclick="finalCheck(this, false)" class="p-8 border-2 border-white/10 rounded-3xl text-center hover:bg-white/5 transition">
+                        <p class="text-sm">Both training and testing accuracy increase together toward 100%.</p>
+                    </button>
+                    <button onclick="finalCheck(this, true)" class="p-8 border-2 border-white/10 rounded-3xl text-center hover:bg-white/5 transition">
+                        <p class="text-sm font-bold">Training accuracy continues to climb, but testing accuracy begins to drop.</p>
+                    </button>
+                </div>
+            </div>
+            <div id="final-mastery" class="hidden text-center p-12 bg-indigo-600 rounded-[3rem] animate-bounce shadow-2xl">
+                <h4 class="text-4xl font-black italic mb-2 tracking-tighter uppercase text-white">🏆 Advanced Tuner Certified!</h4>
+                <p class="opacity-80 text-indigo-100">You've mastered the signals of overfitting. You are ready for <strong>Lesson 12</strong>.</p>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-[10px] py-10 uppercase tracking-[0.2em] font-bold border-t border-red-100">
+            Linear Regression Series • Module 3/4 • Model Reliability
+        </footer>
+    </div>
+
+    <script>
+        function updateWiggle(val) {
+            const path = document.getElementById('wiggle-path');
+            const label = document.getElementById('order-label');
+            const eqDisplay = document.getElementById('equation-display');
+            
+            const paths = {
+                1: 'M 0 85 L 200 45',
+                2: 'M 0 95 Q 100 -10 200 65',
+                3: 'M 0 100 C 50 10, 150 10, 200 80',
+                4: 'M 0 90 Q 30 10, 80 40 T 150 20 T 200 70',
+                5: 'M 30 75 L 70 35 L 110 65 L 150 25 L 180 55'
+            };
+
+            const equations = {
+                1: '<i>y = w<sub>1</sub>x + b</i>',
+                2: '<i>y = w<sub>2</sub>x<sup>2</sup> + w<sub>1</sub>x + b</i>',
+                3: '<i>y = w<sub>3</sub>x<sup>3</sup> + w<sub>2</sub>x<sup>2</sup> + w<sub>1</sub>x + b</i>',
+                4: '<i>y = w<sub>4</sub>x<sup>4</sup> + w<sub>3</sub>x<sup>3</sup> + w<sub>2</sub>x<sup>2</sup> + w<sub>1</sub>x + b</i>',
+                5: '<i>y = w<sub>5</sub>x<sup>5</sup> + w<sub>4</sub>x<sup>4</sup> + w<sub>3</sub>x<sup>3</sup> + w<sub>2</sub>x<sup>2</sup> + w<sub>1</sub>x + b</i>'
+            };
+
+            path.setAttribute('d', paths[val]);
+            eqDisplay.innerHTML = equations[val];
+            
+            label.innerText = `Order ${val} ${val > 3 ? '(OVERFIT)' : (val == 1 ? '(UNDERFIT)' : '(SWEET SPOT)')}`;
+            label.className = `px-3 py-1 rounded-lg text-xs font-black italic ${val > 3 ? 'bg-red-600 text-white' : 'bg-emerald-500 text-white'}`;
+        }
+
+        let epochs = 0;
+        let trainPath = "M 0 100";
+        let testPath = "M 0 100";
+
+        function trainHarder() {
+            epochs += 200;
+            const countEl = document.getElementById('epoch-count');
+            const stateEl = document.getElementById('epoch-state');
+            const warnEl = document.getElementById('epoch-warning');
+            const tCurve = document.getElementById('train-curve');
+            const vCurve = document.getElementById('test-curve');
+
+            countEl.innerText = epochs;
+            const xCoord = (epochs / 2000) * 200;
+
+            let trainY, testY;
+
+            if (epochs <= 600) {
+                trainY = 100 - (epochs / 8);
+                testY = 100 - (epochs / 8.5);
+                stateEl.innerText = "Learning...";
+                stateEl.className = "text-sm font-black text-indigo-400 uppercase tracking-tight";
+            } else if (epochs > 600 && epochs <= 1000) {
+                trainY = 100 - (75 + (epochs - 600) / 40);
+                testY = 100 - (70 + (epochs - 600) / 45);
+                stateEl.innerText = "SWEET SPOT";
+                stateEl.className = "text-sm font-black text-emerald-400 uppercase tracking-tight";
+            } else {
+                trainY = Math.max(2, 100 - (85 + (epochs - 1000) / 100));
+                testY = 100 - (78 - (epochs - 1000) / 15);
+                stateEl.innerText = "OVERFITTING";
+                stateEl.className = "text-sm font-black text-rose-500 uppercase tracking-tight animate-pulse";
+                warnEl.classList.remove('hidden');
+            }
+
+            trainPath += ` L ${xCoord} ${trainY}`;
+            testPath += ` L ${xCoord} ${testY}`;
+            
+            tCurve.setAttribute('d', trainPath);
+            vCurve.setAttribute('d', testPath);
+            
+            if(epochs >= 2000) {
+                const btn = document.querySelector('button[onclick="trainHarder()"]');
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'grayscale');
+            }
+        }
+
+        function repair(btn, correct, msg) {
+            const fb = document.getElementById('repair-fb');
+            fb.innerText = msg;
+            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.add('opacity-30'));
+            if(correct) {
+                btn.classList.remove('opacity-30');
+                btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-700', 'shadow-md');
+            } else {
+                btn.classList.add('bg-rose-600', 'text-white', 'border-rose-700', 'shadow-md');
+            }
+        }
+
+        function finalCheck(btn, isCorrect) {
+            if(isCorrect) {
+                document.getElementById('final-mastery').classList.remove('hidden');
+                document.getElementById('final-mastery').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                btn.classList.add('bg-rose-900', 'border-rose-500');
+                setTimeout(() => btn.classList.remove('bg-rose-900', 'border-rose-500'), 1000);
+            }
+        }
+    </script>
+</body>
+</html>

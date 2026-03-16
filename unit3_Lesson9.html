@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Lab: Training vs. Testing Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
+        .logic-card { border-left: 6px solid #4f46e5; transition: all 0.3s ease; }
+        .logic-card:hover { transform: translateX(5px); background-color: #f1f5f9; }
+        .data-dot { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-active { @apply bg-indigo-600 text-white shadow-lg scale-105; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .warning-pulse { animation: pulse-red 1s infinite; }
+        .shuffle-glow { animation: glow 1.5s infinite alternate; }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2); }
+            to { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-20">
+        
+        <!-- Header -->
+        <header class="bg-indigo-600 rounded-[3rem] p-10 md:p-20 text-center text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-block px-4 py-1 mb-6 text-xs font-bold tracking-widest text-indigo-100 uppercase bg-white/20 rounded-full border border-white/30 backdrop-blur-md">
+                    Lesson 09: Regression Foundations
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight italic">Training vs. Testing</h1>
+                <p class="text-xl text-indigo-100 max-w-2xl mx-auto leading-relaxed">
+                    The science of splitting data: How to prevent "cheating" models and survive the "Ordered Data Trap."
+                </p>
+            </div>
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        </header>
+
+        <!-- Foundational Concept -->
+        <section class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <h2 class="text-4xl font-bold text-slate-900 flex items-center gap-3 text-indigo-700">
+                    🛡️ The "Honesty" Split
+                </h2>
+                <p class="text-lg text-slate-600 leading-relaxed font-medium">
+                    If we use the <strong>same dots</strong> to calculate the line and to calculate our score, the model is simply "memorizing" the exam answers while studying. To be honest, we must partition the world.
+                </p>
+                <div class="space-y-4">
+                    <div class="p-4 logic-card bg-white shadow-sm rounded-r-xl">
+                        <span class="font-bold text-indigo-600 uppercase text-[10px] tracking-widest">Training Set (The Study Guide)</span>
+                        <p class="text-sm text-slate-500">The AI uses this data to adjust its internal math ($y = mx + b$).</p>
+                    </div>
+                    <div class="p-4 logic-card bg-white shadow-sm rounded-r-xl border-l-emerald-500">
+                        <span class="font-bold text-emerald-600 uppercase text-[10px] tracking-widest">Testing Set (The Final Exam)</span>
+                        <p class="text-sm text-slate-500">Data hidden from the AI. We use this to see if it actually "understands" the trend.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization of the Split -->
+            <div class="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 space-y-6">
+                <h4 class="text-center font-bold text-slate-400 text-[10px] uppercase tracking-widest">Live Split Simulator</h4>
+                <svg viewBox="0 0 200 100" class="w-full h-auto bg-slate-50 rounded-2xl" id="data-split-viz"></svg>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-between items-center px-2">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Test Size: <span id="ratio-text" class="text-indigo-600">20%</span></span>
+                        <input type="range" min="10" max="50" value="20" class="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" id="split-slider" oninput="updateSplit(this.value)">
+                    </div>
+                    <div class="flex gap-4 justify-center">
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-indigo-500"></div><span class="text-[10px] font-bold">TRAIN</span></div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-400"></div><span class="text-[10px] font-bold">TEST</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Ordered Data Trap Visualization -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] border border-slate-200 shadow-sm space-y-10">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black text-slate-900 uppercase tracking-tighter">The "Ordered Data" Trap ⚠️</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">Datasets like <strong>Iris</strong> are stored perfectly sorted. Look at what happens if you take the bottom 20% without shuffling.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Sorted View -->
+                <div class="p-6 bg-slate-50 rounded-3xl border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-xs uppercase text-slate-400 text-center">Iris Dataset (Sorted)</h4>
+                    <div id="sorted-iris" class="flex flex-col gap-1">
+                        <div class="h-8 bg-pink-100 rounded flex items-center px-3 text-[9px] font-bold text-pink-700 uppercase">Setosa (Rows 0-49)</div>
+                        <div class="h-8 bg-blue-100 rounded flex items-center px-3 text-[9px] font-bold text-blue-700 uppercase">Versicolor (Rows 50-99)</div>
+                        <div class="h-8 bg-emerald-100 rounded flex items-center px-3 text-[9px] font-bold text-emerald-700 uppercase border-2 border-rose-500 animate-pulse">Virginica (Rows 100-149)</div>
+                    </div>
+                    <p class="text-[10px] text-center text-rose-600 font-bold italic">The Test Set will ONLY see Virginica!</p>
+                </div>
+
+                <!-- Comparison -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-6 bg-rose-50 rounded-3xl border-2 border-rose-200">
+                            <h5 class="font-bold text-rose-700 text-sm mb-2">NO Shuffle Split:</h5>
+                            <p class="text-[11px] text-rose-800 leading-relaxed">Model trains on species A and B. It is tested on species C. The AI has never seen a 'C' flower. <br><strong>Result: 0% Test Accuracy.</strong></p>
+                        </div>
+                        <div class="p-6 bg-emerald-50 rounded-3xl border-2 border-emerald-200">
+                            <h5 class="font-bold text-emerald-700 text-sm mb-2">Shuffled Split:</h5>
+                            <p class="text-[11px] text-emerald-800 leading-relaxed">Data is mixed like a deck of cards. Both Train and Test sets get a healthy mix of A, B, and C. <br><strong>Result: Fair Science.</strong></p>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button onclick="simulateShuffle()" class="px-8 py-3 bg-indigo-600 text-white rounded-full font-black uppercase text-xs tracking-widest shadow-xl hover:bg-indigo-700 transition">Shuffle the Iris Deck!</button>
+                    </div>
+                    <div id="iris-shuffle-viz" class="h-12 w-full bg-slate-100 rounded-full flex overflow-hidden border-4 border-white shadow-inner hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario 2 & 3: Sample Size Impact -->
+        <section class="bg-slate-900 rounded-[4rem] p-10 md:p-20 text-white shadow-2xl space-y-12">
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl font-black italic">The Sample Size Toggle</h2>
+                <p class="text-slate-400">What happens when the AI doesn't have enough "Evidence" to find the pattern?</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div class="flex gap-2">
+                        <button onclick="updateSampleSize('small')" id="btn-small" class="flex-1 py-3 border border-white/20 rounded-xl text-[10px] uppercase font-black tracking-widest transition-all">Small Sample (Underfit)</button>
+                        <button onclick="updateSampleSize('large')" id="btn-large" class="flex-1 py-3 border border-white/20 rounded-xl text-[10px] uppercase font-black tracking-widest transition-all btn-active">Large Sample (Stable)</button>
+                    </div>
+
+                    <div id="sample-desc" class="min-h-[100px] space-y-4">
+                        <h4 class="text-xl font-bold text-indigo-400 uppercase tracking-tighter" id="sample-title">Large Training Sample</h4>
+                        <p class="text-sm text-slate-400 leading-relaxed italic" id="sample-text">With enough data points, the outliers (weird dots) cancel each other out, and the AI finds the <strong>True Trend</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/5 p-8 rounded-[3rem] border border-white/10 relative">
+                    <svg viewBox="0 0 200 100" class="w-full h-auto" id="sample-viz">
+                        <line id="trend-line" x1="10" y1="80" x2="190" y2="20" stroke="#6366f1" stroke-width="3" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario 4: Contamination -->
+        <section class="bg-white p-10 md:p-16 rounded-[4rem] border border-slate-200 shadow-sm space-y-8 text-center">
+            <span class="px-4 py-1 bg-amber-100 text-amber-600 text-[10px] font-black rounded-full uppercase tracking-widest">Scenario 4</span>
+            <h2 class="text-4xl font-black text-slate-900 leading-tight">The Data Leakage Trap</h2>
+            <p class="text-slate-500 max-w-2xl mx-auto italic">"My model has 100% accuracy, but it failed in the real world. Why?"</p>
+            
+            <div class="grid md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
+                <div class="p-6 bg-slate-50 rounded-3xl border border-slate-200">
+                    <h4 class="font-bold text-rose-600 mb-2">The Contamination</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">You accidentally included the answer (the Target) as a feature, or you calculated averages using the test set rows before splitting. The model "cheated" by seeing the future.</p>
+                </div>
+                <div class="p-6 bg-emerald-50 rounded-3xl border border-emerald-200">
+                    <h4 class="font-bold text-emerald-600 mb-2">The Solution</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">Always split your data as the <strong>very first step</strong>. Treat the test set as a locked vault until the final evaluation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lab Mastery: Final Exam -->
+        <section class="bg-indigo-900 rounded-[4rem] p-10 md:p-20 text-white shadow-2xl">
+            <div class="max-w-3xl mx-auto space-y-16">
+                <div class="text-center space-y-4">
+                    <h2 class="text-4xl font-black italic underline decoration-indigo-400 decoration-8 underline-offset-8">Final Lab Mastery</h2>
+                    <p class="text-indigo-200">Prove your expertise before moving to coding in Google Colab.</p>
+                </div>
+
+                <!-- Part 1: Scenario Mapping -->
+                <div class="space-y-8">
+                    <h3 class="text-xl font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-2">
+                        <span>1️⃣</span> Configuration Settings
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="p-6 bg-white/5 border border-white/10 rounded-3xl flex flex-col md:flex-row gap-6 items-center">
+                            <p class="flex-grow text-sm">"I need to make sure my results are the same every time I restart the Colab kernel."</p>
+                            <select onchange="checkSelection(this, 'random_state')" class="bg-indigo-800 border border-indigo-400 p-3 rounded-xl text-xs font-bold outline-none cursor-pointer hover:bg-indigo-700">
+                                <option>Select Setting...</option>
+                                <option value="test_size">test_size=0.2</option>
+                                <option value="random_state">random_state=42</option>
+                                <option value="shuffle">shuffle=True</option>
+                            </select>
+                        </div>
+
+                        <div class="p-6 bg-white/5 border border-white/10 rounded-3xl flex flex-col md:flex-row gap-6 items-center">
+                            <p class="flex-grow text-sm">"I want to increase the amount of data the model gets to study from."</p>
+                            <select onchange="checkSelection(this, 'test_size')" class="bg-indigo-800 border border-indigo-400 p-3 rounded-xl text-xs font-bold outline-none cursor-pointer hover:bg-indigo-700">
+                                <option>Select Setting...</option>
+                                <option value="test_size">Change test_size to 0.1</option>
+                                <option value="random_state">random_state=None</option>
+                                <option value="shuffle">shuffle=False</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part 2: Diagnosis Questions -->
+                <div class="space-y-8">
+                    <h3 class="text-xl font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-2">
+                        <span>2️⃣</span> Performance Diagnosis
+                    </h3>
+
+                    <div class="space-y-10">
+                        <!-- Q1 -->
+                        <div class="space-y-4">
+                            <p class="text-lg font-medium text-indigo-100">If your Training Accuracy is 99% but your Testing Accuracy is 42%, what is happening?</p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <button onclick="qCheck(1, 'A')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q1a">Underfitting (Too simple)</button>
+                                <button onclick="qCheck(1, 'B')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q1b">Overfitting (Memorizing)</button>
+                            </div>
+                        </div>
+
+                        <!-- Q2 -->
+                        <div class="space-y-4">
+                            <p class="text-lg font-medium text-indigo-100">In Scenario 4, what is the 'Golden Rule' to prevent Data Leakage?</p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <button onclick="qCheck(2, 'A')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q2a">Split data AFTER cleaning it.</button>
+                                <button onclick="qCheck(2, 'B')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q2b">Split data BEFORE any cleaning.</button>
+                            </div>
+                        </div>
+
+                        <!-- Q3 -->
+                        <div class="space-y-4">
+                            <p class="text-lg font-medium text-indigo-100">Why does a <u>Larger</u> training sample generally lead to a more reliable model?</p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <button onclick="qCheck(3, 'A')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q3a">It makes the math harder for the computer.</button>
+                                <button onclick="qCheck(3, 'B')" class="p-4 text-left border-2 border-white/10 rounded-2xl hover:bg-white/5 transition" id="q3b">Outliers cancel out, showing the true trend.</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mastery-success" class="hidden text-center p-12 bg-emerald-500 rounded-[3rem] animate-bounce shadow-2xl">
+                    <h4 class="text-4xl font-black italic mb-4">🏆 DATA SCIENTIST LEVEL 1 🏆</h4>
+                    <p class="text-lg opacity-90">You have completed the mastery challenge with 100% accuracy. You are ready to train your first Linear Regression model!</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-[10px] py-10 uppercase tracking-widest font-bold border-t border-slate-200">
+            Linear Regression Series • Module 1/4 • The Science of Splitting
+        </footer>
+    </div>
+
+    <script>
+        const splitViz = document.getElementById('data-split-viz');
+        const sampleViz = document.getElementById('sample-viz');
+        const trendLine = document.getElementById('trend-line');
+        let points = [];
+
+        function initPoints() {
+            points = [];
+            for(let i=0; i<30; i++) {
+                points.push({ x: 20 + (i*5.5), y: 80 - (i*2) + (Math.random()*15) });
+            }
+            drawSplit();
+            generateSampleDots('large');
+        }
+
+        function drawSplit() {
+            const ratio = (100 - document.getElementById('split-slider').value) / 100;
+            splitViz.innerHTML = '';
+            const limit = Math.floor(points.length * (1 - ratio));
+            points.forEach((p, i) => {
+                const color = i < limit ? '#6366f1' : '#34d399';
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y);
+                circle.setAttribute("r", "3"); circle.setAttribute("fill", color);
+                circle.setAttribute("class", "data-dot");
+                splitViz.appendChild(circle);
+            });
+        }
+
+        function updateSplit(val) {
+            document.getElementById('ratio-text').innerText = `${val}%`;
+            drawSplit();
+        }
+
+        function simulateShuffle() {
+            const container = document.getElementById('iris-shuffle-viz');
+            container.classList.remove('hidden'); container.innerHTML = '';
+            const classes = ['bg-pink-400', 'bg-blue-400', 'bg-emerald-400'];
+            for(let i=0; i<50; i++) {
+                const div = document.createElement('div');
+                div.className = `flex-1 h-full ${classes[Math.floor(Math.random()*3)]} border-r border-white/20`;
+                container.appendChild(div);
+            }
+            container.classList.add('shuffle-glow');
+        }
+
+        function generateSampleDots(mode) {
+            const oldDots = sampleViz.querySelectorAll('circle');
+            oldDots.forEach(d => d.remove());
+            if (mode === 'small') {
+                const p1 = { x: 40, y: 70 }; const p2 = { x: 160, y: 30 }; const p3 = { x: 100, y: 10 };
+                [p1, p2, p3].forEach(p => createSampleDot(p.x, p.y, '#fb7185'));
+                trendLine.setAttribute('y1', 50); trendLine.setAttribute('y2', 10);
+            } else {
+                for(let i=0; i<40; i++) {
+                    createSampleDot(20+(i*4), 80-(i*1.5)+(Math.random()*15), '#94a3b8');
+                }
+                trendLine.setAttribute('y1', 80); trendLine.setAttribute('y2', 20);
+            }
+        }
+
+        function createSampleDot(x, y, color) {
+            const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            c.setAttribute("cx", x); c.setAttribute("cy", y);
+            c.setAttribute("r", "2.5"); c.setAttribute("fill", color);
+            sampleViz.appendChild(c);
+        }
+
+        function updateSampleSize(mode) {
+            document.getElementById('btn-small').classList.remove('btn-active');
+            document.getElementById('btn-large').classList.remove('btn-active');
+            document.getElementById(`btn-${mode}`).classList.add('btn-active');
+            const title = document.getElementById('sample-title');
+            const text = document.getElementById('sample-text');
+            if (mode === 'small') {
+                title.innerText = "Small Training Sample (The Trap)";
+                text.innerText = "With only 3 dots, a single outlier kidnaps the trend line. The model fails to see the real relationship.";
+            } else {
+                title.innerText = "Large Training Sample (The Goal)";
+                text.innerText = "With enough data, the outliers cancel each other out, finding the stable trend.";
+            }
+            generateSampleDots(mode);
+        }
+
+        let masteryScores = {
+            random_state: false,
+            test_size: false,
+            q1: false,
+            q2: false,
+            q3: false
+        };
+
+        function checkSelection(el, type) {
+            if(el.value === type) {
+                masteryScores[type] = true;
+                el.classList.add('bg-emerald-600', 'border-emerald-400');
+                el.classList.remove('bg-indigo-800', 'border-indigo-400');
+            } else {
+                el.classList.add('bg-rose-900', 'border-rose-400');
+                setTimeout(() => el.classList.remove('bg-rose-900', 'border-rose-400'), 1000);
+            }
+            checkFinalMastery();
+        }
+
+        function qCheck(q, ans) {
+            const btnA = document.getElementById(`q${q}a`);
+            const btnB = document.getElementById(`q${q}b`);
+            const correctA = { 1: false, 2: false, 3: false }; // Logic for answers
+            const correctB = { 1: true, 2: true, 3: true };
+
+            if (ans === 'B') {
+                btnB.className = "p-4 text-left border-2 border-emerald-500 bg-emerald-500/20 rounded-2xl font-bold text-white shadow-lg";
+                btnA.className = "p-4 text-left border-2 border-white/10 rounded-2xl opacity-30 pointer-events-none";
+                masteryScores[`q${q}`] = true;
+            } else {
+                btnA.classList.add('bg-rose-900', 'border-rose-500');
+                setTimeout(() => btnA.classList.remove('bg-rose-900', 'border-rose-500'), 1000);
+            }
+            checkFinalMastery();
+        }
+
+        function checkFinalMastery() {
+            const allPassed = Object.values(masteryScores).every(v => v === true);
+            if(allPassed) {
+                const fb = document.getElementById('mastery-success');
+                fb.classList.remove('hidden');
+                fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function checkRS(isCorrect) {
+            if(isCorrect) {
+                document.getElementById('rs-feedback').classList.remove('hidden');
+                document.getElementById('rs-feedback').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        window.onload = initPoints;
+    </script>
+</body>
+</html>

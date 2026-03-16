@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Lab: Underfitting Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fffbeb; color: #451a03; scroll-behavior: smooth; }
+        .amber-gradient { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .card { background-color: white; padding: 2rem; border-radius: 3rem; border: 1px solid #fef3c7; transition: all 0.3s ease; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 25px 30px -10px rgba(217, 119, 6, 0.15); }
+        .dot { transition: all 0.5s ease-out; }
+        
+        /* Fixed Button Styling for maximum visibility */
+        .btn-primary-amber {
+            background-color: #d97706;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 2px solid #b45309;
+        }
+        .btn-primary-amber:hover {
+            background-color: #b45309;
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary-amber:active {
+            transform: scale(0.98);
+        }
+
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-16">
+        
+        <!-- Hero Header -->
+        <header class="amber-gradient rounded-[3rem] p-10 md:p-20 text-center text-white shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest text-amber-100 uppercase bg-white/20 rounded-full backdrop-blur-md border border-white/30">
+                    Lesson 12: Model Performance Part 2
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight">Underfitting</h1>
+                <p class="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+                    When AI fails because it's too simple, too lazy, or simply doesn't have enough <strong>evidence</strong> to see the truth.
+                </p>
+            </div>
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        </header>
+
+        <!-- Deep Explanation -->
+        <section class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-black flex items-center gap-3 text-amber-800">
+                    <span class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-2xl shadow-inner">📉</span>
+                    The "Blind" Model
+                </h2>
+                <div class="prose prose-lg text-amber-900/80 space-y-4">
+                    <p>
+                        <strong>Underfitting</strong> happens when the model is "too rigid" to follow the data. It's the opposite of overfitting.
+                    </p>
+                    <p>
+                        It's like a student who only reads the <i>Summary</i> of a book. They know the main theme, but they fail the test because they missed all the details.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border-l-8 border-amber-500 shadow-sm italic text-sm">
+                    "Underfitting models have <strong>High Bias</strong>. They have already 'made up their mind' and ignore specific evidence."
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-8 rounded-[3rem] shadow-2xl text-white space-y-6 border border-slate-800">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-widest text-center">Diagnostic Check</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                        <p class="text-[10px] text-slate-400 mb-1">TRAIN ACCURACY</p>
+                        <p class="text-3xl font-black text-rose-400">52%</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl border border-white/10 text-center">
+                        <p class="text-[10px] text-slate-400 mb-1">TEST ACCURACY</p>
+                        <p class="text-3xl font-black text-rose-400">50%</p>
+                    </div>
+                </div>
+                <p class="text-xs text-center text-slate-400 leading-relaxed">If <u>both</u> scores are low, the model hasn't learned the pattern. That is the signature of <strong>Underfitting</strong>.</p>
+            </div>
+        </section>
+
+        <!-- Lab 01: The Evidence Gap -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <span class="px-4 py-1 bg-amber-200 text-amber-900 text-[10px] font-black rounded-full uppercase tracking-widest">Lab 01</span>
+                <h2 class="text-4xl font-black text-amber-900">The Evidence Gap</h2>
+                <p class="text-amber-900/60 max-w-2xl mx-auto">AI cannot see a trend without enough data. Watch how the trend line struggles until you provide enough proof.</p>
+            </div>
+
+            <div class="card grid md:grid-cols-2 gap-10 items-center">
+                <div class="space-y-8">
+                    <div class="p-6 bg-amber-50 rounded-3xl border border-amber-200">
+                        <h4 class="font-bold text-amber-900 mb-2">Scenario: Small Sample Size</h4>
+                        <p class="text-sm text-amber-800 leading-relaxed">Attempting to predict a 10-year trend by only looking at 2 days of data. The model "underfits" because it lacks context.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="addEvidence()" class="btn-primary-amber flex-grow">
+                            Add Evidence (Points)
+                        </button>
+                        <button onclick="resetEvidence()" class="px-6 py-3 bg-white border-2 border-amber-200 rounded-2xl text-amber-700 font-extrabold hover:bg-amber-50 transition">
+                            Reset
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="h-2 flex-grow bg-amber-100 rounded-full overflow-hidden">
+                            <div id="evidence-bar" class="h-full bg-amber-500 transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="evidence-msg" class="text-xs font-mono font-black text-amber-600 uppercase whitespace-nowrap">Points: 0</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-[2.5rem] border-2 border-dashed border-amber-200 shadow-inner overflow-hidden">
+                    <svg viewBox="0 0 200 100" class="w-full h-auto" id="evidence-viz">
+                        <line id="ev-line" x1="0" y1="50" x2="200" y2="50" stroke="#d97706" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                    <p class="text-[9px] text-center text-amber-400 mt-4 uppercase font-bold tracking-widest">Model Prediction View</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lab 02: The Rigid Logic Trap -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <span class="px-4 py-1 bg-amber-200 text-amber-900 text-[10px] font-black rounded-full uppercase tracking-widest">Lab 02</span>
+                <h2 class="text-4xl font-black text-amber-900">The Rigid Logic Trap</h2>
+                <p class="text-amber-900/60 max-w-2xl mx-auto">Sometimes data is abundant, but the model is <strong>too simple</strong> (e.g., using a straight line for a curved world).</p>
+            </div>
+
+            <div class="card space-y-8">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="toggleModel('linear')" id="btn-lin" class="px-6 py-3 bg-amber-600 text-white rounded-xl font-black border-2 border-amber-700 shadow-md">Straight Line (Linear)</button>
+                    <button onclick="toggleModel('poly')" id="btn-poly" class="px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-black border-2 border-slate-200">Curve (Polynomial)</button>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-10 items-center">
+                    <div class="bg-slate-900 p-6 rounded-[2rem] shadow-inner relative h-64 flex items-center justify-center overflow-hidden border border-slate-800">
+                        <svg viewBox="0 0 200 100" class="w-full h-full" id="logic-svg">
+                            <circle cx="20" cy="80" r="3" fill="#fbbf24" />
+                            <circle cx="50" cy="40" r="3" fill="#fbbf24" />
+                            <circle cx="100" cy="20" r="3" fill="#fbbf24" />
+                            <circle cx="150" cy="40" r="3" fill="#fbbf24" />
+                            <circle cx="180" cy="80" r="3" fill="#fbbf24" />
+                            <line id="logic-line" x1="0" y1="50" x2="200" y2="50" stroke="#f59e0b" stroke-width="3" />
+                            <path id="logic-curve" d="M 0 100 Q 100 -20 200 100" stroke="#10b981" stroke-width="4" fill="none" class="hidden" />
+                        </svg>
+                        <div id="logic-status" class="absolute bottom-4 right-6 px-3 py-1 bg-rose-600 text-white text-[10px] font-black rounded uppercase shadow-lg">Underfit</div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-2xl font-black text-amber-900" id="logic-title">Rigid Model (Underfitting)</h4>
+                        <p class="text-sm text-amber-900/70 leading-relaxed" id="logic-desc">
+                            Even with millions of points, a straight line <i>cannot</i> follow this U-shape. The model is too "biased" toward its simple formula.
+                        </p>
+                        <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs font-mono text-amber-800">
+                            Logic: <span id="logic-formula"><i>y = w<sub>1</sub>x + b</i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lab 03: Feature Architect -->
+        <section class="space-y-8">
+            <div class="text-center space-y-2">
+                <span class="px-4 py-1 bg-amber-200 text-amber-900 text-[10px] font-black rounded-full uppercase tracking-widest">Lab 03</span>
+                <h2 class="text-4xl font-black text-amber-900">Feature Architect</h2>
+                <p class="text-amber-900/60 max-w-2xl mx-auto">Underfitting often happens when we give the AI useless <strong>Features</strong> (clues). Choose the clue that prevents underfitting.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Challenge 1 -->
+                <div class="card !p-6 space-y-4">
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Goal: Predict House Price</p>
+                    <div class="space-y-2">
+                        <button onclick="checkFeature(this, false)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">Color of the Mailbox</button>
+                        <button onclick="checkFeature(this, true)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">Square Footage (Size)</button>
+                    </div>
+                </div>
+                <!-- Challenge 2 -->
+                <div class="card !p-6 space-y-4">
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Goal: Predict Exam Score</p>
+                    <div class="space-y-2">
+                        <button onclick="checkFeature(this, true)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">Total Hours Studied</button>
+                        <button onclick="checkFeature(this, false)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">User's Favorite Cereal</button>
+                    </div>
+                </div>
+                <!-- Challenge 3 -->
+                <div class="card !p-6 space-y-4">
+                    <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Goal: Predict Run Speed</p>
+                    <div class="space-y-2">
+                        <button onclick="checkFeature(this, false)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">Number of Books Owned</button>
+                        <button onclick="checkFeature(this, true)" class="w-full p-4 text-left bg-slate-50 rounded-2xl text-xs font-bold hover:bg-white border-2 border-transparent hover:border-amber-200 transition">Leg Muscle Percentage</button>
+                    </div>
+                </div>
+            </div>
+            <p id="feature-fb" class="text-center font-black text-emerald-600 hidden text-lg italic">✅ Correct! Relevant clues turn a blind model into a smart predictor.</p>
+        </section>
+
+        <!-- The Final Triage -->
+        <section class="bg-white p-10 md:p-20 rounded-[4rem] shadow-2xl border border-amber-100">
+            <h2 class="text-4xl font-black text-center mb-12 text-amber-900">The Final Triage</h2>
+            <div class="max-w-3xl mx-auto space-y-12">
+                <div class="space-y-8">
+                    <div class="bg-amber-50 p-8 rounded-3xl border-2 border-amber-200 text-center">
+                        <p class="text-xl font-bold text-amber-900">Project Scenario:</p>
+                        <p class="text-lg text-amber-800 mt-2">"Your model has <u>51% Training Accuracy</u> and <u>49% Testing Accuracy</u>. What is your diagnosis?"</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <button onclick="finalCheck(this, 'over')" class="group p-8 border-4 border-slate-100 rounded-[3rem] hover:border-rose-500 transition text-center bg-slate-50">
+                            <h4 class="font-black text-slate-400 group-hover:text-rose-600 uppercase tracking-widest text-xl">OVERFITTING</h4>
+                            <p class="text-xs text-slate-400 mt-2">The model memorized too much detail.</p>
+                        </button>
+                        <button onclick="finalCheck(this, 'under')" class="group p-8 border-4 border-slate-100 rounded-[3rem] hover:border-amber-500 transition text-center bg-slate-50">
+                            <h4 class="font-black text-slate-400 group-hover:text-amber-600 uppercase tracking-widest text-xl">UNDERFITTING</h4>
+                            <p class="text-xs text-slate-400 mt-2">The model is too simple to learn anything.</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="mastery-fb" class="mt-12 hidden p-12 bg-amber-600 text-white rounded-[3rem] text-center scale-0 transition-transform shadow-xl">
+                <h4 class="text-4xl font-black mb-4 tracking-tighter italic uppercase">🏆 BIAS-VARIANCE MASTER 🏆</h4>
+                <p class="text-amber-100 text-lg">You now know how to diagnose the two biggest failures in AI. You are ready to build real, generalized models!</p>
+            </div>
+        </section>
+
+        <footer class="text-center text-amber-900/40 text-[10px] py-10 uppercase tracking-[0.2em] font-black border-t border-amber-100">
+            Linear Regression Series • Module 4/4 • Generalization Mastery
+        </footer>
+    </div>
+
+    <script>
+        // Lab 01: Evidence
+        let evCount = 0;
+        function addEvidence() {
+            const svg = document.getElementById('evidence-viz');
+            const line = document.getElementById('ev-line');
+            const progress = document.getElementById('evidence-bar');
+            
+            for(let i=0; i<5; i++) {
+                evCount++;
+                const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                c.setAttribute("cx", 20 + (evCount * 3.5));
+                c.setAttribute("cy", 85 - (evCount * 1.6) + (Math.random() * 12));
+                c.setAttribute("r", "2.5");
+                c.setAttribute("fill", "#b45309");
+                c.setAttribute("class", "dot");
+                svg.appendChild(c);
+            }
+
+            const perc = Math.min(100, (evCount / 40) * 100);
+            progress.style.width = perc + '%';
+
+            if(evCount > 15) {
+                line.setAttribute('y1', 85);
+                line.setAttribute('y2', 15);
+            }
+
+            document.getElementById('evidence-msg').innerText = `Points: ${evCount}`;
+        }
+
+        function resetEvidence() {
+            evCount = 0;
+            const svg = document.getElementById('evidence-viz');
+            const dots = svg.querySelectorAll('circle');
+            dots.forEach(d => d.remove());
+            const line = document.getElementById('ev-line');
+            line.setAttribute('y1', 50);
+            line.setAttribute('y2', 50);
+            document.getElementById('evidence-bar').style.width = '0%';
+            document.getElementById('evidence-msg').innerText = `Points: 0`;
+        }
+
+        // Lab 02: Rigid Logic
+        function toggleModel(mode) {
+            const line = document.getElementById('logic-line');
+            const curve = document.getElementById('logic-curve');
+            const status = document.getElementById('logic-status');
+            const title = document.getElementById('logic-title');
+            const desc = document.getElementById('logic-desc');
+            const btnLin = document.getElementById('btn-lin');
+            const btnPoly = document.getElementById('btn-poly');
+            const formula = document.getElementById('logic-formula');
+
+            if(mode === 'linear') {
+                line.classList.remove('hidden');
+                curve.classList.add('hidden');
+                status.innerText = "Underfit";
+                status.className = "absolute bottom-4 right-6 px-3 py-1 bg-rose-600 text-white text-[10px] font-black rounded uppercase shadow-lg";
+                title.innerText = "Rigid Model (Underfitting)";
+                desc.innerText = "Even with millions of points, a straight line cannot bend to follow this data. The model is too 'biased' toward its simple formula.";
+                btnLin.className = "px-6 py-3 bg-amber-600 text-white rounded-xl font-black border-2 border-amber-700 shadow-md";
+                btnPoly.className = "px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-black border-2 border-slate-200 shadow-none";
+                formula.innerHTML = "<i>y = w<sub>1</sub>x + b</i>";
+            } else {
+                line.classList.add('hidden');
+                curve.classList.remove('hidden');
+                status.innerText = "Good Fit";
+                status.className = "absolute bottom-4 right-6 px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded uppercase shadow-lg";
+                title.innerText = "Flexible Model (Generalized)";
+                desc.innerText = "By increasing the mathematical order (adding a curve), the model can now follow the complex relationship in the data.";
+                btnPoly.className = "px-6 py-3 bg-emerald-600 text-white rounded-xl font-black border-2 border-emerald-700 shadow-md";
+                btnLin.className = "px-6 py-3 bg-slate-100 text-slate-400 rounded-xl font-black border-2 border-slate-200 shadow-none";
+                formula.innerHTML = "<i>y = w<sub>2</sub>x<sup>2</sup> + w<sub>1</sub>x + b</i>";
+            }
+        }
+
+        // Lab 03: Features
+        let featureScore = 0;
+        function checkFeature(btn, isCorrect) {
+            if(isCorrect) {
+                btn.className = "w-full p-4 text-left bg-emerald-100 text-emerald-700 rounded-2xl text-xs font-black border-2 border-emerald-400 shadow-sm";
+                featureScore++;
+                if(featureScore === 3) {
+                    document.getElementById('feature-fb').classList.remove('hidden');
+                    document.getElementById('feature-fb').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                btn.classList.add('animate-shake', 'border-rose-300', 'text-rose-300');
+                setTimeout(() => btn.classList.remove('animate-shake'), 500);
+            }
+        }
+
+        // Final Triage
+        function finalCheck(btn, result) {
+            if(result === 'under') {
+                btn.className = "group p-8 border-4 border-emerald-500 rounded-[3rem] text-center bg-emerald-50";
+                btn.querySelector('h4').className = "font-black text-emerald-600 uppercase tracking-widest text-xl";
+                document.getElementById('mastery-fb').classList.remove('hidden');
+                setTimeout(() => document.getElementById('mastery-fb').classList.add('scale-100'), 100);
+                document.getElementById('mastery-fb').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                btn.classList.add('animate-shake', 'border-rose-500', 'bg-rose-50');
+                setTimeout(() => {
+                    btn.classList.remove('animate-shake', 'border-rose-500', 'bg-rose-50');
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regression Lab: Visual Validation & Intuition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fafafa; color: #1e293b; scroll-behavior: smooth; }
+        .residual-line { stroke: #fb7185; stroke-dasharray: 2; opacity: 0.6; transition: all 0.2s ease; }
+        .data-point { fill: #1e293b; }
+        .slider-label { @apply text-xs font-bold text-slate-500 uppercase tracking-widest mb-1; }
+        .card { @apply bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-5xl mx-auto space-y-16">
+        
+        <header class="text-center space-y-4">
+            <h1 class="text-5xl font-black text-slate-900 tracking-tight italic underline decoration-indigo-500 underline-offset-8">Visualizing Accuracy</h1>
+            <p class="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                In Machine Learning, we don't just "guess" numbers. We find the <strong>Line of Best Fit</strong> by minimizing the distance between the model and reality.
+            </p>
+        </header>
+
+        <!-- Scenario 1: Linear Sensitivity -->
+        <section class="space-y-8">
+            <div class="text-center">
+                <span class="px-4 py-1 bg-indigo-100 text-indigo-600 text-[10px] font-black rounded-full uppercase tracking-widest">Scenario 1</span>
+                <h2 class="text-3xl font-bold mt-2">Slope & Intercept Playground</h2>
+                <p class="text-slate-500 text-sm">Watch how changing $m$ and $b$ affects the <strong>Total Error (MSE)</strong>.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="card space-y-6">
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between">
+                                <label class="slider-label">Slope (m)</label>
+                                <span id="val-m" class="text-xs font-mono font-bold text-indigo-600">0.5</span>
+                            </div>
+                            <input type="range" id="input-m" min="-1" max="1" step="0.05" value="0.5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateScenario1()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between">
+                                <label class="slider-label">Intercept (b)</label>
+                                <span id="val-b" class="text-xs font-mono font-bold text-indigo-600">20</span>
+                            </div>
+                            <input type="range" id="input-b" min="-50" max="100" step="1" value="20" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateScenario1()">
+                        </div>
+                    </div>
+                    <div class="p-6 bg-slate-900 rounded-3xl text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Model Accuracy (Error Metric)</p>
+                        <div class="text-3xl font-black text-white" id="mse-display">Calculating...</div>
+                        <p class="text-[10px] text-indigo-400 mt-2 italic">Goal: Get this number as LOW as possible!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2.5rem] shadow-inner border relative overflow-hidden">
+                    <svg viewBox="0 0 200 100" class="w-full h-auto bg-slate-50 rounded-2xl" id="sc1-svg">
+                        <line id="sc1-line" x1="0" y1="50" x2="200" y2="50" stroke="#6366f1" stroke-width="3" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario 2: Polynomial Complexity -->
+        <section class="space-y-8">
+            <div class="text-center">
+                <span class="px-4 py-1 bg-purple-100 text-purple-600 text-[10px] font-black rounded-full uppercase tracking-widest">Scenario 2</span>
+                <h2 class="text-3xl font-bold mt-2">The Order of Complexity</h2>
+                <p class="text-slate-500 text-sm">When data curves, a straight line fails. Increase the <strong>Polynomial Order</strong> to fit the curve.</p>
+            </div>
+
+            <div class="card space-y-10">
+                <div class="max-w-xl mx-auto space-y-4">
+                    <div class="flex justify-between items-center">
+                        <label class="slider-label text-purple-600">Model Order: <span id="order-val">1</span></label>
+                        <span class="text-[10px] font-bold text-slate-400">1 = Linear | 5 = Very Complex</span>
+                    </div>
+                    <input type="range" id="order-input" min="1" max="5" value="1" step="1" class="w-full h-3 bg-purple-100 rounded-lg appearance-none cursor-pointer accent-purple-600" oninput="updateScenario2()">
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-slate-50 p-4 rounded-3xl border border-dashed border-slate-200">
+                        <svg viewBox="0 0 200 100" class="w-full h-auto" id="sc2-svg"></svg>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800">Visual Diagnosis:</h4>
+                        <div id="order-feedback" class="p-4 bg-purple-50 border-l-4 border-purple-500 text-sm text-purple-900 italic leading-relaxed">
+                            "Order 1: A straight line. Notice how it misses the deep curve of the dots."
+                        </div>
+                        <p class="text-[10px] text-slate-400">Warning: High orders (4-5) can lead to Overfitting!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario 3: Be the Algorithm (Upward Trend) -->
+        <section class="bg-slate-900 rounded-[4rem] p-10 md:p-20 text-white shadow-2xl space-y-12">
+            <div class="text-center space-y-4">
+                <span class="px-4 py-1 bg-white/10 text-white text-[10px] font-black rounded-full uppercase tracking-widest">Scenario 3</span>
+                <h2 class="text-4xl font-black italic text-indigo-400">Game: Be the Model</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">Manual Fit Challenge: The dots are following an upward trend. Enter your best guess for $m$ and $b$.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-10 items-center">
+                <div class="space-y-6">
+                    <div class="p-6 bg-white/5 border border-white/10 rounded-3xl space-y-4">
+                        <div>
+                            <label class="slider-label text-indigo-300">Your Slope Guess ($m$)</label>
+                            <input type="number" id="guess-m" step="0.05" value="0.1" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-indigo-500">
+                            <p class="text-[9px] text-slate-500 mt-1">Hint: Try values between 0.3 and 0.7</p>
+                        </div>
+                        <div>
+                            <label class="slider-label text-indigo-300">Your Intercept Guess ($b$)</label>
+                            <input type="number" id="guess-b" step="1" value="0" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-indigo-500">
+                            <p class="text-[9px] text-slate-500 mt-1">Hint: Try values between -10 and 10</p>
+                        </div>
+                        <button onclick="checkGuess('guess')" class="w-full py-4 bg-indigo-600 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:bg-indigo-700 transition">Test Your Fit</button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white/5 border border-white/10 rounded-[3rem] p-8 relative">
+                    <svg viewBox="0 0 200 100" class="w-full h-auto" id="guess-svg"></svg>
+                    <div id="guess-score-card" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden p-8 bg-white text-slate-900 rounded-3xl shadow-2xl text-center space-y-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Fit Accuracy</p>
+                        <div class="text-4xl font-black" id="score-val">0%</div>
+                        <p class="text-[10px] text-slate-500 italic" id="score-msg"></p>
+                        <button onclick="document.getElementById('guess-score-card').classList.add('hidden')" class="mt-4 text-xs font-bold text-indigo-600 underline">Try Again</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario 4: The Negative Correlation Challenge -->
+        <section class="bg-slate-900 rounded-[4rem] p-10 md:p-20 text-white shadow-2xl space-y-12">
+            <div class="text-center space-y-4">
+                <span class="px-4 py-1 bg-white/10 text-white text-[10px] font-black rounded-full uppercase tracking-widest">Scenario 4</span>
+                <h2 class="text-4xl font-black italic text-rose-400">Game: The Depreciation Challenge</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">This dataset shows a <strong>Negative Correlation</strong> (e.g., Car Age vs. Value). As X increases, Y decreases. Can you guess the negative slope?</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-10 items-center">
+                <div class="space-y-6">
+                    <div class="p-6 bg-white/5 border border-white/10 rounded-3xl space-y-4">
+                        <div>
+                            <label class="slider-label text-rose-300">Your Slope Guess ($m$)</label>
+                            <input type="number" id="guess2-m" step="0.05" value="-0.1" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-rose-500">
+                            <p class="text-[9px] text-slate-500 mt-1">Hint: Try negative values (e.g., -0.5)</p>
+                        </div>
+                        <div>
+                            <label class="slider-label text-rose-300">Your Intercept Guess ($b$)</label>
+                            <input type="number" id="guess2-b" step="1" value="50" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-rose-500">
+                            <p class="text-[9px] text-slate-500 mt-1">Hint: Try values between 80 and 110</p>
+                        </div>
+                        <button onclick="checkGuess('guess2')" class="w-full py-4 bg-rose-600 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:bg-rose-700 transition">Analyze Trend</button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white/5 border border-white/10 rounded-[3rem] p-8 relative">
+                    <svg viewBox="0 0 200 100" class="w-full h-auto" id="guess2-svg"></svg>
+                    <div id="guess2-score-card" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden p-8 bg-white text-slate-900 rounded-3xl shadow-2xl text-center space-y-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Fit Accuracy</p>
+                        <div class="text-4xl font-black" id="score2-val">0%</div>
+                        <p class="text-[10px] text-slate-500 italic" id="score2-msg"></p>
+                        <button onclick="document.getElementById('guess2-score-card').classList.add('hidden')" class="mt-4 text-xs font-bold text-rose-600 underline">Try Again</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Takeaway: .fit() -->
+        <section class="bg-indigo-600 p-10 md:p-20 rounded-[4rem] text-white shadow-2xl space-y-10">
+            <div class="max-w-3xl mx-auto space-y-6">
+                <h2 class="text-4xl font-black italic">The Automation: Why we use <span class="text-indigo-900">.fit()</span></h2>
+                <p class="text-xl leading-relaxed opacity-90">
+                    What you just did manually in these games is exactly what the computer does when you run <code>model.fit(X, y)</code>. 
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 pt-6">
+                    <div class="p-6 bg-white/10 rounded-3xl border border-white/20">
+                        <h4 class="font-bold text-indigo-900 uppercase text-xs mb-3">Manual Search</h4>
+                        <p class="text-sm">Human sliding bars and guessing numbers. It relies on visual estimation and trial-and-error.</p>
+                    </div>
+                    <div class="p-6 bg-white/10 rounded-3xl border border-white/20">
+                        <h4 class="font-bold text-emerald-300 uppercase text-xs mb-3">Scikit-Learn .fit()</h4>
+                        <p class="text-sm text-emerald-50">The computer uses <strong>Calculus</strong> to find the <u>mathematically perfect</u> $m$ and $b$ in milliseconds.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-[10px] py-10 uppercase tracking-widest font-bold border-t border-slate-200">
+            Linear Regression Series • Module 2/4 • Visual Intuition
+        </footer>
+    </div>
+
+    <script>
+        const points1 = [{x:30, y:70}, {x:70, y:40}, {x:110, y:50}, {x:150, y:20}];
+        const points2 = [{x:20, y:80}, {x:50, y:50}, {x:80, y:30}, {x:120, y:25}, {x:150, y:40}, {x:180, y:70}];
+        const guessPoints = [{x:40, y:80}, {x:80, y:60}, {x:120, y:40}, {x:160, y:20}];
+        const guess2Points = [{x:40, y:20}, {x:80, y:40}, {x:120, y:60}, {x:160, y:80}];
+
+        function updateScenario1() {
+            const m = parseFloat(document.getElementById('input-m').value);
+            const b = parseFloat(document.getElementById('input-b').value);
+            document.getElementById('val-m').innerText = m.toFixed(2);
+            document.getElementById('val-b').innerText = b;
+            const svg = document.getElementById('sc1-svg');
+            const line = document.getElementById('sc1-line');
+            line.setAttribute('y1', 100 - (m * 0 + b));
+            line.setAttribute('y2', 100 - (m * 200 + b));
+            let totalSqErr = 0;
+            const resLines = svg.querySelectorAll('.residual-line');
+            resLines.forEach(l => l.remove());
+            const dataDots = svg.querySelectorAll('.data-point');
+            dataDots.forEach(d => d.remove());
+            points1.forEach((p) => {
+                const mathY = 100 - p.y;
+                const predY = m * p.x + b;
+                const err = mathY - predY;
+                totalSqErr += err * err;
+                const res = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                res.setAttribute('x1', p.x); res.setAttribute('y1', p.y);
+                res.setAttribute('x2', p.x); res.setAttribute('y2', 100 - predY);
+                res.setAttribute('class', 'residual-line');
+                svg.appendChild(res);
+                const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', '3');
+                dot.setAttribute('class', 'data-point');
+                svg.appendChild(dot);
+            });
+            document.getElementById('mse-display').innerText = Math.floor(totalSqErr / points1.length).toLocaleString();
+        }
+
+        function updateScenario2() {
+            const order = parseInt(document.getElementById('order-input').value);
+            document.getElementById('order-val').innerText = order;
+            const svg = document.getElementById('sc2-svg');
+            svg.innerHTML = '';
+            const feedback = document.getElementById('order-feedback');
+            const msgs = [
+                "Order 1: A simple line. It's too rigid to follow the U-shape of the data (Underfitting).",
+                "Order 2: A Parabola. This is the 'Sweet Spot' for this specific dataset!",
+                "Order 3: Adding a wiggle. Still fits well, but starting to get unnecessary.",
+                "Order 4: The model is starting to chase individual dots rather than the trend.",
+                "Order 5: Extreme Overfitting! The model wiggles violently to touch every point."
+            ];
+            feedback.innerText = msgs[order-1];
+            points2.forEach(p => {
+                const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', '2.5');
+                dot.setAttribute('fill', '#9333ea'); svg.appendChild(dot);
+            });
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let d = "";
+            if(order === 1) d = "M 0 90 L 200 40";
+            if(order === 2) d = "M 0 100 Q 100 -20 200 100";
+            if(order === 3) d = "M 0 100 C 50 10, 150 10, 200 80";
+            if(order === 4) d = "M 0 90 Q 30 10, 80 40 T 150 20 T 200 70";
+            if(order === 5) d = "M 0 100 L 20 80 L 50 50 L 80 30 L 120 25 L 150 40 L 180 70 L 200 90";
+            path.setAttribute('d', d); path.setAttribute('stroke', '#a855f7');
+            path.setAttribute('stroke-width', '3'); path.setAttribute('fill', 'none');
+            svg.appendChild(path);
+        }
+
+        function initGuess() {
+            // Init Game 1
+            const svg1 = document.getElementById('guess-svg');
+            svg1.innerHTML = '';
+            guessPoints.forEach(p => {
+                const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', '3');
+                dot.setAttribute('fill', 'white'); svg1.appendChild(dot);
+            });
+            const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line1.setAttribute('id', 'guess-line'); line1.setAttribute('stroke', '#6366f1');
+            line1.setAttribute('stroke-width', '3'); svg1.appendChild(line1);
+
+            // Init Game 2
+            const svg2 = document.getElementById('guess2-svg');
+            svg2.innerHTML = '';
+            guess2Points.forEach(p => {
+                const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', '3');
+                dot.setAttribute('fill', 'white'); svg2.appendChild(dot);
+            });
+            const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line2.setAttribute('id', 'guess2-line'); line2.setAttribute('stroke', '#fb7185');
+            line2.setAttribute('stroke-width', '3'); svg2.appendChild(line2);
+        }
+
+        function checkGuess(id) {
+            const m = parseFloat(document.getElementById(id + '-m').value);
+            const b = parseFloat(document.getElementById(id + '-b').value);
+            const line = document.getElementById(id + '-line');
+            
+            line.setAttribute('x1', 0);
+            line.setAttribute('y1', 100 - (m * 0 + b));
+            line.setAttribute('x2', 200);
+            line.setAttribute('y2', 100 - (m * 200 + b));
+
+            let targetM, targetB;
+            if(id === 'guess') { targetM = 0.5; targetB = 0; }
+            else { targetM = -0.5; targetB = 100; }
+            
+            const mErr = Math.abs(m - targetM) * 100;
+            const bErr = Math.abs(b - targetB);
+            
+            let score = 100 - (mErr + bErr * 2);
+            score = Math.max(0, Math.floor(score));
+
+            const card = document.getElementById(id + '-score-card');
+            const scoreVal = document.getElementById(id === 'guess' ? 'score-val' : 'score2-val');
+            const scoreMsg = document.getElementById(id === 'guess' ? 'score-msg' : 'score2-msg');
+
+            card.classList.remove('hidden');
+            scoreVal.innerText = score + "%";
+            
+            if(score > 95) scoreMsg.innerText = "Mathematical Perfection! You found the fit.";
+            else if(score > 80) scoreMsg.innerText = "Great fit! Just a tiny adjustment needed.";
+            else if(score > 50) scoreMsg.innerText = "In the ballpark. Watch the " + (targetM < 0 ? "negative slope." : "positive slope.");
+            else scoreMsg.innerText = "Look at the direction of the points. Is m positive or negative?";
+        }
+
+        window.onload = () => {
+            updateScenario1();
+            updateScenario2();
+            initGuess();
+        };
+    </script>
+</body>
+</html>

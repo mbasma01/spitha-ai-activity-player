@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: The 10-Step Boston Housing Pipeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; scroll-behavior: smooth; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        .lab-step { display: none; animation: fadeIn 0.5s ease-out forwards; }
+        .lab-step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .progress-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #334155; transition: all 0.3s; }
+        .progress-dot.active { background-color: #6366f1; box-shadow: 0 0 10px #6366f1; }
+        .progress-dot.completed { background-color: #10b981; }
+        .check-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(51, 65, 85, 1); border-radius: 1.5rem; padding: 1.5rem; margin-top: 1.5rem; }
+        .opt-btn { width: 100%; text-align: left; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid #334155; margin-bottom: 0.5rem; font-size: 0.875rem; transition: all 0.2s; }
+        .opt-btn:hover { background: #1e293b; border-color: #6366f1; }
+        .opt-btn.correct { background: #065f46; border-color: #10b981; }
+        .opt-btn.wrong { background: #7f1d1d; border-color: #ef4444; }
+        .challenge-box { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid #4338ca; border-radius: 1.5rem; padding: 1.5rem; margin-top: 1rem; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-4xl mx-auto space-y-12">
+        
+        <!-- Header -->
+        <header class="text-center space-y-4 py-6 border-b border-slate-800">
+            <h1 class="text-5xl font-black text-white tracking-tight">The Boston Housing Lab</h1>
+            <p class="text-indigo-400 font-mono text-sm tracking-widest uppercase text-shadow-sm">10 Steps to Predicting Property Values</p>
+            
+            <!-- Progress Tracker -->
+            <div class="flex justify-center items-center gap-3 pt-6" id="progress-tracker"></div>
+        </header>
+
+        <!-- Lab Container -->
+        <div id="lab-container" class="min-h-[550px]">
+            
+            <!-- STEP 1 -->
+            <div id="step-1" class="lab-step active space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">01</span>
+                    <h2 class="text-2xl font-bold">Assemble the Toolbox</h2>
+                </div>
+                <p class="text-slate-400">First, we import our primary tools. For the Boston dataset, we need the standard Scikit-Learn regression suite.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-emerald-400 text-sm leading-relaxed">
+                    import pandas as pd<br>
+                    import matplotlib.pyplot as plt<br>
+                    from sklearn.model_selection import train_test_split<br>
+                    from sklearn.linear_model import LinearRegression<br>
+                    from sklearn.metrics import mean_squared_error
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Task Question: Which library will we use to actually load and look at the CSV table?</p>
+                    <button onclick="valCheck(this, 1, true)" class="opt-btn">Pandas</button>
+                    <button onclick="valCheck(this, 1, false)" class="opt-btn">Matplotlib</button>
+                    <button onclick="valCheck(this, 1, false)" class="opt-btn">LinearRegression</button>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div id="step-2" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">02</span>
+                    <h2 class="text-2xl font-bold">Loading the Boston Dataset</h2>
+                </div>
+                <p class="text-slate-400">We will pull the data directly from the GitHub repository using the raw CSV link.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-emerald-400 text-sm overflow-x-auto">
+                    url = 'https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv'<br>
+                    df = pd.read_csv(url)<br>
+                    df.head()
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Question: If you run `df.shape` and see (506, 14), what does that tell you?</p>
+                    <button onclick="valCheck(this, 2, false)" class="opt-btn">The dataset has 14 rows and 506 columns.</button>
+                    <button onclick="valCheck(this, 2, true)" class="opt-btn">The dataset has 506 rows (houses) and 14 columns (features).</button>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div id="step-3" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">03</span>
+                    <h2 class="text-2xl font-bold">Defining Features (rm) vs Target (medv)</h2>
+                </div>
+                <p class="text-slate-400">In the Boston dataset, <code>rm</code> is the average number of rooms and <code>medv</code> is the median value of the home.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-indigo-400 text-sm leading-relaxed">
+                    X = df[['rm']] <span class="text-slate-500"># Clue: Number of rooms</span><br>
+                    y = df['medv'] <span class="text-slate-500"># Answer: Home Price</span>
+                </div>
+
+                <div class="challenge-box border-l-4 border-l-amber-500">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-amber-400">🧪</span>
+                        <h4 class="font-black text-xs uppercase tracking-widest text-amber-200">Researcher Challenge: Try 'crim'</h4>
+                    </div>
+                    <p class="text-xs text-indigo-100 leading-relaxed">
+                        Later, try changing <code>X = df[['rm']]</code> to <code>X = df[['crim']]</code> (Per capita crime rate). Do you think crime rate is a better or worse predictor of price than the number of rooms?
+                    </p>
+                </div>
+
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Task Question: Is the target variable ($y$) always the thing we are trying to predict?</p>
+                    <button onclick="valCheck(this, 3, true)" class="opt-btn">Yes</button>
+                    <button onclick="valCheck(this, 3, false)" class="opt-btn">No</button>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div id="step-4" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">04</span>
+                    <h2 class="text-2xl font-bold">The Scatter Logic</h2>
+                </div>
+                <p class="text-slate-400">Let's see if more rooms actually mean higher prices in Boston.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-emerald-400 text-sm">
+                    plt.scatter(df['rm'], df['medv'])<br>
+                    plt.xlabel('Average Rooms')<br>
+                    plt.ylabel('Price (in $1000s)')<br>
+                    plt.show()
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Question: If the dots go UP and to the RIGHT, what kind of correlation is that?</p>
+                    <button onclick="valCheck(this, 4, true)" class="opt-btn">Positive Correlation (As rooms increase, price increases)</button>
+                    <button onclick="valCheck(this, 4, false)" class="opt-btn">Negative Correlation (As rooms increase, price decreases)</button>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div id="step-5" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">05</span>
+                    <h2 class="text-2xl font-bold">The Train-Test Partition</h2>
+                </div>
+                <p class="text-slate-400">We reserve 20% of the Boston houses to act as our "final exam" for the AI.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-indigo-400 text-sm leading-relaxed">
+                    X_train, X_test, y_train, y_test = train_test_split(<br>
+                    &nbsp;&nbsp;X, y, test_size=0.2, random_state=42<br>
+                    )
+                </div>
+
+                <div class="challenge-box border-l-4 border-l-indigo-400">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-indigo-300">⚖️</span>
+                        <h4 class="font-black text-xs uppercase tracking-widest text-indigo-200">Researcher Challenge: Shuffle Test</h4>
+                    </div>
+                    <p class="text-xs text-indigo-100">
+                        Try setting <code>random_state=None</code> and run your code three times. Watch your final accuracy score change every single time. Why is this bad for a science report?
+                    </p>
+                </div>
+
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Task Question: How many houses will be in the training set if we have 500 total and a test_size of 0.2?</p>
+                    <button onclick="valCheck(this, 5, false)" class="opt-btn">100 houses</button>
+                    <button onclick="valCheck(this, 5, true)" class="opt-btn">400 houses</button>
+                </div>
+            </div>
+
+            <!-- STEP 6 -->
+            <div id="step-6" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">06</span>
+                    <h2 class="text-2xl font-bold">Initializing the Model</h2>
+                </div>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-emerald-400 text-sm">
+                    model = LinearRegression()
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">True or False: The model has already found the best line of fit at this step.</p>
+                    <button onclick="valCheck(this, 6, false)" class="opt-btn">True</button>
+                    <button onclick="valCheck(this, 6, true)" class="opt-btn">False (It doesn't even know the data exists yet)</button>
+                </div>
+            </div>
+
+            <!-- STEP 7 -->
+            <div id="step-7" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">07</span>
+                    <h2 class="text-2xl font-bold">The Training Step (.fit)</h2>
+                </div>
+                <p class="text-slate-400">The model now studies the relationships between room counts and prices in the training set.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-indigo-400 text-sm">
+                    model.fit(X_train, y_train)
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Question: What is the model actually doing during `.fit()`?</p>
+                    <button onclick="valCheck(this, 7, false)" class="opt-btn">Generating a random guess.</button>
+                    <button onclick="valCheck(this, 7, true)" class="opt-btn">Finding the Slope (m) and Intercept (b) that minimizes error.</button>
+                </div>
+            </div>
+
+            <!-- STEP 8 -->
+            <div id="step-8" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">08</span>
+                    <h2 class="text-2xl font-bold">Predicting Unseen Houses</h2>
+                </div>
+                <p class="text-slate-400">Now we give the AI the "test rooms" (X_test) and ask it to guess the prices.</p>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-emerald-400 text-sm">
+                    predictions = model.predict(X_test)
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">Question: Do we provide the actual prices (y_test) to the `.predict()` function?</p>
+                    <button onclick="valCheck(this, 8, false)" class="opt-btn">Yes, it needs them to check its own work.</button>
+                    <button onclick="valCheck(this, 8, true)" class="opt-btn">No, that would be cheating. It must guess based only on features.</button>
+                </div>
+            </div>
+
+            <!-- STEP 9 -->
+            <div id="step-9" class="lab-step space-y-6">
+                <div class="flex items-center gap-4">
+                    <span class="bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">09</span>
+                    <h2 class="text-2xl font-bold">The Quality Audit (MSE)</h2>
+                </div>
+                <div class="bg-black/50 p-6 rounded-2xl border border-slate-700 code-font text-indigo-400 text-sm leading-relaxed">
+                    mse = mean_squared_error(y_test, predictions)<br>
+                    print(f"Boston Model Error: {mse}")
+                </div>
+                <div class="check-card">
+                    <p class="font-bold text-indigo-300 mb-4">True or False: If the MSE is very high, it means our room count is a poor predictor of house price.</p>
+                    <button onclick="valCheck(this, 9, true)" class="opt-btn">True</button>
+                    <button onclick="valCheck(this, 9, false)" class="opt-btn">False</button>
+                </div>
+            </div>
+
+            <!-- STEP 10 -->
+            <div id="step-10" class="lab-step space-y-10">
+                <div class="flex items-center gap-4">
+                    <span class="bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">10</span>
+                    <h2 class="text-2xl font-bold">The Final Verdict</h2>
+                </div>
+                <div class="bg-white/5 p-8 rounded-[3rem] border border-white/10 text-center space-y-4 shadow-2xl">
+                    <h4 class="text-3xl font-black text-emerald-400 italic">🎓 Boston Pipeline Complete!</h4>
+                    <p class="text-sm opacity-60">You have analyzed one of the world's most famous datasets. One last check:</p>
+                    <div class="flex flex-col gap-2 max-w-xs mx-auto text-left">
+                        <p class="text-xs font-bold text-indigo-300 mb-2 text-center">If the model works for Boston but fails for houses in London, what is it?</p>
+                        <button onclick="valCheck(this, 10, true)" class="opt-btn text-center">Overfitted to Boston specifics</button>
+                        <button onclick="valCheck(this, 10, false)" class="opt-btn text-center">Underfitted</button>
+                    </div>
+                    <div id="final-success" class="hidden pt-8 border-t border-white/10 mt-6">
+                        <p class="text-emerald-400 font-bold mb-4">EXCELLENT WORK!</p>
+                        <p class="text-xs text-slate-400 mb-6 leading-relaxed italic">
+                            "You are now ready to tackle real-world data science problems."
+                        </p>
+                        <button onclick="location.reload()" class="px-8 py-3 bg-indigo-600 rounded-full font-bold text-white hover:bg-indigo-700 transition">Restart Pipeline</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Controls -->
+        <footer class="flex justify-between items-center pt-10 border-t border-slate-800">
+            <button id="prev-btn" onclick="changeStep(-1)" class="px-6 py-2 bg-slate-800 rounded-xl text-slate-400 hover:text-white disabled:opacity-30" disabled>Previous</button>
+            <div class="text-[10px] uppercase font-black tracking-widest text-slate-500" id="step-indicator">Task 1 of 10</div>
+            <button id="next-btn" onclick="changeStep(1)" class="px-8 py-3 bg-indigo-600 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/20 disabled:opacity-20" disabled>Answer to Unlock →</button>
+        </footer>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 10;
+        let stepCompleted = new Array(totalSteps + 1).fill(false);
+
+        function initProgress() {
+            const tracker = document.getElementById('progress-tracker');
+            tracker.innerHTML = '';
+            for(let i=1; i<=totalSteps; i++) {
+                const dot = document.createElement('div');
+                dot.id = `dot-${i}`;
+                dot.className = `progress-dot ${i === 1 ? 'active' : ''}`;
+                tracker.appendChild(dot);
+            }
+        }
+
+        function valCheck(btn, step, isCorrect) {
+            const container = btn.parentElement;
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(b => b.classList.remove('correct', 'wrong'));
+            
+            if(isCorrect) {
+                btn.classList.add('correct');
+                stepCompleted[step] = true;
+                document.getElementById(`dot-${step}`).classList.add('completed');
+                document.getElementById('next-btn').disabled = false;
+                document.getElementById('next-btn').innerText = "Next Task →";
+                if(step === 10) document.getElementById('final-success').classList.remove('hidden');
+            } else {
+                btn.classList.add('wrong');
+                document.getElementById('next-btn').disabled = true;
+                document.getElementById('next-btn').innerText = "Try Again...";
+            }
+        }
+
+        function changeStep(dir) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`dot-${currentStep}`).classList.remove('active');
+            currentStep += dir;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            document.getElementById(`dot-${currentStep}`).classList.add('active');
+            document.getElementById('prev-btn').disabled = currentStep === 1;
+            document.getElementById('next-btn').style.display = currentStep === totalSteps ? 'none' : 'block';
+            document.getElementById('next-btn').disabled = !stepCompleted[currentStep];
+            if (!stepCompleted[currentStep]) document.getElementById('next-btn').innerText = "Answer to Unlock →";
+            else document.getElementById('next-btn').innerText = "Next Task →";
+            document.getElementById('step-indicator').innerText = `Task ${currentStep} of ${totalSteps}`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = initProgress;
+    </script>
+</body>
+</html>
